@@ -1,0 +1,22 @@
+{
+  "name": "@second-brain/api",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "express": "^5",
+    "@second-brain/shared": "workspace:*",
+    "@second-brain/db": "workspace:*",
+    "@second-brain/ai": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/express": "^5",
+    "tsx": "^4",
+    "typescript": "^5"
+  }
+}

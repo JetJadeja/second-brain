@@ -1,5 +1,6 @@
 import { Check } from 'lucide-react'
 import type { InboxItem } from '../../lib/types'
+import { Card } from '../ui/Card'
 import { SourceIcon } from '../ui/SourceIcon'
 import { Chip } from '../ui/Chip'
 import { Button } from '../ui/Button'
@@ -12,7 +13,7 @@ interface InboxCardProps {
 
 export function InboxCard({ item, onConfirm, onChange }: InboxCardProps) {
   return (
-    <div className="flex-shrink-0 w-72 p-4 bg-surface border border-border rounded">
+    <Card className="flex-shrink-0 w-72 p-4">
       <div className="flex items-center gap-2 mb-2">
         <SourceIcon source={item.sourceType} />
         <span className="text-sm font-medium text-text-primary truncate">{item.title}</span>
@@ -28,6 +29,6 @@ export function InboxCard({ item, onConfirm, onChange }: InboxCardProps) {
           Change
         </Button>
       </div>
-    </div>
+    </Card>
   )
 }

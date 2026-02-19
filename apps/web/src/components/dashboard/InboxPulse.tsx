@@ -1,4 +1,5 @@
 import { inboxItems } from '../../lib/mock-data'
+import { SectionHeader } from '../ui/SectionHeader'
 import { InboxCard } from './InboxCard'
 
 export function InboxPulse() {
@@ -16,12 +17,11 @@ export function InboxPulse() {
 
   return (
     <section>
-      <div className="flex items-baseline justify-between mb-4">
-        <h2 className="text-lg font-semibold text-text-primary">
-          Inbox Pulse <span className="text-sm font-normal text-text-tertiary">({items.length})</span>
-        </h2>
-        <button type="button" className="text-sm text-text-tertiary hover:underline">View all</button>
-      </div>
+      <SectionHeader
+        title="Inbox Pulse"
+        count={items.length}
+        action={<button type="button" className="text-sm text-text-tertiary hover:underline">View all</button>}
+      />
       <div className="flex gap-4 overflow-x-auto pb-2">
         {items.map((item) => (
           <InboxCard key={item.id} item={item} onConfirm={handleConfirm} onChange={handleChange} />

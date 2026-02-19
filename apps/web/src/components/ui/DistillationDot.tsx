@@ -1,4 +1,5 @@
 import type { DistillationStatus } from '../../lib/types'
+import { StatusDot } from './StatusDot'
 
 const statusConfig: Record<DistillationStatus, { color: string; label: string }> = {
   raw: { color: 'bg-red-400', label: 'Raw' },
@@ -15,11 +16,5 @@ interface DistillationDotProps {
 
 export function DistillationDot({ status, showLabel = true, className = '' }: DistillationDotProps) {
   const { color, label } = statusConfig[status]
-
-  return (
-    <span className={`inline-flex items-center gap-1.5 ${className}`}>
-      <span className={`w-2 h-2 rounded-full ${color}`} />
-      {showLabel && <span className="text-xs text-text-tertiary">{label}</span>}
-    </span>
-  )
+  return <StatusDot color={color} label={showLabel ? label : undefined} className={className} />
 }

@@ -1,4 +1,6 @@
 import type { ParaBucket } from '../../lib/types'
+import { Card } from '../ui/Card'
+import { StatusDot } from '../ui/StatusDot'
 
 const MS_PER_DAY = 1000 * 60 * 60 * 24
 const GROWING_THRESHOLD_DAYS = 14
@@ -19,15 +21,15 @@ export function AreaCard({ bucket }: AreaCardProps) {
   const health = getHealthIndicator(bucket.lastCaptureDate)
 
   return (
-    <div className="p-4 bg-surface border border-border rounded hover:bg-hover cursor-pointer">
+    <Card interactive className="p-4">
       <div className="flex items-center justify-between mb-2">
         <span className="text-sm font-medium text-text-primary">{bucket.name}</span>
-        <span className={`w-2 h-2 rounded-full ${health.color}`} title={health.label} />
+        <StatusDot color={health.color} label={health.label} />
       </div>
       <div className="flex items-center gap-3">
         <span className="text-xs text-text-tertiary">{bucket.noteCount} notes</span>
         <span className="text-xs text-text-tertiary">Last: {bucket.lastCaptureDate}</span>
       </div>
-    </div>
+    </Card>
   )
 }

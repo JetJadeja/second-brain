@@ -1,3 +1,4 @@
+import { SectionHeader } from '../components/ui/SectionHeader'
 import { InboxPulse } from '../components/dashboard/InboxPulse'
 import { NoteGrid } from '../components/dashboard/NoteGrid'
 import { AreaCard } from '../components/dashboard/AreaCard'
@@ -12,12 +13,12 @@ export default function Home() {
       <InboxPulse />
 
       <section>
-        <h2 className="text-lg font-semibold text-text-primary mb-4">Recent & Relevant</h2>
+        <SectionHeader title="Recent & Relevant" />
         <NoteGrid notes={recentNotes} />
       </section>
 
       <section>
-        <h2 className="text-lg font-semibold text-text-primary mb-4">Active Projects</h2>
+        <SectionHeader title="Active Projects" />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {projects.map((b) => (
             <AreaCard key={b.id} bucket={b} />
@@ -26,7 +27,7 @@ export default function Home() {
       </section>
 
       <section>
-        <h2 className="text-lg font-semibold text-text-primary mb-4">Areas at a Glance</h2>
+        <SectionHeader title="Areas at a Glance" />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {areas.map((b) => (
             <AreaCard key={b.id} bucket={b} />

@@ -1,4 +1,5 @@
 import type { Note, ParaType } from '../../lib/types'
+import { Card } from '../ui/Card'
 import { SourceIcon } from '../ui/SourceIcon'
 import { DistillationDot } from '../ui/DistillationDot'
 import { Chip } from '../ui/Chip'
@@ -16,7 +17,7 @@ interface NoteCardProps {
 
 export function NoteCard({ note }: NoteCardProps) {
   return (
-    <div className="p-4 bg-surface border border-border rounded hover:bg-hover cursor-pointer">
+    <Card interactive className="p-4">
       <div className="flex items-center gap-2 mb-2">
         <SourceIcon source={note.sourceType} />
         <span className="text-sm font-medium text-text-primary truncate">{note.title}</span>
@@ -30,6 +31,6 @@ export function NoteCard({ note }: NoteCardProps) {
           <span className="text-xs text-text-tertiary">{note.connectionCount} links</span>
         )}
       </div>
-    </div>
+    </Card>
   )
 }

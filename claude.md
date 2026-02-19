@@ -4,7 +4,7 @@ AI-powered personal knowledge management system. Capture via Telegram bot, retri
 
 ## Architecture
 
-Turborepo monorepo, all TypeScript, Bun runtime and package manager.
+Turborepo monorepo, all TypeScript, Bun runtime and package manager. Turborepo is the task runner — `bun dev` starts all three apps in parallel, `bun run build` builds packages first (apps depend on them) then apps, and caches everything so unchanged workspaces aren't rebuilt. Packages don't run or deploy on their own — they get bundled into whichever app imports them at build time.
 
 ```
 apps/

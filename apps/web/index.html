@@ -4,7 +4,19 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React + TS</title>
+    <title>Second Brain</title>
+    <script>
+      ;(function () {
+        try {
+          var p = location.pathname
+          if (p === '/' || p === '/login') return
+          var raw = localStorage.getItem('theme-preference')
+          var pref = raw ? JSON.parse(raw).state.preference : 'system'
+          var dark = pref === 'dark' || (pref === 'system' && matchMedia('(prefers-color-scheme: dark)').matches)
+          if (dark) document.documentElement.classList.add('dark')
+        } catch (e) {}
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>

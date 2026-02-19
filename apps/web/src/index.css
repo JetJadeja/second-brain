@@ -1,1 +1,48 @@
 @import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* Light mode (default) */
+  --color-surface: #FFFFFF;
+  --color-surface-alt: #F9FAFB;
+  --color-text-primary: #1F2937;
+  --color-text-secondary: #4B5563;
+  --color-text-tertiary: #6B7280;
+  --color-border: #E5E7EB;
+  --color-hover: #F9FAFB;
+  --color-active: #F3F4F6;
+  --color-badge-accent: #EF4444;
+  --color-btn-primary: #000000;
+  --color-btn-primary-hover: #1F2937;
+  --color-btn-secondary: #E5E7EB;
+  --color-btn-secondary-hover: #D1D5DB;
+  --color-btn-secondary-text: #1F2937;
+  --color-btn-cta: #1F2937;
+  --color-btn-cta-hover: #374151;
+  --color-input-border: #D1D5DB;
+  --color-input-text: #374151;
+  --color-ring: #6B7280;
+}
+
+.dark {
+  --color-surface: #111827;
+  --color-surface-alt: #1F2937;
+  --color-text-primary: #F3F4F6;
+  --color-text-secondary: #9CA3AF;
+  --color-text-tertiary: #6B7280;
+  --color-border: #374151;
+  --color-hover: #1F2937;
+  --color-active: #374151;
+  --color-badge-accent: #F87171;
+  --color-btn-primary: #F3F4F6;
+  --color-btn-primary-hover: #D1D5DB;
+  --color-btn-secondary: #374151;
+  --color-btn-secondary-hover: #4B5563;
+  --color-btn-secondary-text: #F3F4F6;
+  --color-btn-cta: #F3F4F6;
+  --color-btn-cta-hover: #D1D5DB;
+  --color-input-border: #4B5563;
+  --color-input-text: #F3F4F6;
+  --color-ring: #6B7280;
+}

@@ -9,12 +9,15 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "grammy": "^1",
-    "@second-brain/shared": "workspace:*",
+    "@mozilla/readability": "^0.6.0",
+    "@second-brain/ai": "workspace:*",
     "@second-brain/db": "workspace:*",
-    "@second-brain/ai": "workspace:*"
+    "@second-brain/shared": "workspace:*",
+    "grammy": "^1",
+    "jsdom": "^28.1.0"
   },
   "devDependencies": {
+    "@types/jsdom": "^27.0.0",
     "tsx": "^4",
     "typescript": "^5"
   }

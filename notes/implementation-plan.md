@@ -56,7 +56,7 @@
 - [x] D.3 — Type migration (replace local types with shared, field name mapping)
 - [x] D.4 — Delete mock data
 - [x] D.5 — Update SourceIcon for all 11 content types
-- [] D.6 — Dashboard data wiring (InboxPulse, NoteGrid, AreaCard with real data)
+- [x] D.6 — Dashboard data wiring (InboxPulse, NoteGrid, AreaCard with real data)
 - [] D.7 — Left rail PARA tree (real data, inbox count badge, bucket navigation)
 - [] D.8 — New routes (`/inbox`, `/para/:bucketId`, `/notes/:noteId`, `/settings`)
 - [] D.9 — ParaPicker component (searchable bucket tree dropdown)

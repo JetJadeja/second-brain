@@ -58,7 +58,7 @@
 - [x] D.5 — Update SourceIcon for all 11 content types
 - [x] D.6 — Dashboard data wiring (InboxPulse, NoteGrid, AreaCard with real data)
 - [x] D.7 — Left rail PARA tree (real data, inbox count badge, bucket navigation)
-- [] D.8 — New routes (`/inbox`, `/para/:bucketId`, `/notes/:noteId`, `/settings`)
+- [x] D.8 — New routes (`/inbox`, `/para/:bucketId`, `/notes/:noteId`, `/settings`)
 - [] D.9 — ParaPicker component (searchable bucket tree dropdown)
 - [] D.10 — Inbox view (queue mode + list mode with batch actions)
 - [] D.11 — PARA Bucket view (notes grid with sort/filter/date range)

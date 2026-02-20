@@ -73,7 +73,7 @@
 - [x] E.1 — Tweet/thread extractor (research scraping approach)
 - [x] E.2 — Instagram reel extractor (yt-dlp + optional Vision description)
 - [x] E.3 — YouTube extractor (yt-dlp, transcript as content)
-- [ ] E.4 — PDF extractor (pdf-parse, store in Storage)
+- [x] E.4 — PDF extractor (pdf-parse, store in Storage)
 - [ ] E.5 — Voice memo transcription (Whisper API)
 - [ ] E.6 — Image description (Claude Vision API)
 - [ ] E.7 — Remaining bot commands (`/inbox`, `/search`, `/new project|area`)

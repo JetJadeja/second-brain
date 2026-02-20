@@ -6,6 +6,7 @@ import { extractArticle } from '../extractors/extract-article.js'
 import { extractThought } from '../extractors/extract-thought.js'
 import { extractTweet } from '../extractors/extract-tweet.js'
 import { extractReel } from '../extractors/extract-reel.js'
+import { extractYoutube } from '../extractors/extract-youtube.js'
 import { processNote } from '../processors/process-note.js'
 import { formatReceipt } from '../formatters/format-receipt.js'
 import { getBucketPath } from './resolve-bucket-path.js'
@@ -39,6 +40,10 @@ export async function handleMessage(ctx: BotContext): Promise<void> {
     extractionWarning = result.warning
   } else if (detected.sourceType === 'reel' && detected.url) {
     const result = await extractReel(detected.url)
+    extracted = result.content
+    extractionWarning = result.warning
+  } else if (detected.sourceType === 'youtube' && detected.url) {
+    const result = await extractYoutube(detected.url)
     extracted = result.content
     extractionWarning = result.warning
   } else if (detected.sourceType === 'thought') {

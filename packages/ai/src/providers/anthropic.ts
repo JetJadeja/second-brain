@@ -55,6 +55,55 @@ export async function callClaude(params: CallClaudeParams): Promise<string> {
   }
 }
 
+interface CallClaudeVisionParams {
+  imageData: string // base64-encoded image
+  mediaType: 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp'
+  prompt: string
+  system?: string
+  model?: string
+  maxTokens?: number
+}
+
+export async function callClaudeVision(params: CallClaudeVisionParams): Promise<string> {
+  const { imageData, mediaType, prompt, system, model = DEFAULT_MODEL, maxTokens = 1024 } = params
+  const anthropic = getClient()
+
+  const request: Anthropic.MessageCreateParams = {
+    model,
+    max_tokens: maxTokens,
+    messages: [
+      {
+        role: 'user',
+        content: [
+          { type: 'image', source: { type: 'base64', media_type: mediaType, data: imageData } },
+          { type: 'text', text: prompt },
+        ],
+      },
+    ],
+    ...(system ? { system } : {}),
+  }
+
+  try {
+    const response = await anthropic.messages.create(request)
+    const block = response.content[0]
+    if (!block || block.type !== 'text') {
+      throw new Error('Claude Vision returned no text content')
+    }
+    return block.text
+  } catch (error: unknown) {
+    if (isRetryable(error)) {
+      await sleep(1000)
+      const response = await anthropic.messages.create(request)
+      const block = response.content[0]
+      if (!block || block.type !== 'text') {
+        throw new Error('Claude Vision returned no text content after retry')
+      }
+      return block.text
+    }
+    throw error
+  }
+}
+
 function isRetryable(error: unknown): boolean {
   if (error instanceof Anthropic.APIError) {
     return error.status === 429 || error.status === 529

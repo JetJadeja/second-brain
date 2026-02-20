@@ -9,6 +9,7 @@ import { extractReel } from '../extractors/extract-reel.js'
 import { extractYoutube } from '../extractors/extract-youtube.js'
 import { extractPdf } from '../extractors/extract-pdf.js'
 import { extractVoice } from '../extractors/extract-voice.js'
+import { extractImage } from '../extractors/extract-image.js'
 import { downloadTelegramFile } from '../extractors/download-telegram-file.js'
 import { uploadToStorage } from '../extractors/upload-to-storage.js'
 import { randomUUID } from 'node:crypto'
@@ -65,6 +66,15 @@ export async function handleMessage(ctx: BotContext): Promise<void> {
     const storagePath = await uploadToStorage(userId, noteId, 'voice.ogg', buffer, 'audio/ogg')
     const duration = ctx.message?.voice?.duration
     const result = await extractVoice(buffer, storagePath, duration)
+    extracted = result.content
+    extractionWarning = result.warning
+  } else if (detected.sourceType === 'image' && detected.attachment) {
+    const { buffer } = await downloadTelegramFile(ctx, detected.attachment.fileId)
+    const noteId = randomUUID()
+    const fileName = 'image.jpg'
+    const mimeType = detected.attachment.mimeType ?? 'image/jpeg'
+    const storagePath = await uploadToStorage(userId, noteId, fileName, buffer, mimeType)
+    const result = await extractImage(buffer, storagePath, mimeType)
     extracted = result.content
     extractionWarning = result.warning
   } else if (detected.sourceType === 'thought') {

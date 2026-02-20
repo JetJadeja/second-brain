@@ -1,4 +1,4 @@
-export { callClaude } from './providers/anthropic.js'
+export { callClaude, callClaudeVision } from './providers/anthropic.js'
 export { getOpenAIClient } from './providers/openai.js'
 export { buildSummarizePrompt } from './prompts/summarize.js'
 export { buildClassifyPrompt } from './prompts/classify.js'

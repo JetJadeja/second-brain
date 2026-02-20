@@ -1,4 +1,4 @@
-import type { DistillationStatus } from '../../lib/types'
+import type { DistillationStatus } from '@second-brain/shared'
 import { StatusDot } from './StatusDot'
 
 const statusConfig: Record<DistillationStatus, { color: string; label: string }> = {

@@ -1,34 +1,31 @@
-import type { Note, ParaType } from '../../lib/types'
+import type { DashboardNote } from '../../lib/types'
 import { Card } from '../ui/Card'
 import { SourceIcon } from '../ui/SourceIcon'
 import { DistillationDot } from '../ui/DistillationDot'
 import { Chip } from '../ui/Chip'
 
-const BUCKET_LABELS: Record<ParaType, string> = {
-  project: 'Projects',
-  area: 'Areas',
-  resource: 'Resources',
-  archive: 'Archive',
+interface NoteCardProps {
+  note: DashboardNote
 }
 
-interface NoteCardProps {
-  note: Note
+function getExcerpt(note: DashboardNote): string {
+  return note.distillation || note.ai_summary || ''
 }
 
 export function NoteCard({ note }: NoteCardProps) {
   return (
     <Card interactive className="p-4">
       <div className="flex items-center gap-2 mb-2">
-        <SourceIcon source={note.sourceType} />
+        <SourceIcon source={note.source_type} />
         <span className="text-sm font-medium text-text-primary truncate">{note.title}</span>
       </div>
-      <p className="text-xs text-text-tertiary mb-3 line-clamp-2">{note.excerpt}</p>
+      <p className="text-xs text-text-tertiary mb-3 line-clamp-2">{getExcerpt(note)}</p>
       <div className="flex items-center gap-3 flex-wrap">
-        <DistillationDot status={note.distillationStatus} />
-        <Chip label={`${BUCKET_LABELS[note.bucketType]}/${note.bucketName}`} />
-        <span className="text-xs text-text-tertiary">{note.capturedAt}</span>
-        {note.connectionCount > 0 && (
-          <span className="text-xs text-text-tertiary">{note.connectionCount} links</span>
+        <DistillationDot status={note.distillation_status} />
+        {note.bucket_path && <Chip label={note.bucket_path} />}
+        <span className="text-xs text-text-tertiary">{note.captured_at}</span>
+        {note.connection_count > 0 && (
+          <span className="text-xs text-text-tertiary">{note.connection_count} links</span>
         )}
       </div>
     </Card>

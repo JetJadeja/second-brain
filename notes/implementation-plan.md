@@ -52,7 +52,7 @@
 ### Phase D: Frontend Integration
 
 - [x] D.1 — Package dependency wiring (`@second-brain/shared` in web)
-- [] D.2 — API client (JWT auto-attach, TanStack Query)
+- [x] D.2 — API client (JWT auto-attach, TanStack Query)
 - [] D.3 — Type migration (replace local types with shared, field name mapping)
 - [] D.4 — Delete mock data
 - [] D.5 — Update SourceIcon for all 11 content types

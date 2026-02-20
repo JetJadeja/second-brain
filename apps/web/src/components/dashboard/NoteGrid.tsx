@@ -1,8 +1,8 @@
-import type { Note } from '../../lib/types'
+import type { DashboardNote } from '../../lib/types'
 import { NoteCard } from './NoteCard'
 
 interface NoteGridProps {
-  notes: Note[]
+  notes: DashboardNote[]
 }
 
 export function NoteGrid({ notes }: NoteGridProps) {

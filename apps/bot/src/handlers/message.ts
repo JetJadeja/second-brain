@@ -7,6 +7,10 @@ import { extractThought } from '../extractors/extract-thought.js'
 import { extractTweet } from '../extractors/extract-tweet.js'
 import { extractReel } from '../extractors/extract-reel.js'
 import { extractYoutube } from '../extractors/extract-youtube.js'
+import { extractPdf } from '../extractors/extract-pdf.js'
+import { downloadTelegramFile } from '../extractors/download-telegram-file.js'
+import { uploadToStorage } from '../extractors/upload-to-storage.js'
+import { randomUUID } from 'node:crypto'
 import { processNote } from '../processors/process-note.js'
 import { formatReceipt } from '../formatters/format-receipt.js'
 import { getBucketPath } from './resolve-bucket-path.js'
@@ -46,10 +50,18 @@ export async function handleMessage(ctx: BotContext): Promise<void> {
     const result = await extractYoutube(detected.url)
     extracted = result.content
     extractionWarning = result.warning
+  } else if (detected.sourceType === 'pdf' && detected.attachment) {
+    const { buffer } = await downloadTelegramFile(ctx, detected.attachment.fileId)
+    const fileName = detected.attachment.fileName ?? 'document.pdf'
+    const noteId = randomUUID()
+    const storagePath = await uploadToStorage(userId, noteId, fileName, buffer, 'application/pdf')
+    const result = await extractPdf(buffer, fileName, storagePath)
+    extracted = result.content
+    extractionWarning = result.warning
   } else if (detected.sourceType === 'thought') {
     extracted = extractThought(text)
   } else {
-    // Phase E content types — save URL/text as-is for now
+    // Remaining content types — save URL/text as-is for now
     extracted = extractThought(detected.url ?? text)
     extracted.sourceType = detected.sourceType
     if (detected.url) {

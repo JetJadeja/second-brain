@@ -1,11 +1,15 @@
-import { inboxItems } from '../../lib/mock-data'
+import type { DashboardInboxItem } from '../../lib/types'
 import { SectionHeader } from '../ui/SectionHeader'
 import { InboxCard } from './InboxCard'
 
-export function InboxPulse() {
-  const items = inboxItems.slice(0, 5)
+interface InboxPulseProps {
+  items: DashboardInboxItem[]
+}
 
-  if (items.length === 0) return null
+export function InboxPulse({ items }: InboxPulseProps) {
+  const visible = items.slice(0, 5)
+
+  if (visible.length === 0) return null
 
   const handleConfirm = (id: string) => {
     console.log('Confirm inbox item:', id)
@@ -23,7 +27,7 @@ export function InboxPulse() {
         action={<button type="button" className="text-sm text-text-tertiary hover:underline">View all</button>}
       />
       <div className="flex gap-4 overflow-x-auto pb-2">
-        {items.map((item) => (
+        {visible.map((item) => (
           <InboxCard key={item.id} item={item} onConfirm={handleConfirm} onChange={handleChange} />
         ))}
       </div>

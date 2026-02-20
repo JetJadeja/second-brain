@@ -59,7 +59,7 @@ notesRouter.get('/:noteId', async (req, res) => {
 
     const otherPath = await getBucketPath(userId, otherNote.bucket_id)
 
-    if (conn.target_id === noteId && conn.source_id !== noteId) {
+    if (conn.target_id === noteId) {
       backlinks.push({
         id: otherNote.id,
         title: otherNote.title,
@@ -144,7 +144,7 @@ notesRouter.patch('/:noteId', async (req, res) => {
     updateFields['is_classified'] = true
   }
 
-  const updated = await updateNote(userId, noteId, updateFields as any)
+  const updated = await updateNote(userId, noteId, updateFields)
   res.json(updated)
 })
 

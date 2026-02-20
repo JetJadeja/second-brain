@@ -35,5 +35,7 @@ export function requireAuth(
 
     req.userId = data.user.id
     next()
+  }).catch(() => {
+    res.status(500).json({ error: 'Authentication service unavailable' })
   })
 }

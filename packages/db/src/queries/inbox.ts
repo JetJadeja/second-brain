@@ -51,9 +51,21 @@ export async function batchClassify(
   items: Array<{ note_id: string; bucket_id: string }>,
 ): Promise<number> {
   const sb = getServiceClient()
-  let count = 0
 
+  // Validate all notes belong to user before updating
+  const noteIds = items.map((i) => i.note_id)
+  const { data: notes, error: fetchError } = await sb
+    .from('notes')
+    .select('id')
+    .eq('user_id', userId)
+    .in('id', noteIds)
+
+  if (fetchError) throw new Error(`batchClassify fetch: ${fetchError.message}`)
+  const ownedIds = new Set((notes ?? []).map((n) => n.id))
+
+  let count = 0
   for (const item of items) {
+    if (!ownedIds.has(item.note_id)) continue
     const { error } = await sb
       .from('notes')
       .update({ bucket_id: item.bucket_id, is_classified: true })

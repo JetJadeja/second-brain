@@ -33,13 +33,19 @@ inboxRouter.get('/', async (req, res) => {
     notes.map(async (n) => {
       let relatedNotes: InboxItem['related_notes'] = []
       if (n.embedding) {
-        // embedding exists as a string from DB, need to parse
         try {
-          const emb = typeof n.embedding === 'string'
-            ? JSON.parse(n.embedding as unknown as string)
-            : n.embedding
-          relatedNotes = (await findSimilarNotes(userId, emb, n.id, 3))
-            .filter((r) => r.similarity > 0.3)
+          let emb: number[]
+          if (typeof n.embedding === 'string') {
+            emb = JSON.parse(n.embedding) as number[]
+          } else if (Array.isArray(n.embedding)) {
+            emb = n.embedding as number[]
+          } else {
+            emb = []
+          }
+          if (emb.length > 0) {
+            relatedNotes = (await findSimilarNotes(userId, emb, n.id, 3))
+              .filter((r) => r.similarity > 0.3)
+          }
         } catch { /* skip related if parsing fails */ }
       }
 

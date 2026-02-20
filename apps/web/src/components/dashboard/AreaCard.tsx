@@ -1,24 +1,19 @@
-import type { ParaBucket } from '../../lib/types'
+import type { DashboardArea } from '../../lib/types'
 import { Card } from '../ui/Card'
 import { StatusDot } from '../ui/StatusDot'
 
-const MS_PER_DAY = 1000 * 60 * 60 * 24
-const GROWING_THRESHOLD_DAYS = 14
-const STABLE_THRESHOLD_DAYS = 28
-
-function getHealthIndicator(lastCapture: string): { label: string; color: string } {
-  const daysSince = Math.floor((Date.now() - new Date(lastCapture).getTime()) / MS_PER_DAY)
-  if (daysSince <= GROWING_THRESHOLD_DAYS) return { label: 'Growing', color: 'bg-green-400' }
-  if (daysSince <= STABLE_THRESHOLD_DAYS) return { label: 'Stable', color: 'bg-yellow-400' }
-  return { label: 'Stagnant', color: 'bg-red-400' }
+const HEALTH_CONFIG: Record<DashboardArea['health'], { label: string; color: string }> = {
+  growing: { label: 'Growing', color: 'bg-green-400' },
+  stable: { label: 'Stable', color: 'bg-yellow-400' },
+  stagnant: { label: 'Stagnant', color: 'bg-red-400' },
 }
 
 interface AreaCardProps {
-  bucket: ParaBucket
+  bucket: DashboardArea
 }
 
 export function AreaCard({ bucket }: AreaCardProps) {
-  const health = getHealthIndicator(bucket.lastCaptureDate)
+  const health = HEALTH_CONFIG[bucket.health]
 
   return (
     <Card interactive className="p-4">
@@ -27,8 +22,10 @@ export function AreaCard({ bucket }: AreaCardProps) {
         <StatusDot color={health.color} label={health.label} />
       </div>
       <div className="flex items-center gap-3">
-        <span className="text-xs text-text-tertiary">{bucket.noteCount} notes</span>
-        <span className="text-xs text-text-tertiary">Last: {bucket.lastCaptureDate}</span>
+        <span className="text-xs text-text-tertiary">{bucket.note_count} notes</span>
+        {bucket.last_capture_at && (
+          <span className="text-xs text-text-tertiary">Last: {bucket.last_capture_at}</span>
+        )}
       </div>
     </Card>
   )

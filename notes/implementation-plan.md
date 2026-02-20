@@ -65,8 +65,8 @@
 - [x] D.12 — Note Detail view (content display by status, context panel, connections/backlinks)
 - [x] D.13 — Settings page (Telegram linking flow with code + polling)
 - [x] D.14 — Supabase Realtime (live inbox count updates)
-- [ ] D.15 — UI polish (breadcrumbs, toasts with undo, Cmd+K hint)
-- [ ] **Test Phase D** — full user flow: sign up → connect Telegram → capture → classify → browse → view note
+- [x] D.15 — UI polish (breadcrumbs, toasts with undo, Cmd+K hint)
+- [x] **Test Phase D** — full user flow: sign up → connect Telegram → capture → classify → browse → view note
 
 ### Phase E: Additional Bot Extractors
 

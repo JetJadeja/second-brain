@@ -1,1 +1,11 @@
 export { getServiceClient, getAnonClient } from './client.js'
+
+export * from './queries/notes.js'
+export * from './queries/para.js'
+export * from './queries/inbox.js'
+export * from './queries/connections.js'
+export * from './queries/search.js'
+export * from './queries/telegram.js'
+export * from './queries/views.js'
+export * from './queries/distillation.js'
+export * from './queries/suggestions.js'

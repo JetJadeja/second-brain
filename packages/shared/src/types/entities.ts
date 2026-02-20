@@ -41,6 +41,7 @@ export interface Note {
   view_count: number
   last_viewed_at: string | null
   connection_count: number
+  embedding?: unknown
   captured_at: string
   created_at: string
   updated_at: string

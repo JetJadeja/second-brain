@@ -7,6 +7,9 @@ import { handleHelp } from './handlers/help.js'
 import { handleMessage } from './handlers/message.js'
 import { handleReaction } from './handlers/handle-reaction.js'
 import { handleReply } from './handlers/handle-reply.js'
+import { handleInboxCommand } from './handlers/inbox-command.js'
+import { handleSearchCommand } from './handlers/search-command.js'
+import { handleNewCommand } from './handlers/new-command.js'
 
 const token = process.env['TELEGRAM_BOT_TOKEN']
 if (!token) {
@@ -19,6 +22,11 @@ export const bot = new Bot<BotContext>(token)
 bot.command('start', handleStart)
 bot.command('link', handleLink)
 bot.command('help', handleHelp)
+
+// Authenticated commands
+bot.command('inbox', requireLinkedUser, handleInboxCommand)
+bot.command('search', requireLinkedUser, handleSearchCommand)
+bot.command('new', requireLinkedUser, handleNewCommand)
 
 // Reaction handler (requires linked user)
 bot.on('message_reaction', requireLinkedUser, handleReaction)

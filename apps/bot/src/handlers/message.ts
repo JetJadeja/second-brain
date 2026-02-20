@@ -7,6 +7,7 @@ import { extractThought } from '../extractors/extract-thought.js'
 import { processNote } from '../processors/process-note.js'
 import { formatReceipt } from '../formatters/format-receipt.js'
 import { getBucketPath } from './resolve-bucket-path.js'
+import { storeReceipt } from './receipt-store.js'
 
 export async function handleMessage(ctx: BotContext): Promise<void> {
   const userId = ctx.userId
@@ -47,7 +48,11 @@ export async function handleMessage(ctx: BotContext): Promise<void> {
   // Resolve bucket path for receipt
   const bucketPath = await getBucketPath(userId, result.note.ai_suggested_bucket)
 
-  // Send receipt
+  // Send receipt and store for interaction tracking
   const receipt = formatReceipt(result, bucketPath)
-  await ctx.reply(receipt)
+  const sent = await ctx.reply(receipt)
+
+  if (ctx.chat?.id) {
+    storeReceipt(ctx.chat.id, sent.message_id, result.note.id)
+  }
 }

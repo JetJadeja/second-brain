@@ -70,7 +70,7 @@
 
 ### Phase E: Additional Bot Extractors
 
-- [ ] E.1 — Tweet/thread extractor (research scraping approach)
+- [x] E.1 — Tweet/thread extractor (research scraping approach)
 - [ ] E.2 — Instagram reel extractor (yt-dlp + optional Vision description)
 - [ ] E.3 — YouTube extractor (yt-dlp, transcript as content)
 - [ ] E.4 — PDF extractor (pdf-parse, store in Storage)

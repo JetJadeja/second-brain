@@ -8,6 +8,10 @@ import { AppShell } from './components/layout/AppShell'
 import Landing from './pages/Landing'
 import Login from './pages/Login'
 import Home from './pages/Home'
+import InboxPage from './pages/InboxPage'
+import BucketPage from './pages/BucketPage'
+import NotePage from './pages/NotePage'
+import SettingsPage from './pages/SettingsPage'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const session = useAuthStore((s) => s.session)
@@ -29,6 +33,10 @@ export default function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+          <Route path="/inbox" element={<ProtectedRoute><InboxPage /></ProtectedRoute>} />
+          <Route path="/para/:bucketId" element={<ProtectedRoute><BucketPage /></ProtectedRoute>} />
+          <Route path="/notes/:noteId" element={<ProtectedRoute><NotePage /></ProtectedRoute>} />
+          <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>

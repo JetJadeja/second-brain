@@ -2,19 +2,23 @@ import { SectionHeader } from '../components/ui/SectionHeader'
 import { InboxPulse } from '../components/dashboard/InboxPulse'
 import { NoteGrid } from '../components/dashboard/NoteGrid'
 import { AreaCard } from '../components/dashboard/AreaCard'
-import { recentNotes, paraBuckets } from '../lib/mock-data'
+import type { DashboardArea, DashboardNote, DashboardInboxItem } from '../lib/types'
+
+const emptyAreas: DashboardArea[] = []
+const emptyNotes: DashboardNote[] = []
+const emptyInbox: DashboardInboxItem[] = []
 
 export default function Home() {
-  const projects = paraBuckets.filter((b) => b.type === 'project')
-  const areas = paraBuckets.filter((b) => b.type === 'area')
+  const projects = emptyAreas.filter((b) => b.type === 'project')
+  const areas = emptyAreas.filter((b) => b.type === 'area')
 
   return (
     <div className="flex flex-col gap-10">
-      <InboxPulse />
+      <InboxPulse items={emptyInbox} />
 
       <section>
         <SectionHeader title="Recent & Relevant" />
-        <NoteGrid notes={recentNotes} />
+        <NoteGrid notes={emptyNotes} />
       </section>
 
       <section>

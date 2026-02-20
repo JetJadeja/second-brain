@@ -2,18 +2,13 @@ import { useState } from 'react'
 import { LayoutDashboard, Inbox, Search, GitFork, RefreshCw, PanelLeftClose, PanelLeft, LogOut } from 'lucide-react'
 import { NavItem } from '../nav/NavItem'
 import { ParaSection } from '../nav/ParaSection'
-import { ParaBucketItem } from '../nav/ParaBucketItem'
 import { Badge } from '../ui/Badge'
 import { ThemeToggle } from '../ui/ThemeToggle'
 import { useAuthStore } from '../../stores/auth-store'
-import { paraBuckets, inboxItems } from '../../lib/mock-data'
 
 export function LeftRail() {
   const signOut = useAuthStore((s) => s.signOut)
   const [collapsed, setCollapsed] = useState(false)
-  const projects = paraBuckets.filter((b) => b.type === 'project')
-  const areas = paraBuckets.filter((b) => b.type === 'area')
-  const inboxCount = inboxItems.length
 
   if (collapsed) {
     return (
@@ -45,23 +40,13 @@ export function LeftRail() {
       <nav className="flex-1 overflow-y-auto py-2">
         <NavItem label="Dashboard" href="/dashboard" icon={LayoutDashboard} />
         <NavItem label="Inbox" href="/inbox" icon={Inbox}>
-          <Badge count={inboxCount} />
+          <Badge count={0} />
         </NavItem>
 
         <div className="my-2 border-t border-border" />
 
-        <ParaSection label="Projects" defaultOpen>
-          {projects.map((b) => (
-            <ParaBucketItem key={b.id} name={b.name} href={`/bucket/${b.id}`} />
-          ))}
-        </ParaSection>
-
-        <ParaSection label="Areas" defaultOpen>
-          {areas.map((b) => (
-            <ParaBucketItem key={b.id} name={b.name} href={`/bucket/${b.id}`} />
-          ))}
-        </ParaSection>
-
+        <ParaSection label="Projects" defaultOpen />
+        <ParaSection label="Areas" defaultOpen />
         <ParaSection label="Resources" />
         <ParaSection label="Archive" />
 

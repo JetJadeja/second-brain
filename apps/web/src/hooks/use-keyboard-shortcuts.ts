@@ -1,0 +1,17 @@
+import { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+
+export function useKeyboardShortcuts() {
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault()
+        navigate('/search')
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [navigate])
+}

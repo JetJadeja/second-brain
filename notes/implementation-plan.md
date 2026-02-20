@@ -61,7 +61,7 @@
 - [x] D.8 — New routes (`/inbox`, `/para/:bucketId`, `/notes/:noteId`, `/settings`)
 - [x] D.9 — ParaPicker component (searchable bucket tree dropdown)
 - [x] D.10 — Inbox view (queue mode + list mode with batch actions)
-- [] D.11 — PARA Bucket view (notes grid with sort/filter/date range)
+- [x] D.11 — PARA Bucket view (notes grid with sort/filter/date range)
 - [] D.12 — Note Detail view (content display by status, context panel, connections/backlinks)
 - [] D.13 — Settings page (Telegram linking flow with code + polling)
 - [ ] D.14 — Supabase Realtime (live inbox count updates)

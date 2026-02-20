@@ -1,112 +1,91 @@
-Second Brain
+# Second Brain
 
-Personal knowledge management system. Telegram bot captures content, web app organizes/retrieves it. Supabase (Postgres + pgvector) backend, React frontend, Express API, grammY bot.
+Personal knowledge management. Telegram bot captures content, web app organizes it. Supabase backend, React frontend, Express API, grammY bot.
 
 ## Commands
 
-- `bun dev` — starts all apps (web :5173, api :3001, bot)
-- `bun build` — build all packages
-- `bun typecheck` — type check everything
-- `bun lint` — eslint across monorepo
-- `bun format` — prettier across monorepo
-- `bun test` — run all tests
+```bash
+bun dev          # all apps (web :5173, api :3001, bot)
+bun build        # build all
+bun typecheck    # type check
+bun lint         # eslint
+bun test         # all tests
+```
 
-## Architecture Map
+## Architecture
 
-- `apps/web` — React + Vite frontend
-- `apps/api` — Express/Hono API server
-- `apps/bot` — grammY Telegram bot
-- `packages/shared` — types, constants, validation schemas (ZERO runtime deps)
-- `packages/db` — Supabase client, typed queries, migrations
-- `packages/ai` — LLM calls, prompt templates, embedding generation
+```
+apps/web         → React + Vite frontend
+apps/api         → Express API server
+apps/bot         → grammY Telegram bot
+packages/shared  → types, schemas, constants (ZERO runtime deps)
+packages/db      → Supabase client, typed queries
+packages/ai      → LLM calls, prompts, embeddings
+```
 
-**Dependency rules:** `apps/*` → `packages/*`. Never `packages/*` → `apps/*`. Never `apps/*` → `apps/*`. `packages/shared` has zero external deps.
+**Dependency rules:** `apps/*` → `packages/*` only. Never cross-import between apps or packages importing apps.
 
-## Code Patterns — READ THIS CAREFULLY
+## Code Philosophy
 
-### File Size and Separation
+**Small files, single purpose.** A file does one thing. If it needs a helper, that helper gets its own file.
 
-**One concern per file. No exceptions.**
+- ~80-120 lines per file. 150+ means split it. 200+ is never acceptable.
+- ~30 lines per function. Longer means extract smaller functions.
+- Name files after what they do: `classify-note.ts`, `extract-article.ts`. Never `utils.ts` or `helpers.ts`.
+- Group by feature/domain, not by type.
 
-- A file should do ONE thing. If you're writing a function and it needs a helper, that helper goes in its own file.
-- **Max ~80-120 lines per file.** If a file is approaching 150+ lines, split it. No file should ever exceed 200 lines. Ever.
-- Name files after what they do: `classify-note.ts`, `extract-article.ts`, `parse-user-context.ts`. Not `utils.ts`, `helpers.ts`, `misc.ts`.
-- Group files by feature/domain, not by type. `search/hybrid-search.ts`, `search/generate-answer.ts` — NOT `services/search.ts` with everything jammed in.
+**Types and exports:**
 
-### Functions
+- Types live in `packages/shared`. Import everywhere.
+- Named exports only. No default exports.
+- Explicit return types on exported functions.
+- Never `any`. Use `unknown` and narrow.
+- Zod schemas at API boundaries. Infer types: `type Note = z.infer<typeof NoteSchema>`.
 
-- **One function, one job.** A function that extracts content AND classifies it is two functions.
-- **Max ~30 lines per function.** If it's longer, break it into smaller functions with clear names.
-- Pure functions wherever possible. Given the same input, return the same output.
-- Name functions as verbs: `classifyNote()`, `extractArticle()`, `generateEmbedding()`. Not `noteClassifier()` or `articleExtraction()`.
-- Always use explicit return types. Never rely on inference for exported functions.
+**Errors:**
 
-### Types
+- Never swallow silently. Handle meaningfully or re-throw with context.
+- External calls WILL fail. Every LLM/embedding/extraction call needs a fallback. The note always gets saved.
 
-- Define types in `packages/shared`. Import everywhere.
-- Never use `any`. If you're tempted, use `unknown` and narrow.
-- Use discriminated unions for content types, not `type: string` with runtime checks.
-- Prefer `interface` for object shapes, `type` for unions and computed types.
-- Zod schemas in `packages/shared` for runtime validation at API boundaries. Infer types from schemas: `type Note = z.infer<typeof NoteSchema>`.
+## Patterns
 
-### Imports and Exports
+**API routes:** Thin handlers. Validate with Zod, call service, return response. Business logic in services, HTTP logic in handlers.
 
-- Named exports only. No default exports anywhere. Default exports make refactoring harder and grep less useful.
-- Every directory that acts as a module gets a barrel `index.ts` that re-exports the public API. Internal files are NOT re-exported.
-- Import from the barrel, not from internal files: `import { classifyNote } from '@/ai'` not `import { classifyNote } from '@/ai/services/classification/classify-note'`.
+**Database:** No raw SQL in app code. Typed query functions in `packages/db`. Always pass `user_id`.
 
-### Error Handling
+**React:** Small components (<100 lines JSX). Logic in custom hooks. API calls through typed wrappers, never raw fetch.
 
-- Never swallow errors silently. Every catch block either handles it meaningfully or re-throws with context.
-- Use typed error results, not thrown exceptions, for expected failures: `Result<T, E>` pattern or similar.
-- LLM calls WILL fail. Embedding API WILL fail. Content extraction WILL fail. Every external call needs a fallback path. The note ALWAYS gets saved, even if processing partially fails.
-- Log errors with structured data (note ID, user ID, step that failed), not just the error message.
+**Bot:** grammY middleware pattern. Users link their Telegram account through the web app settings page (generates a 6-char link code via `link_codes` table, user sends `/link CODE` to the bot, bot creates a `telegram_links` row). On every message, the bot looks up `telegram_user_id` → `user_id` via `telegram_links` (cached 5-min TTL). Unlinked users can only use `/start` and `/link`.
 
-### API Routes
-
-- Thin route handlers. Extract body, validate with Zod, call a service function, return response. Nothing else in the handler.
-- Service functions contain business logic. Route handlers contain HTTP logic. Never mix them.
-- Every endpoint validates input with Zod. No trusting the client.
-- Always scope queries by `user_id`. Never return another user's data. RLS is the safety net, not the strategy.
-
-### Database Queries
-
-- No raw SQL strings in application code. Use typed query functions in `packages/db`.
-- One query function per operation: `getNoteById()`, `getInboxNotes()`, `classifyNote()`.
-- Always pass `user_id` as a parameter. Even though RLS protects us, explicit scoping is defense in depth.
-
-### React (Frontend)
-
-- Components are small. If a component has more than ~100 lines of JSX, split it.
-- Custom hooks for any logic that isn't pure rendering. `useInbox()`, `useDashboard()`, `useSearch()`.
-- Co-locate hooks, types, and helpers next to the components that use them.
-- State management with Zustand or similar — not prop drilling. But don't put everything in global state. Local state first, lift only when needed.
-- API calls go through typed hook wrappers (e.g., TanStack Query), never raw `fetch` in components.
-
-### Naming
-
-- Files: `kebab-case.ts`
-- Types/interfaces: `PascalCase`
-- Functions/variables: `camelCase`
-- Constants: `SCREAMING_SNAKE_CASE`
-- Database columns: `snake_case`
-- API routes: `/api/kebab-case`
-
-### Testing
-
-- Test the behavior, not the implementation. If you refactor internals and tests break, the tests were bad.
-- Service functions get unit tests. API routes get integration tests.
-- Mock external services (LLM, embedding API, Supabase) at the boundary, not deep inside.
+**Data isolation:** The API and bot use `SUPABASE_SERVICE_ROLE_KEY` (bypasses RLS) for all database operations. Data isolation is enforced programmatically — every query function takes a `userId` parameter and filters by it. RLS is the safety net, not the strategy.
 
 ## Gotchas
 
-- Supabase service role key bypasses RLS. Only use in bot and API server. NEVER in frontend code.
-- `pgvector` cosine distance operator is `<=>` (lower = more similar). Convert to similarity: `1 - (a <=> b)`.
-- grammY uses middleware pattern like Express. Message handlers are middleware.
-- The `notes.fts` column is auto-generated (GENERATED ALWAYS AS). Never try to write to it directly.
-- `bucket_id = NULL` means inbox. `is_classified = false` is the authoritative inbox flag.
-- Embeddings use OpenAI `text-embedding-3-small` (1536 dims). Classification/synthesis uses Claude (Anthropic API).
+- `pgvector` distance: `<=>` (lower = more similar). Similarity: `1 - (a <=> b)`.
+- `notes.fts` is GENERATED ALWAYS AS. Never write to it.
+- `bucket_id = NULL` means inbox. `is_classified = false` is authoritative.
+- Embeddings: OpenAI `text-embedding-3-small` (1536 dims). Classification: Claude.
+- `notes.source` is JSONB with different fields per content type.
+- Service role key: API and bot only. Never expose to frontend.
 
-## When Reading Docs
+## Naming
 
-The implementation guide is at `docs/IMPLEMENTATION.md`. Read it for schema details, capture pipeline flow, and API specs. Don't guess — the answers are in there.
+- Files: `kebab-case.ts`
+- Types: `PascalCase`
+- Functions/vars: `camelCase`
+- Constants: `SCREAMING_SNAKE_CASE`
+- DB columns: `snake_case`
+- Routes: `/api/kebab-case`
+
+## Environment Variables
+
+`SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` — Supabase connection. Service role key is backend-only.
+`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` — Vite-prefixed for frontend.
+`OPENAI_API_KEY` — Embeddings only (text-embedding-3-small).
+`ANTHROPIC_API_KEY` — All reasoning (summarize, classify, answer synthesis).
+`TELEGRAM_BOT_TOKEN` — grammY bot.
+`API_PORT` (3001), `WEB_PORT` (5173), `WEB_APP_URL`, `VITE_API_URL` — App config.
+
+## Docs
+
+Implementation details: `notes/implementation-plan.md`

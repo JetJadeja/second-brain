@@ -5,6 +5,7 @@ import { detectMessageType } from './detect-message-type.js'
 import { extractArticle } from '../extractors/extract-article.js'
 import { extractThought } from '../extractors/extract-thought.js'
 import { extractTweet } from '../extractors/extract-tweet.js'
+import { extractReel } from '../extractors/extract-reel.js'
 import { processNote } from '../processors/process-note.js'
 import { formatReceipt } from '../formatters/format-receipt.js'
 import { getBucketPath } from './resolve-bucket-path.js'
@@ -34,6 +35,10 @@ export async function handleMessage(ctx: BotContext): Promise<void> {
     extractionWarning = result.warning
   } else if ((detected.sourceType === 'tweet' || detected.sourceType === 'thread') && detected.url) {
     const result = await extractTweet(detected.url)
+    extracted = result.content
+    extractionWarning = result.warning
+  } else if (detected.sourceType === 'reel' && detected.url) {
+    const result = await extractReel(detected.url)
     extracted = result.content
     extractionWarning = result.warning
   } else if (detected.sourceType === 'thought') {

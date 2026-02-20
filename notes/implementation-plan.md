@@ -76,7 +76,7 @@
 - [x] E.4 — PDF extractor (pdf-parse, store in Storage)
 - [x] E.5 — Voice memo transcription (Whisper API)
 - [x] E.6 — Image description (Claude Vision API)
-- [ ] E.7 — Remaining bot commands (`/inbox`, `/search`, `/new project|area`)
+- [x] E.7 — Remaining bot commands (`/inbox`, `/search`, `/new project|area`)
 - [ ] **Test Phase E** — send each content type, verify extraction + fallbacks
 
 DO NOT UNDER ANY CIRCUMSTANCES BEGIN IMPLEMENTING PHASES F AND G. DO NOT. WE HAVE MUCH MORE RESEARCH TO DO HERE BEFORE WE BEGIN!!!

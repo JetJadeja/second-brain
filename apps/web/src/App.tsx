@@ -1,7 +1,9 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { QueryClientProvider } from '@tanstack/react-query'
 import { useAuthStore } from './stores/auth-store'
 import { useAuthListener } from './hooks/use-auth-listener'
 import { useSystemThemeListener } from './hooks/use-system-theme-listener'
+import { queryClient } from './lib/query-client'
 import { AppShell } from './components/layout/AppShell'
 import Landing from './pages/Landing'
 import Login from './pages/Login'
@@ -21,12 +23,14 @@ export default function App() {
   useSystemThemeListener()
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/dashboard" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-      </Routes>
-    </BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/dashboard" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+        </Routes>
+      </BrowserRouter>
+    </QueryClientProvider>
   )
 }

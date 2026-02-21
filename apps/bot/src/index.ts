@@ -4,7 +4,7 @@ import { requireLinkedUser } from './middleware/auth.js'
 import { handleStart } from './handlers/start.js'
 import { handleLink } from './handlers/link.js'
 import { handleHelp } from './handlers/help.js'
-import { handleMessage } from './handlers/message.js'
+import { routeByIntent } from './intent/route-intent.js'
 import { handleReaction } from './handlers/handle-reaction.js'
 import { handleReply } from './handlers/handle-reply.js'
 import { handleInboxCommand } from './handlers/inbox-command.js'
@@ -42,7 +42,7 @@ bot.on('message', requireLinkedUser, async (ctx, next) => {
   await next()
 })
 
-bot.on('message', handleMessage)
+bot.on('message', routeByIntent)
 
 bot.start()
 console.log('Bot started')

@@ -5,6 +5,8 @@ import { classifyContent } from '../processors/classify-content.js'
 import { getBucketPath } from './resolve-bucket-path.js'
 import { detectIntent } from '../intent/detect-intent.js'
 import { handleMoveNote } from '../intent/handlers/handle-move-note.js'
+import { loadHistory } from '../conversation/load-history.js'
+import { recordUserMessage, recordBotResponse } from '../conversation/record-exchange.js'
 
 export async function handleReply(ctx: BotContext): Promise<void> {
   const userId = ctx.userId
@@ -27,12 +29,17 @@ export async function handleReply(ctx: BotContext): Promise<void> {
 
   await ctx.replyWithChatAction('typing')
 
+  // Record the reply in conversation history
+  recordUserMessage(userId, replyText)
+
   // Check if this is a move instruction
+  const conversationHistory = await loadHistory(userId)
   const intent = await detectIntent({
     userId,
     messageText: replyText,
     hasAttachment: false,
     hasUrl: false,
+    conversationHistory,
   })
 
   if (intent.type === 'move_note') {
@@ -80,4 +87,6 @@ async function reclassifyNote(
   reply += '\n\nReact with 👍 to confirm.'
 
   await ctx.reply(reply)
+
+  recordBotResponse(userId, `Reclassified '${note.title}' → ${bucketPath ?? 'Inbox'}`, [noteId])
 }

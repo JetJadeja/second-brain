@@ -1,7 +1,7 @@
 import { buildDetectIntentPrompt, callClaude } from '@second-brain/ai'
 import { getAllBuckets } from '@second-brain/db'
 import { buildParaTree } from '@second-brain/shared'
-import type { DetectedIntent } from '@second-brain/shared'
+import type { DetectedIntent, ConversationEntry } from '@second-brain/shared'
 
 const FALLBACK_INTENT: DetectedIntent = { type: 'save_content', confidence: 0 }
 
@@ -10,6 +10,7 @@ interface DetectIntentParams {
   messageText: string
   hasAttachment: boolean
   hasUrl: boolean
+  conversationHistory?: ConversationEntry[]
 }
 
 export async function detectIntent(params: DetectIntentParams): Promise<DetectedIntent> {
@@ -22,6 +23,7 @@ export async function detectIntent(params: DetectIntentParams): Promise<Detected
       paraTree,
       hasAttachment: params.hasAttachment,
       hasUrl: params.hasUrl,
+      conversationHistory: params.conversationHistory,
     })
 
     const response = await callClaude({

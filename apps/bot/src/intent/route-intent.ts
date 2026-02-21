@@ -7,6 +7,7 @@ import { handleShowInbox } from './handlers/handle-show-inbox.js'
 import { handleCreateBucket } from './handlers/handle-create-bucket.js'
 import { handleMoveNote } from './handlers/handle-move-note.js'
 import { recordUserMessage } from '../conversation/record-exchange.js'
+import { loadHistory } from '../conversation/load-history.js'
 import type { DetectedIntent } from '@second-brain/shared'
 
 const URL_REGEX = /https?:\/\/[^\s]+/g
@@ -32,11 +33,14 @@ export async function routeByIntent(ctx: BotContext): Promise<void> {
   const hasUrl = URL_REGEX.test(text)
   URL_REGEX.lastIndex = 0
 
+  const conversationHistory = await loadHistory(userId)
+
   const intent = await detectIntent({
     userId,
     messageText: text,
     hasAttachment: false,
     hasUrl,
+    conversationHistory,
   })
 
   await dispatchIntent(ctx, intent)

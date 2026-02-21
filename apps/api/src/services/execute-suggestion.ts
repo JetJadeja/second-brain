@@ -1,5 +1,5 @@
-import type { Suggestion } from '@second-brain/shared'
 import type {
+  Suggestion,
   SplitBucketPayload,
   ArchiveProjectPayload,
   ReclassifyNotePayload,

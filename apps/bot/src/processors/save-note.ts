@@ -1,5 +1,6 @@
 import { createNote } from '@second-brain/db'
 import type { Note, ExtractedContent, ClassifyResult } from '@second-brain/shared'
+import { createSuggestedBucket } from './create-suggested-bucket.js'
 
 interface SaveNoteParams {
   userId: string
@@ -10,13 +11,19 @@ interface SaveNoteParams {
   classification: ClassifyResult | null
 }
 
-export async function saveNote(params: SaveNoteParams): Promise<Note> {
+export interface SaveNoteResult {
+  note: Note
+  createdBucketName: string | null
+}
+
+export async function saveNote(params: SaveNoteParams): Promise<SaveNoteResult> {
   const { userId, extracted, userNote, summary, embedding, classification } = params
 
+  const createdBucketName = await handleBucketCreation(userId, classification)
   const bucketFields = resolveBucketFields(classification)
   const isThought = extracted.sourceType === 'thought' || extracted.sourceType === 'voice_memo'
 
-  return createNote({
+  const note = await createNote({
     user_id: userId,
     title: extracted.title,
     original_content: extracted.content || null,
@@ -29,6 +36,26 @@ export async function saveNote(params: SaveNoteParams): Promise<Note> {
     is_original_thought: isThought || (classification?.is_original_thought ?? false),
     ...bucketFields,
   })
+
+  return { note, createdBucketName }
+}
+
+async function handleBucketCreation(
+  userId: string,
+  classification: ClassifyResult | null,
+): Promise<string | null> {
+  if (!classification?.suggest_new_bucket) return null
+  if (classification.confidence < 0.4) return null
+
+  const bucketId = await createSuggestedBucket(userId, classification.suggest_new_bucket)
+  if (!bucketId) return null
+
+  // Replace the suggestion with the real bucket ID
+  const name = classification.suggest_new_bucket.name
+  classification.bucket_id = bucketId
+  classification.suggest_new_bucket = undefined
+
+  return name
 }
 
 interface BucketFields {
@@ -43,7 +70,7 @@ function resolveBucketFields(classification: ClassifyResult | null): BucketField
     return {
       bucket_id: null,
       ai_suggested_bucket: null,
-      ai_confidence: null,
+      ai_confidence: classification?.confidence ?? null,
       is_classified: false,
     }
   }

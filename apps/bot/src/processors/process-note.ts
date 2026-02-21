@@ -9,6 +9,7 @@ export interface ProcessedNote {
   note: Note
   summary: string | null
   classification: ClassifyResult | null
+  createdBucketName: string | null
   warning?: string
 }
 
@@ -41,8 +42,8 @@ export async function processNote(
     }),
   ])
 
-  // Step 4: Save note
-  const note = await saveNote({
+  // Step 4: Save note (may create a bucket from classification suggestion)
+  const { note, createdBucketName } = await saveNote({
     userId,
     extracted,
     userNote,
@@ -56,5 +57,5 @@ export async function processNote(
     detectConnections(userId, note.id, embedding).catch(() => {})
   }
 
-  return { note, summary, classification, warning }
+  return { note, summary, classification, createdBucketName, warning }
 }

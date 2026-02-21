@@ -26,10 +26,15 @@ export function formatReceipt(result: ProcessedNote, bucketPath: string | null):
   }
   lines.push('')
 
+  // Bucket creation notice
+  if (result.createdBucketName) {
+    lines.push(`Created folder: ${bucketPath ?? result.createdBucketName}`)
+  }
+
   // Suggested bucket
   if (bucketPath && result.classification?.confidence && result.classification.confidence >= 0.4) {
     lines.push(`Suggested: ${bucketPath}`)
-  } else {
+  } else if (!result.createdBucketName) {
     lines.push("I'm not sure where this belongs.")
   }
 

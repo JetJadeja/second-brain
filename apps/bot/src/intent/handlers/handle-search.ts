@@ -3,6 +3,7 @@ import { hybridSearch } from '@second-brain/db'
 import type { BotContext } from '../../context.js'
 import type { SearchIntent } from '@second-brain/shared'
 import { getBucketPath } from '../../handlers/resolve-bucket-path.js'
+import { recordBotResponse } from '../../conversation/record-exchange.js'
 
 const WEB_APP_URL = process.env['WEB_APP_URL'] || 'http://localhost:5173'
 
@@ -32,6 +33,7 @@ export async function handleSearch(ctx: BotContext, intent: SearchIntent): Promi
 
     if (results.length === 0) {
       await ctx.reply(`No results found for "${query}".`)
+      recordBotResponse(userId, `No results found for '${query}'`)
       return
     }
 
@@ -48,6 +50,8 @@ export async function handleSearch(ctx: BotContext, intent: SearchIntent): Promi
 
     lines.push(`Full search: ${WEB_APP_URL}/search`)
     await ctx.reply(lines.join('\n'))
+
+    recordBotResponse(userId, `Found ${results.length} results for '${query}'`)
   } catch (error) {
     console.error('[handleSearch] Failed:', error)
     await ctx.reply('Search failed. Please try again.')

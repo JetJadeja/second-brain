@@ -3,6 +3,7 @@ import type { BotContext } from '../../context.js'
 import type { MoveNoteIntent, ParaBucket } from '@second-brain/shared'
 import { getReceiptNoteId } from '../../handlers/receipt-store.js'
 import { getBucketPath } from '../../handlers/resolve-bucket-path.js'
+import { recordBotResponse } from '../../conversation/record-exchange.js'
 
 export async function handleMoveNote(ctx: BotContext, intent: MoveNoteIntent): Promise<void> {
   const userId = ctx.userId
@@ -42,6 +43,8 @@ export async function handleMoveNote(ctx: BotContext, intent: MoveNoteIntent): P
 
   const path = await getBucketPath(userId, targetBucket.id)
   await ctx.reply(`Moved "${note.title}" to ${path ?? targetBucket.name}.`)
+
+  recordBotResponse(userId, `Moved '${note.title}' to ${path ?? targetBucket.name}`, [noteId])
 }
 
 function findTargetBucket(buckets: ParaBucket[], targetPath: string): ParaBucket | null {

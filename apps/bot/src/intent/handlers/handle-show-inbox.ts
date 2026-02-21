@@ -1,5 +1,6 @@
 import { countInboxNotes, getInboxNotes } from '@second-brain/db'
 import type { BotContext } from '../../context.js'
+import { recordBotResponse } from '../../conversation/record-exchange.js'
 
 const WEB_APP_URL = process.env['WEB_APP_URL'] || 'http://localhost:5173'
 
@@ -14,6 +15,7 @@ export async function handleShowInbox(ctx: BotContext): Promise<void> {
 
   if (count === 0) {
     await ctx.reply("Your inbox is empty. You're all caught up!")
+    recordBotResponse(userId, 'Showed inbox (0 items)')
     return
   }
 
@@ -31,6 +33,8 @@ export async function handleShowInbox(ctx: BotContext): Promise<void> {
 
   lines.push(`\nProcess your inbox: ${WEB_APP_URL}/inbox`)
   await ctx.reply(lines.join('\n'))
+
+  recordBotResponse(userId, `Showed inbox (${count} items)`)
 }
 
 function sourceIcon(type: string): string {

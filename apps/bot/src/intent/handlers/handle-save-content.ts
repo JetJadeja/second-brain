@@ -5,6 +5,7 @@ import { processNote } from '../../processors/process-note.js'
 import { formatReceipt } from '../../formatters/format-receipt.js'
 import { getBucketPath } from '../../handlers/resolve-bucket-path.js'
 import { storeReceipt } from '../../handlers/receipt-store.js'
+import { recordBotResponse } from '../../conversation/record-exchange.js'
 
 export async function handleSaveContent(ctx: BotContext): Promise<void> {
   const userId = ctx.userId
@@ -29,4 +30,7 @@ export async function handleSaveContent(ctx: BotContext): Promise<void> {
   if (ctx.chat?.id) {
     storeReceipt(ctx.chat.id, sent.message_id, result.note.id)
   }
+
+  const summary = `Saved '${result.note.title}' to Inbox, suggested: ${bucketPath ?? 'none'}`
+  recordBotResponse(userId, summary, [result.note.id])
 }

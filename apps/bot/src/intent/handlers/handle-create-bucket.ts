@@ -2,6 +2,7 @@ import { getAllBuckets, createBucket } from '@second-brain/db'
 import type { BotContext } from '../../context.js'
 import type { CreateBucketIntent, ParaBucket } from '@second-brain/shared'
 import { getBucketPath } from '../../handlers/resolve-bucket-path.js'
+import { recordBotResponse } from '../../conversation/record-exchange.js'
 
 export async function handleCreateBucket(ctx: BotContext, intent: CreateBucketIntent): Promise<void> {
   const userId = ctx.userId
@@ -39,6 +40,8 @@ export async function handleCreateBucket(ctx: BotContext, intent: CreateBucketIn
 
     const path = await getBucketPath(userId, created.id)
     await ctx.reply(`Created ${bucket_type} "${created.name}" under ${path ?? bucket_type}.`)
+
+    recordBotResponse(userId, `Created ${bucket_type} '${created.name}' under ${path ?? bucket_type}`)
   } catch (error) {
     console.error('[handleCreateBucket] Failed:', error)
     await ctx.reply('Failed to create the bucket. Please try again.')

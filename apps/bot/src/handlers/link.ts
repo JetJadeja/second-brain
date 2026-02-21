@@ -6,6 +6,7 @@ import {
 } from '@second-brain/db'
 import type { BotContext } from '../context.js'
 import { cacheUserId } from '../middleware/user-cache.js'
+import { startOnboarding } from '../onboarding/start-onboarding.js'
 
 const WEB_APP_URL = process.env['WEB_APP_URL'] || 'http://localhost:5173'
 
@@ -55,8 +56,7 @@ export async function handleLink(ctx: BotContext): Promise<void> {
   await createTelegramLink(linkCode.user_id, telegramId, username)
   await markLinkCodeUsed(linkCode.id)
   cacheUserId(telegramId, linkCode.user_id)
+  ctx.userId = linkCode.user_id
 
-  await ctx.reply(
-    "Your Telegram is connected! Send me anything and I'll save it to your second brain.",
-  )
+  await startOnboarding(ctx)
 }

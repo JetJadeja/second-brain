@@ -12,7 +12,7 @@ export function TelegramLink() {
 
   const { data: linkStatus, refetch } = useQuery<LinkStatusResponse>({
     queryKey: ['link-status'],
-    queryFn: () => apiGet<LinkStatusResponse>('/api/link-status'),
+    queryFn: () => apiGet<LinkStatusResponse>('/api/link/status'),
   })
 
   useEffect(() => {
@@ -33,13 +33,13 @@ export function TelegramLink() {
   }, [linkStatus?.linked])
 
   const handleGenerateCode = async () => {
-    const result = await apiPost<LinkCodeResponse>('/api/link-code')
+    const result = await apiPost<LinkCodeResponse>('/api/link/code')
     setCode(result.code)
     setExpiresAt(result.expires_at)
   }
 
   const handleDisconnect = async () => {
-    await apiDelete('/api/link-status')
+    await apiDelete('/api/link')
     await refetch()
   }
 

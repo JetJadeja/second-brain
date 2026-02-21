@@ -20,7 +20,7 @@ function generateCode(): string {
   return code
 }
 
-linkRouter.post('/link-code', async (req, res) => {
+linkRouter.post('/code', async (req, res) => {
   const userId = req.userId!
 
   await invalidatePreviousCodes(userId)
@@ -34,7 +34,7 @@ linkRouter.post('/link-code', async (req, res) => {
   res.json(response)
 })
 
-linkRouter.get('/link-status', async (req, res) => {
+linkRouter.get('/status', async (req, res) => {
   const userId = req.userId!
 
   const link = await getTelegramLink(userId)

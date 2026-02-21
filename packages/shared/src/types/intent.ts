@@ -35,6 +35,7 @@ export interface MoveNoteIntent {
   type: 'move_note'
   confidence: number
   target_path: string
+  note_refs: string[]
 }
 
 export interface UnknownIntent {

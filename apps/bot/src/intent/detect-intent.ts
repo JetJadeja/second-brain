@@ -61,7 +61,12 @@ function parseIntentResponse(text: string): DetectedIntent {
         return { type: 'show_inbox', confidence }
 
       case 'move_note':
-        return { type: 'move_note', confidence, target_path: String(parsed['target_path'] ?? '') }
+        return {
+          type: 'move_note',
+          confidence,
+          target_path: String(parsed['target_path'] ?? ''),
+          note_refs: parseNoteRefs(parsed['note_refs']),
+        }
 
       case 'save_content':
         return { type: 'save_content', confidence }
@@ -79,4 +84,9 @@ function parseBucketType(value: unknown): 'project' | 'area' | 'resource' {
   const str = String(value ?? '').toLowerCase()
   if (str === 'project' || str === 'area' || str === 'resource') return str
   return 'project'
+}
+
+function parseNoteRefs(value: unknown): string[] {
+  if (!Array.isArray(value)) return []
+  return value.filter((v): v is string => typeof v === 'string' && v.length > 0)
 }

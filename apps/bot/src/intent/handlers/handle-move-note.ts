@@ -9,16 +9,9 @@ export async function handleMoveNote(ctx: BotContext, intent: MoveNoteIntent): P
   const userId = ctx.userId
   if (!userId) return
 
-  const replyTo = ctx.message?.reply_to_message
-  const chatId = ctx.chat?.id
-  if (!replyTo || !chatId) {
-    await ctx.reply("I can only move notes when you reply to a receipt message.")
-    return
-  }
-
-  const noteId = getReceiptNoteId(chatId, replyTo.message_id)
+  const noteId = resolveNoteId(ctx, intent)
   if (!noteId) {
-    await ctx.reply("I couldn't find the note for that message. It may have expired.")
+    await ctx.reply("I'm not sure which note you mean. Try replying to the receipt, or be more specific.")
     return
   }
 
@@ -47,14 +40,34 @@ export async function handleMoveNote(ctx: BotContext, intent: MoveNoteIntent): P
   recordBotResponse(userId, `Moved '${note.title}' to ${path ?? targetBucket.name}`, [noteId])
 }
 
+/**
+ * Resolves the note ID using two strategies:
+ * 1. Reply-to path: user replied to a receipt message
+ * 2. Context path: LLM resolved from conversation history (note_refs)
+ */
+function resolveNoteId(ctx: BotContext, intent: MoveNoteIntent): string | null {
+  // Try reply-to first (most specific)
+  const replyTo = ctx.message?.reply_to_message
+  const chatId = ctx.chat?.id
+  if (replyTo && chatId) {
+    const receiptNoteId = getReceiptNoteId(chatId, replyTo.message_id)
+    if (receiptNoteId) return receiptNoteId
+  }
+
+  // Fall back to note_refs from conversation context
+  if (intent.note_refs.length > 0) {
+    return intent.note_refs[0]!
+  }
+
+  return null
+}
+
 function findTargetBucket(buckets: ParaBucket[], targetPath: string): ParaBucket | null {
   const lower = targetPath.toLowerCase().trim()
 
-  // Try exact name match first
   const exactMatch = buckets.find((b) => b.name.toLowerCase() === lower)
   if (exactMatch) return exactMatch
 
-  // Try matching by path segments (e.g., "Resources > Cars")
   const segments = lower.split(/\s*>\s*/).map((s) => s.trim())
   const lastName = segments[segments.length - 1]
   if (!lastName) return null
@@ -62,7 +75,6 @@ function findTargetBucket(buckets: ParaBucket[], targetPath: string): ParaBucket
   const nameMatches = buckets.filter((b) => b.name.toLowerCase() === lastName)
   if (nameMatches.length === 1) return nameMatches[0]!
 
-  // Multiple matches — try matching parent chain
   for (const candidate of nameMatches) {
     if (matchesPathSegments(buckets, candidate, segments)) return candidate
   }

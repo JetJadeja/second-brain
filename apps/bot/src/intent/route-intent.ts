@@ -61,11 +61,7 @@ async function dispatchIntent(ctx: BotContext, intent: DetectedIntent): Promise<
       return
 
     case 'move_note':
-      if (ctx.message?.reply_to_message) {
-        await handleMoveNote(ctx, intent)
-      } else {
-        await handleSaveContent(ctx)
-      }
+      await handleMoveNote(ctx, intent)
       return
 
     case 'save_content':

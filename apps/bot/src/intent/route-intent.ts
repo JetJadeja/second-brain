@@ -6,6 +6,7 @@ import { handleSearch } from './handlers/handle-search.js'
 import { handleShowInbox } from './handlers/handle-show-inbox.js'
 import { handleCreateBucket } from './handlers/handle-create-bucket.js'
 import { handleMoveNote } from './handlers/handle-move-note.js'
+import { recordUserMessage } from '../conversation/record-exchange.js'
 import type { DetectedIntent } from '@second-brain/shared'
 
 const URL_REGEX = /https?:\/\/[^\s]+/g
@@ -17,6 +18,9 @@ export async function routeByIntent(ctx: BotContext): Promise<void> {
   const text = ctx.message?.text ?? ctx.message?.caption ?? ''
   const hasContent = text.trim() || ctx.message?.document || ctx.message?.photo || ctx.message?.voice
   if (!hasContent) return
+
+  // Record what the user sent
+  recordUserMessage(userId, describeUserMessage(ctx, text))
 
   if (shouldFastTrack(ctx)) {
     await handleSaveContent(ctx)
@@ -65,4 +69,14 @@ async function dispatchIntent(ctx: BotContext, intent: DetectedIntent): Promise<
     default:
       await handleSaveContent(ctx)
   }
+}
+
+function describeUserMessage(ctx: BotContext, text: string): string {
+  if (text.trim()) return text
+  const msg = ctx.message
+  if (msg?.photo?.length) return '[sent a photo]'
+  if (msg?.voice) return '[sent a voice memo]'
+  if (msg?.document) return '[sent a document]'
+  if (msg?.video) return '[sent a video]'
+  return '[sent a message]'
 }

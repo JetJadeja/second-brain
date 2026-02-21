@@ -1,14 +1,15 @@
-import type { ParaTreeNode } from '@second-brain/shared'
+import type { ParaTreeNode, ConversationEntry } from '@second-brain/shared'
 
 interface DetectIntentPromptParams {
   messageText: string
   paraTree: ParaTreeNode[]
   hasAttachment: boolean
   hasUrl: boolean
+  conversationHistory?: ConversationEntry[]
 }
 
 export function buildDetectIntentPrompt(params: DetectIntentPromptParams): string {
-  const { messageText, paraTree, hasUrl } = params
+  const { messageText, paraTree, hasUrl, conversationHistory } = params
   const treeText = formatBucketNames(paraTree)
 
   let prompt = `You are an intent classifier for a personal knowledge management bot. `
@@ -23,6 +24,11 @@ export function buildDetectIntentPrompt(params: DetectIntentPromptParams): strin
 
   prompt += `USER'S EXISTING FOLDERS:\n${treeText}\n\n`
 
+  const historySection = buildConversationContext(conversationHistory)
+  if (historySection) {
+    prompt += historySection
+  }
+
   prompt += buildExamples()
 
   prompt += `CRITICAL RULES:\n`
@@ -30,6 +36,7 @@ export function buildDetectIntentPrompt(params: DetectIntentPromptParams): strin
   prompt += `- Personal thoughts, reflections, ideas, plans, and observations are ALWAYS save_content.\n`
   prompt += `- Only return create_bucket when the user EXPLICITLY asks to create/add/start a new project, area, or resource.\n`
   prompt += `- "I want to cook pasta" = save_content (personal thought). "Create a cooking project" = create_bucket (explicit instruction).\n`
+  prompt += `- Use conversation history to resolve references like "that", "the last one", "those articles". When the user refers to a recent note, include its ID in note_refs.\n`
 
   if (hasUrl) {
     prompt += `- This message contains a URL. Messages with URLs are almost always save_content unless the surrounding text is clearly an instruction.\n`
@@ -43,6 +50,24 @@ export function buildDetectIntentPrompt(params: DetectIntentPromptParams): strin
   return prompt
 }
 
+function buildConversationContext(history?: ConversationEntry[]): string {
+  if (!history || history.length === 0) return ''
+
+  let section = `RECENT CONVERSATION:\n`
+  for (const entry of history) {
+    if (entry.role === 'user') {
+      section += `User: ${entry.content}\n`
+    } else {
+      const noteInfo = entry.noteIds.length > 0
+        ? ` (note IDs: ${entry.noteIds.join(', ')})`
+        : ''
+      section += `Bot: ${entry.content}${noteInfo}\n`
+    }
+  }
+  section += `\n`
+  return section
+}
+
 function buildExamples(): string {
   let examples = `EXAMPLES:\n`
   examples += `- "I had a great idea about solar panels" → save_content\n`
@@ -51,12 +76,11 @@ function buildExamples(): string {
   examples += `- "Find my notes about AI" → search (query: "AI")\n`
   examples += `- "How's my inbox?" → show_inbox\n`
   examples += `- "What's in my inbox?" → show_inbox\n`
-  examples += `- "Create a project called Kitchen Reno" → create_bucket (name: "Kitchen Reno", type: "project")\n`
-  examples += `- "I'm starting a new area for fitness" → create_bucket (name: "Fitness", type: "area")\n`
-  examples += `- "Add a resource folder for Coffee" → create_bucket (name: "Coffee", type: "resource")\n`
-  examples += `- "Create Maintenance under Cars" → create_bucket (name: "Maintenance", parent: "Cars")\n`
+  examples += `- "Create a project called Kitchen Reno" → create_bucket\n`
+  examples += `- "Add a resource folder for Coffee" → create_bucket\n`
   examples += `- "Move this to Resources > Cars" → move_note (target: "Resources > Cars")\n`
-  examples += `- "Put this in my Coffee folder" → move_note (target: "Coffee")\n\n`
+  examples += `- "Put that in Coffee" (after saving a note) → move_note with note_refs from history\n`
+  examples += `- "Move the last thing to Cars" → move_note with note_refs from history\n\n`
   return examples
 }
 
@@ -68,7 +92,8 @@ function buildResponseFormat(): string {
   format += `  "bucket_name": "name of bucket to create (only for create_bucket)",\n`
   format += `  "bucket_type": "project|area|resource (only for create_bucket)",\n`
   format += `  "parent_name": "parent folder name or null (only for create_bucket)",\n`
-  format += `  "target_path": "target folder path (only for move_note)"\n`
+  format += `  "target_path": "target folder path (only for move_note)",\n`
+  format += `  "note_refs": ["note IDs the user is referring to (from conversation history)"]\n`
   format += `}`
   return format
 }

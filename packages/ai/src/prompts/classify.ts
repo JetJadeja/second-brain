@@ -17,8 +17,10 @@ export function buildClassifyPrompt(params: ClassifyPromptParams): string {
     ? content.slice(0, 4000) + '\n...[truncated]'
     : content
 
-  let prompt = `You are classifying a note into a PARA (Projects/Areas/Resources/Archive) bucket system.\n\n`
-  prompt += `AVAILABLE BUCKETS:\n${treeText}\n\n`
+  let prompt = `You are classifying a note into a user's PARA organizational system.\n\n`
+  prompt += PARA_RULES
+  prompt += `\nFOLDER STRUCTURE:\n${treeText}\n`
+  prompt += `Items marked [container] are top-level containers. NEVER classify directly into them — always pick a specific subfolder.\n\n`
   prompt += `NOTE TO CLASSIFY:\n`
   prompt += `Title: ${title}\n`
   prompt += `Source type: ${sourceType}\n`
@@ -31,26 +33,49 @@ export function buildClassifyPrompt(params: ClassifyPromptParams): string {
 
   if (userNote) {
     prompt += `\nUSER CONTEXT (THIS TAKES PRIORITY OVER CONTENT ANALYSIS): ${userNote}\n`
-    prompt += `The user's stated intent for this note overrides any topic analysis. `
-    prompt += `If they mention a project, area, or topic name, match it to the closest bucket.\n`
+    prompt += `The user's stated intent overrides topic analysis. Match to the closest bucket.\n`
   }
 
-  prompt += `\nRespond with ONLY valid JSON (no markdown, no code fences):\n`
-  prompt += `{\n`
-  prompt += `  "bucket_id": "<UUID of the best matching bucket>",\n`
-  prompt += `  "confidence": <0.0 to 1.0>,\n`
-  prompt += `  "tags": ["tag1", "tag2"],\n`
-  prompt += `  "is_original_thought": <true if this is the user's own idea/thought, false if external content>\n`
-  prompt += `}`
+  prompt += RESPONSE_FORMAT
 
   return prompt
 }
+
+const PARA_RULES = `PARA CATEGORIES:
+- Projects: Active work with a goal or deadline. The user is building/doing something specific.
+- Areas: Ongoing responsibilities the user maintains. Things they own, manage, or would feel if neglected (health, finances, their car, their home).
+- Resources: Topics of interest. Reference material with no obligation attached. Content they consume or collect (a hobby, a field they read about).
+- Archives: Completed or inactive items. Do not classify into archives.
+
+KEY DISTINCTION — Areas vs Resources:
+- Does the user OWN, MAINTAIN, or have RESPONSIBILITY for this? → Area
+- Is this REFERENCE MATERIAL or content they CONSUME about a topic? → Resource
+- Example: A car maintenance receipt → Areas (their car). A YouTube video about car mods → Resources (automotive interest).
+- The same topic can appear in both. Use the note's content to determine the user's relationship to it.\n\n`
+
+const RESPONSE_FORMAT = `\nRESPOND with ONLY valid JSON (no markdown, no code fences):
+{
+  "bucket_id": "<UUID of best matching subfolder, or null if no good match>",
+  "confidence": <0.0 to 1.0>,
+  "tags": ["tag1", "tag2"],
+  "is_original_thought": <true if user's own idea/thought, false if external content>,
+  "suggest_new_bucket": <OPTIONAL — only if no existing bucket fits>
+}
+
+If no subfolder fits well, set bucket_id to null and include:
+"suggest_new_bucket": { "name": "<short folder name>", "parent_type": "<project|area|resource>" }
+
+If a good subfolder exists, use its bucket_id and omit suggest_new_bucket.\n`
 
 function formatTree(nodes: ParaTreeNode[], depth: number): string {
   let result = ''
   for (const node of nodes) {
     const indent = '  '.repeat(depth)
-    result += `${indent}- ${node.name} [${node.type}] (id: ${node.id})\n`
+    if (depth === 0) {
+      result += `${indent}- ${node.name} [container]\n`
+    } else {
+      result += `${indent}- ${node.name} [${node.type}] (id: ${node.id})\n`
+    }
     if (node.children.length > 0) {
       result += formatTree(node.children, depth + 1)
     }

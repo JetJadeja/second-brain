@@ -10,6 +10,9 @@ import { handleReply } from './handlers/handle-reply.js'
 import { handleInboxCommand } from './handlers/inbox-command.js'
 import { handleSearchCommand } from './handlers/search-command.js'
 import { handleNewCommand } from './handlers/new-command.js'
+import { loadOnboardingPhase } from './onboarding/load-onboarding.js'
+import { handleOnboarding } from './onboarding/handle-onboarding.js'
+import { shouldFastTrack } from './intent/should-fast-track.js'
 
 const token = process.env['TELEGRAM_BOT_TOKEN']
 if (!token) {
@@ -36,10 +39,27 @@ bot.on('message_reaction', requireLinkedUser, handleReaction)
 bot.on('message', requireLinkedUser, async (ctx, next) => {
   if (ctx.message?.reply_to_message) {
     await handleReply(ctx)
-    // If it was a receipt reply, we're done; otherwise fall through
     return
   }
   await next()
+})
+
+// Onboarding interception — before routeByIntent
+bot.on('message', requireLinkedUser, async (ctx, next) => {
+  const userId = ctx.userId
+  if (!userId) { await next(); return }
+
+  const phase = await loadOnboardingPhase(userId)
+  if (!phase) { await next(); return }
+
+  // If content (attachment/URL), let it save normally then nudge
+  if (shouldFastTrack(ctx)) {
+    await routeByIntent(ctx)
+    await ctx.reply(`Saved that! By the way, I'm still setting up your folders. We're on the ${phase} step — just reply when you're ready to continue.`)
+    return
+  }
+
+  await handleOnboarding(ctx)
 })
 
 bot.on('message', routeByIntent)

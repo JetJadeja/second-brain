@@ -89,4 +89,38 @@ export const AGENT_TOOLS: AnthropicTool[] = [
       required: ['note_id', 'target_path'],
     },
   },
+  {
+    name: 'finalize_onboarding',
+    description:
+      'Create the user\'s complete folder structure and finish onboarding. Only use this during onboarding, after you\'ve gathered enough information about the user\'s life, projects, and interests. Pass the full structure you\'ve designed.',
+    input_schema: {
+      type: 'object' as const,
+      properties: {
+        buckets: {
+          type: 'array',
+          description: 'The complete folder structure to create',
+          items: {
+            type: 'object',
+            properties: {
+              name: {
+                type: 'string',
+                description: 'Folder name (proper-cased, concise)',
+              },
+              type: {
+                type: 'string',
+                enum: ['project', 'area', 'resource'],
+                description: 'The PARA type',
+              },
+              parent_name: {
+                type: 'string',
+                description: 'Name of parent folder for nesting. Omit for top-level.',
+              },
+            },
+            required: ['name', 'type'],
+          },
+        },
+      },
+      required: ['buckets'],
+    },
+  },
 ]

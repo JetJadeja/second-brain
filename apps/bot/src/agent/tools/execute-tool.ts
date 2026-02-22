@@ -4,6 +4,7 @@ import { executeSearchNotes } from './search-notes.js'
 import { executeShowInbox } from './show-inbox.js'
 import { executeCreateBucket } from './create-bucket.js'
 import { executeMoveNote } from './move-note.js'
+import { executeFinalizeOnboarding } from './finalize-onboarding.js'
 import type { ExtractedContent } from '@second-brain/shared'
 
 interface ToolCallContext {
@@ -62,7 +63,33 @@ async function dispatchTool(
         String(input['target_path'] ?? ''),
       )
 
+    case 'finalize_onboarding':
+      return executeFinalizeOnboarding(
+        context.userId,
+        parseBucketSpecs(input['buckets']),
+      )
+
     default:
       throw new Error(`Unknown tool: ${toolName}`)
   }
+}
+
+function parseBucketSpecs(
+  value: unknown,
+): { name: string; type: 'project' | 'area' | 'resource'; parentName: string | null }[] {
+  if (!Array.isArray(value)) return []
+  return value
+    .filter((b): b is Record<string, unknown> => typeof b === 'object' && b !== null)
+    .map((b) => ({
+      name: String(b['name'] ?? ''),
+      type: parseBucketType(b['type']),
+      parentName: b['parent_name'] ? String(b['parent_name']) : null,
+    }))
+    .filter((b) => b.name.length > 0)
+}
+
+function parseBucketType(value: unknown): 'project' | 'area' | 'resource' {
+  const str = String(value ?? '').toLowerCase()
+  if (str === 'project' || str === 'area' || str === 'resource') return str
+  return 'resource'
 }

@@ -14,6 +14,7 @@ export async function executeCreateBucket(
   name: string,
   type: 'project' | 'area' | 'resource',
   parentName?: string,
+  description?: string,
 ): Promise<CreateBucketResult> {
   if (!name.trim()) {
     throw new Error('Bucket name cannot be empty')
@@ -34,6 +35,7 @@ export async function executeCreateBucket(
     name: name.trim(),
     type,
     parent_id: parentId,
+    ...(description ? { description: description.trim() } : {}),
   })
 
   const path = await getBucketPath(userId, created.id)

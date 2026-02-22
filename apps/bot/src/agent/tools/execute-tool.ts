@@ -54,6 +54,7 @@ async function dispatchTool(
         String(input['name'] ?? ''),
         input['type'] as 'project' | 'area' | 'resource',
         input['parent_name'] as string | undefined,
+        input['description'] as string | undefined,
       )
 
     case 'move_note':
@@ -76,7 +77,7 @@ async function dispatchTool(
 
 function parseBucketSpecs(
   value: unknown,
-): { name: string; type: 'project' | 'area' | 'resource'; parentName: string | null }[] {
+): { name: string; type: 'project' | 'area' | 'resource'; parentName: string | null; description?: string }[] {
   if (!Array.isArray(value)) return []
   return value
     .filter((b): b is Record<string, unknown> => typeof b === 'object' && b !== null)
@@ -84,6 +85,7 @@ function parseBucketSpecs(
       name: String(b['name'] ?? ''),
       type: parseBucketType(b['type']),
       parentName: b['parent_name'] ? String(b['parent_name']) : null,
+      ...(b['description'] ? { description: String(b['description']) } : {}),
     }))
     .filter((b) => b.name.length > 0)
 }

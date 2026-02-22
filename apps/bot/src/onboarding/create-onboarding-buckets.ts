@@ -5,6 +5,7 @@ export interface BucketToCreate {
   name: string
   type: 'project' | 'area' | 'resource'
   parentName: string | null
+  description?: string
 }
 
 /**
@@ -35,6 +36,7 @@ export async function createOnboardingBuckets(
         name: bucket.name,
         type: bucket.type,
         parent_id: parentId,
+        ...(bucket.description ? { description: bucket.description } : {}),
       })
       existing.push(result)
       created.push(bucket.name)

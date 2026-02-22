@@ -66,6 +66,10 @@ export const AGENT_TOOLS: AnthropicTool[] = [
           type: 'string',
           description: 'Name of the parent folder. If omitted, creates under the root container for the type.',
         },
+        description: {
+          type: 'string',
+          description: 'A one-line description of what this folder is for. Helps with future classification.',
+        },
       },
       required: ['name', 'type'],
     },
@@ -114,6 +118,10 @@ export const AGENT_TOOLS: AnthropicTool[] = [
               parent_name: {
                 type: 'string',
                 description: 'Name of parent folder for nesting. Omit for top-level.',
+              },
+              description: {
+                type: 'string',
+                description: 'One-line description of what this folder is for.',
               },
             },
             required: ['name', 'type'],

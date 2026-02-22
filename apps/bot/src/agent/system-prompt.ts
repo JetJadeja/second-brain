@@ -74,7 +74,9 @@ function buildOnboardingMode(): string {
     `- If the user says "skip", "just set it up", "I'll do it later" — design a basic structure from what you know and finalize.\n` +
     `- Call finalize_onboarding with the complete structure. Design 2 levels of depth:\n` +
     `  Top-level: "Cars" (resource), then nested: "Maintenance", "Project Build", "Racing" under Cars.\n` +
-    `  Create parent folders first in the array, then children with parent_name set.\n\n` +
+    `  Create parent folders first in the array, then children with parent_name set.\n` +
+    `  Include a one-line description for each bucket — this helps the classifier know what goes where.\n` +
+    `  Example: { name: "Maintenance", type: "resource", parent_name: "Cars", description: "Car maintenance schedules, receipts, and service records" }\n\n` +
     `RULES DURING ONBOARDING:\n` +
     `- Do NOT call create_bucket. Accumulate understanding, then use finalize_onboarding for everything at once.\n` +
     `- If the user sends content (links, images, voice memos), save it with save_note, then continue the conversation.\n` +
@@ -89,7 +91,7 @@ function buildRules(): string {
     `- When a user shares content (URL, thought, idea, plan, observation, voice memo, image), use save_note.\n` +
     `- When they ask to find, search, or look up something, use search_notes.\n` +
     `- When they ask about their inbox or what's pending, use show_inbox.\n` +
-    `- When they ask to create a folder (project, area, resource), use create_bucket.\n` +
+    `- When they ask to create a folder (project, area, resource), use create_bucket. Include a description.\n` +
     `- When they want to move or refile a note, use move_note. Get the note ID from conversation history.\n` +
     `- For greetings, questions, conversation — just respond. Do NOT save conversational messages as notes.\n` +
     `- If ambiguous (e.g., just "coffee"), ask: did they mean to search or save a thought?\n` +

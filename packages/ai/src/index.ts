@@ -1,4 +1,12 @@
-export { callClaude, callClaudeVision } from './providers/anthropic.js'
+export { callClaude, callClaudeVision, callClaudeWithTools } from './providers/anthropic.js'
+export type {
+  AnthropicTool,
+  AnthropicMessage,
+  AnthropicMessageParam,
+  AnthropicContentBlock,
+  AnthropicToolUseBlock,
+  AnthropicToolResultBlockParam,
+} from './providers/anthropic.js'
 export { getOpenAIClient } from './providers/openai.js'
 export { buildSummarizePrompt } from './prompts/summarize.js'
 export { buildClassifyPrompt } from './prompts/classify.js'

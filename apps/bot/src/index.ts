@@ -6,9 +6,6 @@ import { handleLink } from './handlers/link.js'
 import { handleReaction } from './handlers/handle-reaction.js'
 import { handleReply } from './handlers/handle-reply.js'
 import { runAgentHandler } from './handlers/agent-handler.js'
-import { loadOnboardingPhase } from './onboarding/load-onboarding.js'
-import { handleOnboarding } from './onboarding/handle-onboarding.js'
-import { hasAttachment } from './agent/pre-extract.js'
 
 const token = process.env['TELEGRAM_BOT_TOKEN']
 if (!token) {
@@ -33,28 +30,7 @@ bot.on('message', requireLinkedUser, async (ctx, next) => {
   await next()
 })
 
-// Onboarding interception — before the agent
-bot.on('message', requireLinkedUser, async (ctx, next) => {
-  const userId = ctx.userId
-  if (!userId) { await next(); return }
-
-  const phase = await loadOnboardingPhase(userId)
-  if (!phase) { await next(); return }
-
-  // If content (attachment), let agent save it then nudge about onboarding
-  if (hasAttachment(ctx)) {
-    await runAgentHandler(ctx)
-    await ctx.reply(
-      `By the way, I'm still setting up your folders. ` +
-      `We're on the ${phase} step — just reply when you're ready to continue.`,
-    )
-    return
-  }
-
-  await handleOnboarding(ctx)
-})
-
-// Main message handler — the agent
+// Main message handler — the agent handles everything (including onboarding)
 bot.on('message', requireLinkedUser, runAgentHandler)
 
 bot.start()

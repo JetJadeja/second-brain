@@ -102,6 +102,7 @@ export interface ParaTreeNode {
   name: string
   type: ParaType
   parent_id: string | null
+  description: string | null
   is_active: boolean
   sort_order: number
   note_count: number

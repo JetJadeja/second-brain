@@ -5,13 +5,14 @@ import {
 } from '@second-brain/ai'
 import { getAllBuckets } from '@second-brain/db'
 import { buildParaTree } from '@second-brain/shared'
-import type { ConversationEntry } from '@second-brain/shared'
+import type { ConversationEntry, ExtractedContent } from '@second-brain/shared'
 import type { BotContext } from '../context.js'
 import { loadHistory } from '../conversation/load-history.js'
 import { buildAgentSystemPrompt } from './system-prompt.js'
 import { AGENT_TOOLS } from './tools/tool-definitions.js'
 import { executeTool } from './tools/execute-tool.js'
 import { buildUserMessage } from './build-user-message.js'
+import { preExtractAttachment } from './pre-extract.js'
 
 export interface AgentResult {
   text: string
@@ -25,14 +26,15 @@ export async function runAgent(
   const userId = ctx.userId
   if (!userId) return { text: 'Something went wrong.', noteIds: [] }
 
-  const [history, buckets] = await Promise.all([
+  const [history, buckets, preExtracted] = await Promise.all([
     loadHistory(userId),
     getAllBuckets(userId),
+    preExtractAttachment(ctx, userId),
   ])
 
   const paraTree = buildParaTree(buckets)
   const system = buildAgentSystemPrompt({ bucketTree: paraTree, noteContext })
-  const messages = buildMessages(history, ctx)
+  const messages = buildMessages(history, ctx, preExtracted?.description)
 
   const response = await callClaudeWithTools({
     system,
@@ -43,7 +45,9 @@ export async function runAgent(
   const noteIds: string[] = []
 
   if (response.stop_reason === 'tool_use') {
-    const result = await handleToolCalls(response.content, userId, ctx, messages)
+    const result = await handleToolCalls(
+      response.content, userId, ctx, messages, preExtracted?.extracted,
+    )
     noteIds.push(...result.noteIds)
     return { text: result.text, noteIds }
   }
@@ -55,6 +59,7 @@ export async function runAgent(
 function buildMessages(
   history: ConversationEntry[],
   ctx: BotContext,
+  attachmentDescription?: string,
 ): AnthropicMessageParam[] {
   const messages: AnthropicMessageParam[] = []
 
@@ -65,7 +70,12 @@ function buildMessages(
     })
   }
 
-  messages.push({ role: 'user', content: buildUserMessage(ctx) })
+  let userMessage = buildUserMessage(ctx)
+  if (attachmentDescription) {
+    userMessage = attachmentDescription + '\n' + userMessage
+  }
+
+  messages.push({ role: 'user', content: userMessage })
   return messages
 }
 
@@ -74,6 +84,7 @@ async function handleToolCalls(
   userId: string,
   ctx: BotContext,
   messages: AnthropicMessageParam[],
+  preExtracted?: ExtractedContent,
 ): Promise<AgentResult> {
   const toolResults: AnthropicToolResultBlockParam[] = []
   const noteIds: string[] = []
@@ -83,7 +94,7 @@ async function handleToolCalls(
       const result = await executeTool(
         block.name,
         block.input as Record<string, unknown>,
-        { userId, ctx },
+        { userId, ctx, preExtracted },
       )
       toolResults.push({
         type: 'tool_result',

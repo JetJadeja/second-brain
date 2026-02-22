@@ -1,6 +1,11 @@
 import { getAllBuckets, createBucket } from '@second-brain/db'
 import type { ParaBucket } from '@second-brain/shared'
-import type { BucketToCreate } from './parse-onboarding-response.js'
+
+export interface BucketToCreate {
+  name: string
+  type: 'project' | 'area' | 'resource'
+  parentName: string | null
+}
 
 /**
  * Creates buckets from the onboarding LLM response.

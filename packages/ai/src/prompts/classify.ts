@@ -7,12 +7,13 @@ interface ClassifyPromptParams {
   summary: string | null
   sourceType: NoteSource
   userNote?: string | null
+  sampleTitles?: Map<string, string[]>
 }
 
 export function buildClassifyPrompt(params: ClassifyPromptParams): string {
-  const { paraTree, title, content, summary, sourceType, userNote } = params
+  const { paraTree, title, content, summary, sourceType, userNote, sampleTitles } = params
 
-  const treeText = formatTree(paraTree, 0)
+  const treeText = formatTree(paraTree, 0, sampleTitles)
   const truncatedContent = content.length > 4000
     ? content.slice(0, 4000) + '\n...[truncated]'
     : content
@@ -67,17 +68,30 @@ If no subfolder fits well, set bucket_id to null and include:
 
 If a good subfolder exists, use its bucket_id and omit suggest_new_bucket.\n`
 
-function formatTree(nodes: ParaTreeNode[], depth: number): string {
+function formatTree(
+  nodes: ParaTreeNode[],
+  depth: number,
+  sampleTitles?: Map<string, string[]>,
+): string {
   let result = ''
   for (const node of nodes) {
     const indent = '  '.repeat(depth)
     if (depth === 0) {
       result += `${indent}- ${node.name} [container]\n`
     } else {
-      result += `${indent}- ${node.name} [${node.type}] (id: ${node.id})\n`
+      result += `${indent}- ${node.name} [${node.type}] (id: ${node.id})`
+      if (node.description) {
+        result += ` — "${node.description}"`
+      }
+      result += '\n'
+
+      const titles = sampleTitles?.get(node.id)
+      if (titles && titles.length > 0) {
+        result += `${indent}  Recent: ${titles.join(', ')}\n`
+      }
     }
     if (node.children.length > 0) {
-      result += formatTree(node.children, depth + 1)
+      result += formatTree(node.children, depth + 1, sampleTitles)
     }
   }
   return result

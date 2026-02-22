@@ -1,5 +1,5 @@
 import { buildClassifyPrompt, callClaude } from '@second-brain/ai'
-import { getAllBuckets } from '@second-brain/db'
+import { getAllBuckets, getSampleNoteTitles } from '@second-brain/db'
 import { buildParaTree } from '@second-brain/shared'
 import type { NoteSource, ClassifyResult, SuggestNewBucket } from '@second-brain/shared'
 
@@ -14,7 +14,10 @@ interface ClassifyParams {
 
 export async function classifyContent(params: ClassifyParams): Promise<ClassifyResult | null> {
   try {
-    const buckets = await getAllBuckets(params.userId)
+    const [buckets, sampleTitles] = await Promise.all([
+      getAllBuckets(params.userId),
+      getSampleNoteTitles(params.userId),
+    ])
     const paraTree = buildParaTree(buckets)
 
     const prompt = buildClassifyPrompt({
@@ -24,6 +27,7 @@ export async function classifyContent(params: ClassifyParams): Promise<ClassifyR
       summary: params.summary,
       sourceType: params.sourceType,
       userNote: params.userNote,
+      sampleTitles,
     })
 
     const response = await callClaude({ messages: [{ role: 'user', content: prompt }] })

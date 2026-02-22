@@ -1,7 +1,7 @@
 import type { ExtractedContent } from '@second-brain/shared'
 import type { BotContext } from '../context.js'
 import { detectMessageType } from '../handlers/detect-message-type.js'
-import { extractByType } from '../intent/handlers/extract-content.js'
+import { extractByType } from '../extractors/extract-by-type.js'
 
 export interface PreExtractionResult {
   extracted: ExtractedContent

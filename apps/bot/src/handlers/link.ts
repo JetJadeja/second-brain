@@ -7,6 +7,8 @@ import {
 import type { BotContext } from '../context.js'
 import { cacheUserId } from '../middleware/user-cache.js'
 import { startOnboarding } from '../onboarding/start-onboarding.js'
+import { runAgent } from '../agent/run-agent.js'
+import { recordBotResponse } from '../conversation/record-exchange.js'
 
 const WEB_APP_URL = process.env['WEB_APP_URL'] || 'http://localhost:5173'
 
@@ -58,5 +60,10 @@ export async function handleLink(ctx: BotContext): Promise<void> {
   cacheUserId(telegramId, linkCode.user_id)
   ctx.userId = linkCode.user_id
 
-  await startOnboarding(ctx)
+  await startOnboarding(linkCode.user_id)
+
+  // Let the agent send the first onboarding message
+  const result = await runAgent(ctx)
+  await ctx.reply(result.text)
+  recordBotResponse(linkCode.user_id, result.text)
 }

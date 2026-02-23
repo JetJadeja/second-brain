@@ -3,6 +3,7 @@ import type { InboxItem } from '../../lib/types'
 import { SourceIcon } from '../ui/SourceIcon'
 import { Chip } from '../ui/Chip'
 import { Button } from '../ui/Button'
+import { ParaPicker } from '../para/ParaPicker'
 import { apiPost, apiDelete } from '../../lib/api-client'
 import { useQueryClient } from '@tanstack/react-query'
 
@@ -13,6 +14,7 @@ interface InboxListProps {
 
 export function InboxList({ items, onActionComplete }: InboxListProps) {
   const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [showClassifyPicker, setShowClassifyPicker] = useState(false)
   const queryClient = useQueryClient()
 
   const toggleSelect = (id: string) => {
@@ -64,6 +66,13 @@ export function InboxList({ items, onActionComplete }: InboxListProps) {
     await invalidateAll()
   }
 
+  const handleBatchClassify = async (bucketId: string, _bucketPath: string) => {
+    setShowClassifyPicker(false)
+    const classifications = [...selected].map((id) => ({ note_id: id, bucket_id: bucketId }))
+    await apiPost('/api/inbox/batch-classify', { classifications })
+    await invalidateAll()
+  }
+
   return (
     <div className="flex flex-col gap-4">
       {selected.size > 0 && (
@@ -72,6 +81,14 @@ export function InboxList({ items, onActionComplete }: InboxListProps) {
           <Button variant="primary" className="text-xs px-3 py-1" onClick={handleBatchConfirm}>
             Confirm as suggested
           </Button>
+          <div className="relative">
+            <Button variant="secondary" className="text-xs px-3 py-1" onClick={() => setShowClassifyPicker(!showClassifyPicker)}>
+              Classify selected
+            </Button>
+            {showClassifyPicker && (
+              <ParaPicker onSelect={handleBatchClassify} onClose={() => setShowClassifyPicker(false)} />
+            )}
+          </div>
           <Button variant="secondary" className="text-xs px-3 py-1" onClick={handleBatchArchive}>
             Archive all
           </Button>

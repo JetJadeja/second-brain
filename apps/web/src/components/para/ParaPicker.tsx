@@ -26,20 +26,30 @@ function BucketNode({
   onSelect: (bucketId: string, bucketPath: string) => void
 }) {
   const currentPath = path ? `${path}/${node.name}` : node.name
+  const isRoot = node.parent_id === null
 
   if (query && !matchesSearch(node, query.toLowerCase())) return null
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => onSelect(node.id, currentPath)}
-        className="w-full text-left px-3 py-1.5 text-sm hover:bg-hover rounded flex items-center gap-2"
-        style={{ paddingLeft: `${depth * 16 + 12}px` }}
-      >
-        <span className="text-text-primary truncate">{node.name}</span>
-        <span className="text-xs text-text-tertiary ml-auto">{node.note_count}</span>
-      </button>
+      {isRoot ? (
+        <div
+          className="w-full text-left px-3 py-1.5 text-xs font-semibold uppercase text-text-tertiary tracking-wide"
+          style={{ paddingLeft: `${depth * 16 + 12}px` }}
+        >
+          {node.name}
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => onSelect(node.id, currentPath)}
+          className="w-full text-left px-3 py-1.5 text-sm hover:bg-hover rounded flex items-center gap-2"
+          style={{ paddingLeft: `${depth * 16 + 12}px` }}
+        >
+          <span className="text-text-primary truncate">{node.name}</span>
+          <span className="text-xs text-text-tertiary ml-auto">{node.note_count}</span>
+        </button>
+      )}
       {node.children.map((child) => (
         <BucketNode
           key={child.id}

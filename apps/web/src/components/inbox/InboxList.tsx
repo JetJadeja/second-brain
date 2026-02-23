@@ -2,11 +2,8 @@ import { useState } from 'react'
 import type { InboxItem } from '../../lib/types'
 import { SourceIcon } from '../ui/SourceIcon'
 import { Chip } from '../ui/Chip'
-import { Button } from '../ui/Button'
-import { ParaPicker } from '../para/ParaPicker'
-import { apiPost, apiDelete } from '../../lib/api-client'
+import { InboxBatchActions } from './InboxBatchActions'
 import { useQueryClient } from '@tanstack/react-query'
-import { useToastStore } from '../../stores/toast-store'
 
 interface InboxListProps {
   items: InboxItem[]
@@ -15,9 +12,7 @@ interface InboxListProps {
 
 export function InboxList({ items, onActionComplete }: InboxListProps) {
   const [selected, setSelected] = useState<Set<string>>(new Set())
-  const [showClassifyPicker, setShowClassifyPicker] = useState(false)
   const queryClient = useQueryClient()
-  const addToast = useToastStore((s) => s.addToast)
 
   const toggleSelect = (id: string) => {
     setSelected((prev) => {
@@ -36,7 +31,7 @@ export function InboxList({ items, onActionComplete }: InboxListProps) {
     }
   }
 
-  const invalidateAll = async () => {
+  const handleBatchComplete = async () => {
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: ['inbox'] }),
       queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
@@ -45,81 +40,15 @@ export function InboxList({ items, onActionComplete }: InboxListProps) {
     onActionComplete()
   }
 
-  const handleBatchConfirm = async () => {
-    const withSuggestion = items.filter((i) => selected.has(i.id) && i.ai_suggested_bucket)
-    const skipped = selected.size - withSuggestion.length
-    const classifications = withSuggestion.map((i) => ({ note_id: i.id, bucket_id: i.ai_suggested_bucket! }))
-    if (classifications.length === 0) {
-      addToast('None of the selected items had an AI suggestion')
-      return
-    }
-    try {
-      await apiPost('/api/inbox/batch-classify', { classifications })
-      if (skipped > 0) {
-        addToast(`Confirmed ${classifications.length} of ${selected.size} — ${skipped} had no suggestion`)
-      }
-      await invalidateAll()
-    } catch {
-      addToast('Failed to confirm items')
-    }
-  }
-
-  const handleBatchArchive = async () => {
-    try {
-      for (const id of selected) {
-        await apiPost(`/api/inbox/${id}/archive`)
-      }
-      await invalidateAll()
-    } catch {
-      addToast('Failed to archive items')
-    }
-  }
-
-  const handleBatchDelete = async () => {
-    try {
-      for (const id of selected) {
-        await apiDelete(`/api/inbox/${id}`)
-      }
-      await invalidateAll()
-    } catch {
-      addToast('Failed to delete items')
-    }
-  }
-
-  const handleBatchClassify = async (bucketId: string, _bucketPath: string) => {
-    setShowClassifyPicker(false)
-    const classifications = [...selected].map((id) => ({ note_id: id, bucket_id: bucketId }))
-    try {
-      await apiPost('/api/inbox/batch-classify', { classifications })
-      await invalidateAll()
-    } catch {
-      addToast('Failed to classify items')
-    }
-  }
-
   return (
     <div className="flex flex-col gap-4">
       {selected.size > 0 && (
-        <div className="flex items-center gap-3 p-3 bg-surface border border-border rounded">
-          <span className="text-sm text-text-secondary">{selected.size} selected</span>
-          <Button variant="primary" className="text-xs px-3 py-1" onClick={handleBatchConfirm}>
-            Confirm as suggested
-          </Button>
-          <div className="relative">
-            <Button variant="secondary" className="text-xs px-3 py-1" onClick={() => setShowClassifyPicker(!showClassifyPicker)}>
-              Classify selected
-            </Button>
-            {showClassifyPicker && (
-              <ParaPicker onSelect={handleBatchClassify} onClose={() => setShowClassifyPicker(false)} />
-            )}
-          </div>
-          <Button variant="secondary" className="text-xs px-3 py-1" onClick={handleBatchArchive}>
-            Archive all
-          </Button>
-          <Button variant="secondary" className="text-xs px-3 py-1 text-red-500" onClick={handleBatchDelete}>
-            Delete all
-          </Button>
-        </div>
+        <InboxBatchActions
+          items={items}
+          selected={selected}
+          selectedCount={selected.size}
+          onComplete={handleBatchComplete}
+        />
       )}
 
       <div className="border border-border rounded overflow-hidden">

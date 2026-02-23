@@ -2,6 +2,7 @@ import type { ExtractedContent, ReelSource } from '@second-brain/shared'
 import type { ExtractionResult } from './extract-article.js'
 import { fetchYtDlpMetadata } from './run-ytdlp.js'
 import { describeThumbnail } from './describe-thumbnail.js'
+import { capTitle } from './cap-title.js'
 
 export async function extractReel(url: string): Promise<ExtractionResult> {
   const fallback = buildFallback(url)
@@ -12,7 +13,7 @@ export async function extractReel(url: string): Promise<ExtractionResult> {
     return { content: fallback, warning: "Couldn't extract reel content. Saved the link." }
   }
 
-  const title = meta.title || meta.description?.slice(0, 80) || 'Instagram Reel'
+  const title = capTitle(meta.title || meta.description?.slice(0, 80) || 'Instagram Reel')
   const caption = meta.description || ''
 
   // Analyze thumbnail for visual content description

@@ -1,6 +1,7 @@
 import { PDFParse } from 'pdf-parse'
 import type { ExtractedContent, PdfSource } from '@second-brain/shared'
 import type { ExtractionResult } from './extract-article.js'
+import { capTitle } from './cap-title.js'
 
 const MIN_MEANINGFUL_TEXT = 50
 
@@ -27,7 +28,7 @@ export async function extractPdf(
       }
     }
 
-    const title = fileName.replace(/\.pdf$/i, '') || 'PDF Document'
+    const title = capTitle(fileName.replace(/\.pdf$/i, '') || 'PDF Document')
 
     const source: PdfSource = {
       filename: fileName,

@@ -3,6 +3,7 @@ import { Readability } from '@mozilla/readability'
 import type { ExtractedContent, ArticleSource } from '@second-brain/shared'
 import { fetchHtml } from './fetch-html.js'
 import { isLikelyPaywall } from './detect-paywall.js'
+import { cleanArticleTitle } from './cap-title.js'
 
 export interface ExtractionResult {
   content: ExtractedContent
@@ -51,7 +52,7 @@ export async function extractArticle(url: string): Promise<ExtractionResult> {
     const source: ArticleSource = { url, domain, author: article.byline ?? undefined }
     return {
       content: {
-        title: article.title || domain,
+        title: cleanArticleTitle(article.title || domain),
         content: textContent,
         sourceType: 'article',
         source,
@@ -68,7 +69,7 @@ export async function extractArticle(url: string): Promise<ExtractionResult> {
 
   return {
     content: {
-      title: article.title || domain,
+      title: cleanArticleTitle(article.title || domain),
       content: textContent,
       sourceType: 'article',
       source,

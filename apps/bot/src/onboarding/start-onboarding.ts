@@ -1,5 +1,5 @@
 import { upsertOnboardingState } from '@second-brain/db'
-import { setOnboardingPhase } from './onboarding-store.js'
+import { setOnboarding } from './onboarding-store.js'
 import { ensureRootBuckets } from './ensure-root-buckets.js'
 
 /**
@@ -10,6 +10,6 @@ import { ensureRootBuckets } from './ensure-root-buckets.js'
 export async function startOnboarding(userId: string): Promise<void> {
   await ensureRootBuckets(userId)
 
-  setOnboardingPhase(userId, 'projects')
+  setOnboarding(userId)
   upsertOnboardingState(userId, 'projects').catch(() => {})
 }

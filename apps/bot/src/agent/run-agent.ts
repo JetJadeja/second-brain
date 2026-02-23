@@ -12,7 +12,7 @@ import { AGENT_TOOLS } from './tools/tool-definitions.js'
 import { buildUserMessage } from './build-user-message.js'
 import { preExtractAttachment } from './pre-extract.js'
 import { handleToolCalls, extractText } from './handle-tool-calls.js'
-import { loadOnboardingPhase } from '../onboarding/load-onboarding.js'
+import { loadIsOnboarding } from '../onboarding/load-onboarding.js'
 
 export interface AgentResult {
   text: string
@@ -26,15 +26,14 @@ export async function runAgent(
   const userId = ctx.userId
   if (!userId) return { text: 'Something went wrong.', noteIds: [] }
 
-  const [history, buckets, preExtracted, onboardingPhase] = await Promise.all([
+  const [history, buckets, preExtracted, isOnboarding] = await Promise.all([
     loadHistory(userId),
     getAllBuckets(userId),
     preExtractAttachment(ctx, userId),
-    loadOnboardingPhase(userId),
+    loadIsOnboarding(userId),
   ])
 
   const paraTree = buildParaTree(buckets)
-  const isOnboarding = onboardingPhase !== null
   const system = buildAgentSystemPrompt({ bucketTree: paraTree, noteContext, isOnboarding })
   const messages = buildMessages(history, ctx, preExtracted?.description)
 

@@ -1,34 +1,26 @@
 import { getOnboardingState } from '@second-brain/db'
-import type { OnboardingPhase } from '@second-brain/shared'
-import { getOnboardingPhase, setOnboardingPhase } from './onboarding-store.js'
+import { isOnboarding, setOnboarding } from './onboarding-store.js'
 
 /**
- * Loads the current onboarding phase for a user.
- * Returns the phase if the user is actively onboarding, null otherwise.
+ * Checks whether the user is currently onboarding.
  * Checks in-memory store first, falls back to database on miss.
  */
-export async function loadOnboardingPhase(
-  userId: string,
-): Promise<OnboardingPhase | null> {
-  // Check memory first
-  const cached = getOnboardingPhase(userId)
-  if (cached) return cached
+export async function loadIsOnboarding(userId: string): Promise<boolean> {
+  if (isOnboarding(userId)) return true
 
-  // Cache miss — check database
-  return await loadFromDatabase(userId)
+  return await checkDatabase(userId)
 }
 
-async function loadFromDatabase(userId: string): Promise<OnboardingPhase | null> {
+async function checkDatabase(userId: string): Promise<boolean> {
   try {
     const state = await getOnboardingState(userId)
-    if (!state || state.isComplete) return null
+    if (!state || state.isComplete) return false
 
-    // Populate in-memory store
-    setOnboardingPhase(userId, state.phase)
-    return state.phase
+    setOnboarding(userId)
+    return true
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err)
-    console.error('[loadOnboardingPhase] DB fallback failed:', msg)
-    return null
+    console.error('[loadIsOnboarding] DB fallback failed:', msg)
+    return false
   }
 }

@@ -1,6 +1,7 @@
 import type { ExtractedContent, ReelSource } from '@second-brain/shared'
 import type { ExtractionResult } from './extract-article.js'
 import { fetchYtDlpMetadata } from './run-ytdlp.js'
+import { describeThumbnail } from './describe-thumbnail.js'
 
 export async function extractReel(url: string): Promise<ExtractionResult> {
   const fallback = buildFallback(url)
@@ -12,12 +13,20 @@ export async function extractReel(url: string): Promise<ExtractionResult> {
   }
 
   const title = meta.title || meta.description?.slice(0, 80) || 'Instagram Reel'
-  const content = meta.description || ''
+  const caption = meta.description || ''
+
+  // Analyze thumbnail for visual content description
+  const thumbnailDescription = meta.thumbnail
+    ? await describeThumbnail(meta.thumbnail)
+    : null
+
+  const content = buildContent(caption, thumbnailDescription)
 
   const source: ReelSource = {
     url,
     domain: 'instagram.com',
     thumbnail_url: meta.thumbnail,
+    media_description: thumbnailDescription ?? undefined,
   }
 
   return {
@@ -29,6 +38,13 @@ export async function extractReel(url: string): Promise<ExtractionResult> {
       thumbnailUrl: meta.thumbnail,
     },
   }
+}
+
+function buildContent(caption: string, thumbnailDescription: string | null): string {
+  const parts: string[] = []
+  if (caption) parts.push(caption)
+  if (thumbnailDescription) parts.push(`Visual content: ${thumbnailDescription}`)
+  return parts.join('\n\n')
 }
 
 function buildFallback(url: string): ExtractedContent {

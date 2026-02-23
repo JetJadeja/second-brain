@@ -3,6 +3,8 @@ import { executeSaveNote } from './save-note.js'
 import { executeSearchNotes } from './search-notes.js'
 import { executeShowInbox } from './show-inbox.js'
 import { executeCreateBucket } from './create-bucket.js'
+import { executeRenameBucket } from './rename-bucket.js'
+import { executeDeleteBucket } from './delete-bucket.js'
 import { executeMoveNote } from './move-note.js'
 import { executeFinalizeOnboarding } from './finalize-onboarding.js'
 import type { ExtractedContent } from '@second-brain/shared'
@@ -55,6 +57,20 @@ async function dispatchTool(
         input['type'] as 'project' | 'area' | 'resource',
         input['parent_name'] as string | undefined,
         input['description'] as string | undefined,
+      )
+
+    case 'rename_bucket':
+      return executeRenameBucket(
+        context.userId,
+        String(input['current_name'] ?? ''),
+        String(input['new_name'] ?? ''),
+        input['description'] as string | undefined,
+      )
+
+    case 'delete_bucket':
+      return executeDeleteBucket(
+        context.userId,
+        String(input['bucket_name'] ?? ''),
       )
 
     case 'move_note':

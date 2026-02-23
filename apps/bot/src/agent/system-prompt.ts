@@ -92,6 +92,8 @@ function buildRules(): string {
     `- When they ask to find, search, or look up something, use search_notes.\n` +
     `- When they ask about their inbox or what's pending, use show_inbox.\n` +
     `- When they ask to create a folder (project, area, resource), use create_bucket. Include a description.\n` +
+    `- When they ask to rename or change a folder's name, use rename_bucket.\n` +
+    `- When they ask to delete or remove a folder, use delete_bucket. Mention how many notes will go back to inbox.\n` +
     `- When they want to move or refile a note, use move_note. Get the note ID from conversation history.\n` +
     `- For greetings, questions, conversation — just respond. Do NOT save conversational messages as notes.\n` +
     `- If ambiguous (e.g., just "coffee"), ask: did they mean to search or save a thought?\n` +

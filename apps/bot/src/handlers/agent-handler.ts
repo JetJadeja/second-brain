@@ -8,9 +8,6 @@ export async function runAgentHandler(ctx: BotContext): Promise<void> {
   if (!userId) return
 
   const text = ctx.message?.text ?? ctx.message?.caption ?? ''
-  if (text.trim()) {
-    recordUserMessage(userId, text)
-  }
 
   await ctx.replyWithChatAction('typing')
 
@@ -23,5 +20,8 @@ export async function runAgentHandler(ctx: BotContext): Promise<void> {
     storeReceipt(chatId, sentMessage.message_id, result.noteIds[0]!)
   }
 
+  if (text.trim()) {
+    recordUserMessage(userId, text)
+  }
   recordBotResponse(userId, result.text, result.noteIds)
 }

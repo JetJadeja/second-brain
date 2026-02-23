@@ -1,23 +1,13 @@
-import type { OnboardingPhase } from '@second-brain/shared'
+const activeUsers = new Set<string>()
 
-const store = new Map<string, OnboardingPhase>()
-
-export function setOnboardingPhase(userId: string, phase: OnboardingPhase): void {
-  if (phase === 'done') {
-    store.delete(userId)
-    return
-  }
-  store.set(userId, phase)
-}
-
-export function getOnboardingPhase(userId: string): OnboardingPhase | null {
-  return store.get(userId) ?? null
+export function setOnboarding(userId: string): void {
+  activeUsers.add(userId)
 }
 
 export function isOnboarding(userId: string): boolean {
-  return store.has(userId)
+  return activeUsers.has(userId)
 }
 
 export function clearOnboarding(userId: string): void {
-  store.delete(userId)
+  activeUsers.delete(userId)
 }

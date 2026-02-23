@@ -75,6 +75,44 @@ export const AGENT_TOOLS: AnthropicTool[] = [
     },
   },
   {
+    name: 'rename_bucket',
+    description:
+      'Rename an existing folder. Use when the user wants to rename, update, or change a folder\'s name. Can also update the description.',
+    input_schema: {
+      type: 'object' as const,
+      properties: {
+        current_name: {
+          type: 'string',
+          description: 'The current name of the folder to rename',
+        },
+        new_name: {
+          type: 'string',
+          description: 'The new name for the folder',
+        },
+        description: {
+          type: 'string',
+          description: 'Updated description for the folder. Only include if the user wants to change it.',
+        },
+      },
+      required: ['current_name', 'new_name'],
+    },
+  },
+  {
+    name: 'delete_bucket',
+    description:
+      'Delete a folder. Any notes inside will be moved back to the inbox for reclassification. Use when the user wants to delete or remove a folder.',
+    input_schema: {
+      type: 'object' as const,
+      properties: {
+        bucket_name: {
+          type: 'string',
+          description: 'The name of the folder to delete',
+        },
+      },
+      required: ['bucket_name'],
+    },
+  },
+  {
     name: 'move_note',
     description:
       'Move a note to a different folder. Use when the user wants to refile, move, or reclassify a note. Use note IDs from conversation history.',

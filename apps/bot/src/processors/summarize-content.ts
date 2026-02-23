@@ -8,7 +8,12 @@ interface SummarizeParams {
   userNote?: string | null
 }
 
-export async function summarizeContent(params: SummarizeParams): Promise<string | null> {
+export interface SummarizeResult {
+  title: string
+  summary: string
+}
+
+export async function summarizeContent(params: SummarizeParams): Promise<SummarizeResult | null> {
   if (!params.content.trim()) return null
 
   try {
@@ -19,10 +24,31 @@ export async function summarizeContent(params: SummarizeParams): Promise<string 
       userNote: params.userNote,
     })
 
-    return await callClaude({ messages: [{ role: 'user', content: prompt }] })
+    const raw = await callClaude({ messages: [{ role: 'user', content: prompt }] })
+    return parseResponse(raw)
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : String(error)
     console.error('[summarizeContent] Failed:', msg)
     return null
+  }
+}
+
+function parseResponse(raw: string): SummarizeResult | null {
+  try {
+    const cleaned = raw.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim()
+    const parsed = JSON.parse(cleaned) as Record<string, unknown>
+
+    const title = typeof parsed.title === 'string' ? parsed.title.trim() : ''
+    const summary = typeof parsed.summary === 'string' ? parsed.summary.trim() : ''
+
+    if (!summary) {
+      console.warn('[summarizeContent] Empty summary in response')
+      return null
+    }
+
+    return { title: title || '', summary }
+  } catch {
+    console.warn('[summarizeContent] Failed to parse JSON, using raw text as summary')
+    return { title: '', summary: raw.trim() }
   }
 }

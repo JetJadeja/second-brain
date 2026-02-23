@@ -5,6 +5,7 @@ import { createSuggestedBucket } from './create-suggested-bucket.js'
 interface SaveNoteParams {
   userId: string
   extracted: ExtractedContent
+  title?: string
   userNote: string | null
   summary: string | null
   embedding: number[] | null
@@ -17,7 +18,7 @@ export interface SaveNoteResult {
 }
 
 export async function saveNote(params: SaveNoteParams): Promise<SaveNoteResult> {
-  const { userId, extracted, userNote, summary, embedding, classification } = params
+  const { userId, extracted, title, userNote, summary, embedding, classification } = params
 
   const createdBucketName = await handleBucketCreation(userId, classification)
   const bucketFields = resolveBucketFields(classification)
@@ -25,7 +26,7 @@ export async function saveNote(params: SaveNoteParams): Promise<SaveNoteResult> 
 
   const note = await createNote({
     user_id: userId,
-    title: extracted.title,
+    title: title ?? extracted.title,
     original_content: extracted.content || null,
     ai_summary: summary,
     source_type: extracted.sourceType,

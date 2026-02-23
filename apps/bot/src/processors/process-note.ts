@@ -25,7 +25,7 @@ export async function processNote(
     .join('\n\n')
 
   // Steps 1, 2, 3 run in parallel
-  const [embedding, summary, classification] = await Promise.all([
+  const [embedding, summarizeResult, classification] = await Promise.all([
     generateEmbedding(embeddingText),
     summarizeContent({
       title: extracted.title,
@@ -43,10 +43,14 @@ export async function processNote(
     }),
   ])
 
+  const aiTitle = summarizeResult?.title || null
+  const summary = summarizeResult?.summary ?? null
+
   // Step 4: Save note (may create a bucket from classification suggestion)
   const { note, createdBucketName } = await saveNote({
     userId,
     extracted,
+    title: aiTitle || extracted.title,
     userNote,
     summary,
     embedding,

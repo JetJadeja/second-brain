@@ -6,6 +6,7 @@ import { Button } from '../ui/Button'
 import { ParaPicker } from '../para/ParaPicker'
 import { apiPost, apiDelete } from '../../lib/api-client'
 import { useQueryClient } from '@tanstack/react-query'
+import { useToastStore } from '../../stores/toast-store'
 
 interface InboxListProps {
   items: InboxItem[]
@@ -16,6 +17,7 @@ export function InboxList({ items, onActionComplete }: InboxListProps) {
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [showClassifyPicker, setShowClassifyPicker] = useState(false)
   const queryClient = useQueryClient()
+  const addToast = useToastStore((s) => s.addToast)
 
   const toggleSelect = (id: string) => {
     setSelected((prev) => {
@@ -44,33 +46,55 @@ export function InboxList({ items, onActionComplete }: InboxListProps) {
   }
 
   const handleBatchConfirm = async () => {
-    const classifications = items
-      .filter((i) => selected.has(i.id) && i.ai_suggested_bucket)
-      .map((i) => ({ note_id: i.id, bucket_id: i.ai_suggested_bucket! }))
-    if (classifications.length === 0) return
-    await apiPost('/api/inbox/batch-classify', { classifications })
-    await invalidateAll()
+    const withSuggestion = items.filter((i) => selected.has(i.id) && i.ai_suggested_bucket)
+    const skipped = selected.size - withSuggestion.length
+    const classifications = withSuggestion.map((i) => ({ note_id: i.id, bucket_id: i.ai_suggested_bucket! }))
+    if (classifications.length === 0) {
+      addToast('None of the selected items had an AI suggestion')
+      return
+    }
+    try {
+      await apiPost('/api/inbox/batch-classify', { classifications })
+      if (skipped > 0) {
+        addToast(`Confirmed ${classifications.length} of ${selected.size} — ${skipped} had no suggestion`)
+      }
+      await invalidateAll()
+    } catch {
+      addToast('Failed to confirm items')
+    }
   }
 
   const handleBatchArchive = async () => {
-    for (const id of selected) {
-      await apiPost(`/api/inbox/${id}/archive`)
+    try {
+      for (const id of selected) {
+        await apiPost(`/api/inbox/${id}/archive`)
+      }
+      await invalidateAll()
+    } catch {
+      addToast('Failed to archive items')
     }
-    await invalidateAll()
   }
 
   const handleBatchDelete = async () => {
-    for (const id of selected) {
-      await apiDelete(`/api/inbox/${id}`)
+    try {
+      for (const id of selected) {
+        await apiDelete(`/api/inbox/${id}`)
+      }
+      await invalidateAll()
+    } catch {
+      addToast('Failed to delete items')
     }
-    await invalidateAll()
   }
 
   const handleBatchClassify = async (bucketId: string, _bucketPath: string) => {
     setShowClassifyPicker(false)
     const classifications = [...selected].map((id) => ({ note_id: id, bucket_id: bucketId }))
-    await apiPost('/api/inbox/batch-classify', { classifications })
-    await invalidateAll()
+    try {
+      await apiPost('/api/inbox/batch-classify', { classifications })
+      await invalidateAll()
+    } catch {
+      addToast('Failed to classify items')
+    }
   }
 
   return (

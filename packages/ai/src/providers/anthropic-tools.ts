@@ -1,5 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk'
-import { getClient, DEFAULT_MODEL, isRetryable, sleep } from './anthropic.js'
+import { getClient, DEFAULT_MODEL } from './anthropic.js'
+import { withRetry } from './with-retry.js'
 
 export type AnthropicTool = Anthropic.Tool
 export type AnthropicMessage = Anthropic.Message
@@ -30,13 +31,5 @@ export async function callClaudeWithTools(
     tools,
   }
 
-  try {
-    return await anthropic.messages.create(request)
-  } catch (error: unknown) {
-    if (isRetryable(error)) {
-      await sleep(1000)
-      return await anthropic.messages.create(request)
-    }
-    throw error
-  }
+  return withRetry(() => anthropic.messages.create(request))
 }

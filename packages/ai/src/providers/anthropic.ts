@@ -1,4 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk'
+import { withRetry } from './with-retry.js'
 
 let client: Anthropic | null = null
 
@@ -34,29 +35,16 @@ export async function callClaude(params: CallClaudeParams): Promise<string> {
     ...(system ? { system } : {}),
   }
 
-  try {
-    const response = await anthropic.messages.create(request)
-    const block = response.content[0]
-    if (!block || block.type !== 'text') {
-      throw new Error('Claude returned no text content')
-    }
-    return block.text
-  } catch (error: unknown) {
-    if (isRetryable(error)) {
-      await sleep(1000)
-      const response = await anthropic.messages.create(request)
-      const block = response.content[0]
-      if (!block || block.type !== 'text') {
-        throw new Error('Claude returned no text content after retry')
-      }
-      return block.text
-    }
-    throw error
+  const response = await withRetry(() => anthropic.messages.create(request))
+  const block = response.content[0]
+  if (!block || block.type !== 'text') {
+    throw new Error('Claude returned no text content')
   }
+  return block.text
 }
 
 interface CallClaudeVisionParams {
-  imageData: string // base64-encoded image
+  imageData: string
   mediaType: 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp'
   prompt: string
   system?: string
@@ -83,34 +71,10 @@ export async function callClaudeVision(params: CallClaudeVisionParams): Promise<
     ...(system ? { system } : {}),
   }
 
-  try {
-    const response = await anthropic.messages.create(request)
-    const block = response.content[0]
-    if (!block || block.type !== 'text') {
-      throw new Error('Claude Vision returned no text content')
-    }
-    return block.text
-  } catch (error: unknown) {
-    if (isRetryable(error)) {
-      await sleep(1000)
-      const response = await anthropic.messages.create(request)
-      const block = response.content[0]
-      if (!block || block.type !== 'text') {
-        throw new Error('Claude Vision returned no text content after retry')
-      }
-      return block.text
-    }
-    throw error
+  const response = await withRetry(() => anthropic.messages.create(request))
+  const block = response.content[0]
+  if (!block || block.type !== 'text') {
+    throw new Error('Claude Vision returned no text content')
   }
-}
-
-export function isRetryable(error: unknown): boolean {
-  if (error instanceof Anthropic.APIError) {
-    return error.status === 429 || error.status === 529
-  }
-  return false
-}
-
-export function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms))
+  return block.text
 }

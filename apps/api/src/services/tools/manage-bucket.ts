@@ -1,7 +1,7 @@
 import { getAllBuckets, updateBucket, deleteBucket } from '@second-brain/db'
-import type { ParaBucket } from '@second-brain/shared'
 import { invalidateParaCache } from '../para/para-cache.js'
 import { reevaluateInbox } from '../processors/reevaluate-inbox.js'
+import { findBucketByName } from './find-bucket.js'
 
 interface ManageBucketInput {
   action: 'rename' | 'move' | 'delete'
@@ -23,7 +23,7 @@ export async function executeManageBucket(
   input: ManageBucketInput,
 ): Promise<ManageBucketResult> {
   const buckets = await getAllBuckets(userId)
-  const bucket = findBucket(buckets, input.bucketName)
+  const bucket = findBucketByName(buckets, input.bucketName)
   if (!bucket) {
     throw new Error(`Could not find a folder matching "${input.bucketName}"`)
   }
@@ -38,7 +38,7 @@ export async function executeManageBucket(
 
     case 'move': {
       if (!input.newParentName) throw new Error('new_parent_name is required for move')
-      const parent = findBucket(buckets, input.newParentName)
+      const parent = findBucketByName(buckets, input.newParentName)
       if (!parent) throw new Error(`Could not find parent folder "${input.newParentName}"`)
       await updateBucket(userId, bucket.id, { parent_id: parent.id })
       invalidateParaCache(userId)
@@ -55,14 +55,4 @@ export async function executeManageBucket(
     default:
       throw new Error(`Unknown action: ${input.action}`)
   }
-}
-
-function findBucket(buckets: ParaBucket[], name: string): ParaBucket | null {
-  const lower = name.toLowerCase().trim()
-  const segments = lower.split(/\s*>\s*/).map((s) => s.trim())
-  const lastName = segments[segments.length - 1]
-  if (!lastName) return null
-
-  const matches = buckets.filter((b) => b.name.toLowerCase() === lastName)
-  return matches[0] ?? null
 }

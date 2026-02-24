@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
@@ -8,7 +8,6 @@ import type { LinkCodeResponse, LinkStatusResponse } from '../../lib/types'
 export function TelegramLink() {
   const [code, setCode] = useState<string | null>(null)
   const [expiresAt, setExpiresAt] = useState<string | null>(null)
-  const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const { data: linkStatus, refetch } = useQuery<LinkStatusResponse>({
     queryKey: ['link-status'],
@@ -16,20 +15,7 @@ export function TelegramLink() {
   })
 
   useEffect(() => {
-    if (code && !linkStatus?.linked) {
-      pollingRef.current = setInterval(() => { refetch() }, 4000)
-    }
-    return () => {
-      if (pollingRef.current) clearInterval(pollingRef.current)
-    }
-  }, [code, linkStatus?.linked, refetch])
-
-  useEffect(() => {
-    if (linkStatus?.linked && pollingRef.current) {
-      clearInterval(pollingRef.current)
-      pollingRef.current = null
-      setCode(null)
-    }
+    if (linkStatus?.linked) setCode(null)
   }, [linkStatus?.linked])
 
   const handleGenerateCode = async () => {

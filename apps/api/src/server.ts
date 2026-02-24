@@ -7,6 +7,7 @@ import { inboxRouter } from './routes/inbox.js'
 import { paraTreeRouter } from './routes/para-tree.js'
 import { paraBucketsRouter } from './routes/para-buckets.js'
 import { notesRouter } from './routes/notes.js'
+import { noteConnectionsRouter } from './routes/note-connections.js'
 import { linkRouter } from './routes/link.js'
 import { suggestionsRouter } from './routes/suggestions.js'
 import { chatRouter } from './routes/chat.js'
@@ -38,6 +39,7 @@ app.use('/api/inbox', inboxRouter)
 app.use('/api/para', paraTreeRouter)
 app.use('/api/para', paraBucketsRouter)
 app.use('/api/notes', notesRouter)
+app.use('/api/notes', noteConnectionsRouter)
 app.use('/api/link', linkRouter)
 app.use('/api/suggestions', suggestionsRouter)
 

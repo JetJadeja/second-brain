@@ -5,7 +5,6 @@ import {
   deleteNote,
   incrementViewCount,
   getConnectionsForNote,
-  createConnection,
   insertNoteView,
 } from '@second-brain/db'
 import { getBucketPath } from '../services/para/para-cache.js'
@@ -24,10 +23,6 @@ const updateNoteSchema = z.object({
     .enum(['raw', 'key_points', 'distilled', 'evergreen'])
     .optional(),
   key_points: z.array(z.string()).optional(),
-})
-
-const connectSchema = z.object({
-  target_note_id: z.string().uuid(),
 })
 
 notesRouter.get('/:noteId', async (req, res) => {
@@ -113,28 +108,4 @@ notesRouter.delete('/:noteId', async (req, res) => {
   const userId = req.userId!
   await deleteNote(userId, req.params['noteId']!)
   res.json({ success: true })
-})
-
-notesRouter.post('/:noteId/connect', async (req, res) => {
-  const userId = req.userId!
-  const noteId = req.params['noteId']!
-  const parsed = connectSchema.safeParse(req.body)
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.flatten() })
-    return
-  }
-
-  // Verify both notes exist and belong to user
-  const [source, target] = await Promise.all([
-    getNoteById(userId, noteId),
-    getNoteById(userId, parsed.data.target_note_id),
-  ])
-
-  if (!source || !target) {
-    res.status(404).json({ error: 'Note not found' })
-    return
-  }
-
-  const conn = await createConnection(userId, noteId, parsed.data.target_note_id, 'explicit')
-  res.status(201).json(conn)
 })

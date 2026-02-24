@@ -1,8 +1,7 @@
 import { getAllBuckets, markOnboardingComplete } from '@second-brain/db'
 import type { ParaBucket } from '@second-brain/shared'
-// TODO: Update imports when onboarding moves to API in B.5
-// import { createOnboardingBuckets } from '../onboarding/create-onboarding-buckets.js'
-// import { clearOnboarding } from '../onboarding/onboarding-store.js'
+import { createOnboardingBuckets } from '../onboarding/create-onboarding-buckets.js'
+import { clearOnboarding } from '../onboarding/onboarding-store.js'
 
 interface BucketSpec {
   name: string
@@ -17,14 +16,23 @@ export interface FinalizeOnboardingResult {
 }
 
 export async function executeFinalizeOnboarding(
-  _userId: string,
-  _buckets: BucketSpec[],
+  userId: string,
+  buckets: BucketSpec[],
 ): Promise<FinalizeOnboardingResult> {
-  // Placeholder until onboarding moves in B.5
-  throw new Error('finalize-onboarding not yet wired — waiting for B.5')
+  const created = await createOnboardingBuckets(userId, buckets)
+
+  // Mark onboarding complete in both DB and memory
+  clearOnboarding(userId)
+  markOnboardingComplete(userId).catch(() => {})
+
+  // Build structure summary from final bucket state
+  const allBuckets = await getAllBuckets(userId)
+  const summary = buildStructureSummary(allBuckets)
+
+  return { created, summary }
 }
 
-export function buildStructureSummary(buckets: ParaBucket[]): string {
+function buildStructureSummary(buckets: ParaBucket[]): string {
   const lines: string[] = []
 
   for (const type of ['project', 'area', 'resource'] as const) {

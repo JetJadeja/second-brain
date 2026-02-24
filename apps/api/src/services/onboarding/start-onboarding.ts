@@ -11,5 +11,7 @@ export async function startOnboarding(userId: string): Promise<void> {
   await ensureRootBuckets(userId)
 
   setOnboardingPhase(userId, 'projects')
-  upsertOnboardingState(userId, 'projects').catch(() => {})
+  upsertOnboardingState(userId, 'projects').catch((err) =>
+    console.error('[start-onboarding] upsert failed:', err),
+  )
 }

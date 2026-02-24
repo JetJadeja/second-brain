@@ -9,7 +9,9 @@ import { clearOnboarding } from './onboarding-store.js'
 export async function completeOnboarding(userId: string): Promise<string> {
   // Clear onboarding state
   clearOnboarding(userId)
-  markOnboardingComplete(userId).catch(() => {})
+  markOnboardingComplete(userId).catch((err) =>
+    console.error('[complete-onboarding] mark complete failed:', err),
+  )
 
   // Build summary
   const buckets = await getAllBuckets(userId)

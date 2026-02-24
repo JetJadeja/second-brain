@@ -25,7 +25,9 @@ export async function executeFinalizeOnboarding(
 
   // Mark onboarding complete in both DB and memory
   clearOnboarding(userId)
-  markOnboardingComplete(userId).catch(() => {})
+  markOnboardingComplete(userId).catch((err) =>
+    console.error('[finalize-onboarding] mark complete failed:', err),
+  )
 
   // Build structure summary from final bucket state
   const allBuckets = await getAllBuckets(userId)

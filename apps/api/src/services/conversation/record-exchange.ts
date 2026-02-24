@@ -38,6 +38,10 @@ function recordEntry(
   })
 
   // Async DB write + cleanup (fire-and-forget)
-  saveConversationMessage(userId, role, content, noteIds).catch(() => {})
-  deleteOldConversationMessages(userId, MAX_ENTRIES).catch(() => {})
+  saveConversationMessage(userId, role, content, noteIds).catch((err) =>
+    console.error('[record-exchange] save failed:', err),
+  )
+  deleteOldConversationMessages(userId, MAX_ENTRIES).catch((err) =>
+    console.error('[record-exchange] cleanup failed:', err),
+  )
 }

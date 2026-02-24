@@ -12,5 +12,7 @@ export function maybeTriggerAnalysis(userId: string): void {
   saveCounts.set(userId, 0)
 
   // Fire-and-forget — errors handled inside analyzeBuckets
-  analyzeBuckets(userId).catch(() => {})
+  analyzeBuckets(userId).catch((err) =>
+    console.error('[trigger-analysis] analysis failed:', err),
+  )
 }

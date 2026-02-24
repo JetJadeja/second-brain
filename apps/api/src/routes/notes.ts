@@ -43,8 +43,12 @@ notesRouter.get('/:noteId', async (req, res) => {
   }
 
   // Fire view tracking asynchronously
-  incrementViewCount(userId, noteId).catch(() => {})
-  insertNoteView(userId, noteId).catch(() => {})
+  incrementViewCount(userId, noteId).catch((err) =>
+    console.error('[notes] view count increment failed:', err),
+  )
+  insertNoteView(userId, noteId).catch((err) =>
+    console.error('[notes] view insert failed:', err),
+  )
 
   const [connections, bucketPath] = await Promise.all([
     getConnectionsForNote(userId, noteId),

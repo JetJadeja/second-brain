@@ -45,7 +45,9 @@ export async function processNote(
 
   // Step 5: Detect connections (fire and forget)
   if (embedding) {
-    detectConnections(userId, note.id, embedding).catch(() => {})
+    detectConnections(userId, note.id, embedding).catch((err) =>
+      console.error('[process-note] connection detection failed:', err),
+    )
   }
 
   // Step 6: Maybe trigger maintenance analysis (fire and forget)

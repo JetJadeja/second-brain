@@ -14,9 +14,11 @@ export function buildSummarizePrompt(params: SummarizePromptParams): string {
     ? content.slice(0, 6000) + '\n...[truncated]'
     : content
 
-  let prompt = `Summarize this ${sourceType} in 2-3 concise sentences. `
-  prompt += `Capture the core insight or main point, not just what it's about. `
-  prompt += `Be specific and informative.\n\n`
+  let prompt = `Summarize this ${sourceType}. Extract the specific, unique information — `
+  prompt += `facts, names, numbers, steps, frameworks, key arguments. `
+  prompt += `Someone reading only the summary should learn the key details without reading the original.\n\n`
+  prompt += `LENGTH: Scale with content. For short content (a tweet or brief thought), 1-2 sentences. `
+  prompt += `For medium content, 2-4 sentences. For long articles, a detailed paragraph with specific data points.\n\n`
   prompt += `Title: ${title}\n\n`
   prompt += `Content:\n${truncated}`
 

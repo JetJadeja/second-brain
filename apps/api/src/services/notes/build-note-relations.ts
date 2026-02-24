@@ -19,7 +19,8 @@ export async function buildNoteRelations(
   noteId: string,
   connections: NoteConnection[],
 ): Promise<NoteRelations> {
-  const relatedNotes: RelatedNote[] = []
+  const relatedMap = new Map<string, RelatedNote>()
+  const backlinkIds = new Set<string>()
   const backlinks: Backlink[] = []
 
   for (const conn of connections) {
@@ -28,8 +29,10 @@ export async function buildNoteRelations(
     if (!otherNote) continue
 
     const otherPath = await getBucketPath(userId, otherNote.bucket_id)
+    const similarity = conn.similarity ?? 0
 
-    if (conn.target_id === noteId) {
+    if (conn.target_id === noteId && !backlinkIds.has(otherNote.id)) {
+      backlinkIds.add(otherNote.id)
       backlinks.push({
         id: otherNote.id,
         title: otherNote.title,
@@ -37,15 +40,18 @@ export async function buildNoteRelations(
       })
     }
 
-    relatedNotes.push({
-      id: otherNote.id,
-      title: otherNote.title,
-      ai_summary: otherNote.ai_summary,
-      similarity: conn.similarity ?? 0,
-      bucket_path: otherPath,
-      connection_type: conn.type,
-    })
+    const existing = relatedMap.get(otherNote.id)
+    if (!existing || similarity > existing.similarity) {
+      relatedMap.set(otherNote.id, {
+        id: otherNote.id,
+        title: otherNote.title,
+        ai_summary: otherNote.ai_summary,
+        similarity,
+        bucket_path: otherPath,
+        connection_type: conn.type,
+      })
+    }
   }
 
-  return { relatedNotes, backlinks }
+  return { relatedNotes: [...relatedMap.values()], backlinks }
 }

@@ -1,5 +1,6 @@
 import {
   callClaudeWithTools,
+  extractText,
   type AnthropicMessageParam,
   type AnthropicContentBlock,
   type AnthropicToolResultBlockParam,
@@ -49,16 +50,6 @@ export async function handleToolCalls(
   })
 
   return { text: extractText(followUp.content), noteIds }
-}
-
-export function extractText(content: AnthropicContentBlock[]): string {
-  const texts: string[] = []
-  for (const block of content) {
-    if (block.type === 'text' && block.text.trim()) {
-      texts.push(block.text)
-    }
-  }
-  return texts.join('\n') || 'Done!'
 }
 
 function collectNoteIds(resultJson: string, noteIds: string[]): void {

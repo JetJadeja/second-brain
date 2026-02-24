@@ -2,6 +2,7 @@ import {
   callClaudeWithTools,
   buildExtractionAgentSystem,
   buildExtractionAgentUser,
+  extractText,
   type AnthropicContentBlock,
   type AnthropicToolResultBlockParam,
 } from '@second-brain/ai'
@@ -47,7 +48,7 @@ export async function runExtractionAgent(url: string): Promise<ExtractionAgentRe
     maxTokens: 1024,
   })
 
-  const agentText = extractText(followUp.content)
+  const agentText = extractText(followUp.content, 'first')
   return assembleResult(agentText, toolData)
 }
 
@@ -110,11 +111,3 @@ function parseAgentJson(text: string): AgentOutput | null {
   }
 }
 
-function extractText(content: AnthropicContentBlock[]): string {
-  for (const block of content) {
-    if (block.type === 'text' && block.text.trim()) {
-      return block.text
-    }
-  }
-  return ''
-}

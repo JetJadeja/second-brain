@@ -1,4 +1,4 @@
-import { callClaudeWithTools } from '@second-brain/ai'
+import { callClaudeWithTools, extractText } from '@second-brain/ai'
 import { getAllBuckets } from '@second-brain/db'
 import { buildParaTree } from '@second-brain/shared'
 import type { ExtractedContent } from '@second-brain/shared'
@@ -6,7 +6,7 @@ import { loadHistory } from '../conversation/load-history.js'
 import { buildAgentSystemPrompt } from './system-prompt.js'
 import { AGENT_TOOLS } from '../tools/tool-definitions.js'
 import { buildMessages } from './build-messages.js'
-import { handleToolCalls, extractText } from './handle-tool-calls.js'
+import { handleToolCalls } from './handle-tool-calls.js'
 import { loadOnboardingPhase } from '../onboarding/load-onboarding.js'
 
 export interface AgentResult {

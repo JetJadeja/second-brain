@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { InboxItem } from '../../lib/types'
+import { formatRelativeTime, formatFullDate } from '../../lib/format-time'
 import { SourceIcon } from '../ui/SourceIcon'
 import { Chip } from '../ui/Chip'
 import { Button } from '../ui/Button'
@@ -103,7 +104,9 @@ export function InboxList({ items, onActionComplete }: InboxListProps) {
                 <Chip label={item.ai_suggested_bucket_path} />
               )}
             </div>
-            <span className="text-xs text-text-tertiary w-24">{item.captured_at}</span>
+            <span className="text-xs text-text-tertiary w-24" title={formatFullDate(item.captured_at)}>
+              {formatRelativeTime(item.captured_at)}
+            </span>
           </div>
         ))}
       </div>

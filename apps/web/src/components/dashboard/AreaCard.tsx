@@ -1,4 +1,5 @@
 import type { DashboardArea } from '../../lib/types'
+import { formatRelativeTime, formatFullDate } from '../../lib/format-time'
 import { Card } from '../ui/Card'
 import { StatusDot } from '../ui/StatusDot'
 
@@ -24,7 +25,9 @@ export function AreaCard({ bucket }: AreaCardProps) {
       <div className="flex items-center gap-3">
         <span className="text-xs text-text-tertiary">{bucket.note_count} notes</span>
         {bucket.last_capture_at && (
-          <span className="text-xs text-text-tertiary">Last: {bucket.last_capture_at}</span>
+          <span className="text-xs text-text-tertiary" title={formatFullDate(bucket.last_capture_at)}>
+            Last: {formatRelativeTime(bucket.last_capture_at)}
+          </span>
         )}
       </div>
     </Card>

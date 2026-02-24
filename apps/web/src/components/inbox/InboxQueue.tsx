@@ -97,6 +97,7 @@ export function InboxQueue({ items, onActionComplete }: InboxQueueProps) {
             noteId={item.data.id}
             suggestedBucketId={item.data.ai_suggested_bucket}
             suggestedBucketPath={item.data.ai_suggested_bucket_path}
+            confidence={item.data.ai_confidence}
             onActionComplete={handleComplete}
           />
         </>

@@ -10,6 +10,7 @@ interface InboxActionsProps {
   noteId: string
   suggestedBucketId: string | null
   suggestedBucketPath: string | null
+  confidence: number | null
   onActionComplete: () => void
 }
 
@@ -17,12 +18,14 @@ export function InboxActions({
   noteId,
   suggestedBucketId,
   suggestedBucketPath,
+  confidence,
   onActionComplete,
 }: InboxActionsProps) {
   const queryClient = useQueryClient()
   const addToast = useToastStore((s) => s.addToast)
   const [showPicker, setShowPicker] = useState(false)
   const [loading, setLoading] = useState(false)
+  const isLowConfidence = confidence !== null && confidence < 0.7
 
   const invalidateAll = async () => {
     await Promise.all([
@@ -95,12 +98,13 @@ export function InboxActions({
       {suggestedBucketId && (
         <Button
           variant="primary"
-          className="text-sm px-4 py-2 inline-flex items-center gap-2"
+          className={`text-sm px-4 py-2 inline-flex items-center gap-2 ${isLowConfidence ? 'opacity-80 border-dashed' : ''}`}
           onClick={handleConfirm}
           disabled={loading}
         >
           <Check size={14} />
           Confirm: {suggestedBucketPath ?? 'Suggested'}
+          {isLowConfidence && <span className="text-xs opacity-70">(uncertain)</span>}
         </Button>
       )}
       <div className="relative">

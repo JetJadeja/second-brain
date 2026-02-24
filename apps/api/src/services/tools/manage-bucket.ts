@@ -1,6 +1,6 @@
 import { getAllBuckets, updateBucket, deleteBucket } from '@second-brain/db'
 import type { ParaBucket } from '@second-brain/shared'
-import { invalidateParaCache } from '../para-tree.js'
+import { invalidateParaCache } from '../para/para-cache.js'
 import { reevaluateInbox } from '../processors/reevaluate-inbox.js'
 
 interface ManageBucketInput {

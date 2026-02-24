@@ -12,7 +12,7 @@ import {
   getBucketPath,
   invalidateParaCache,
   getAllBuckets,
-} from '../services/para-tree.js'
+} from '../services/para/para-cache.js'
 import { reevaluateInbox } from '../services/processors/reevaluate-inbox.js'
 import { NOTE_SOURCES, DISTILLATION_STATUSES } from '@second-brain/shared'
 import type {

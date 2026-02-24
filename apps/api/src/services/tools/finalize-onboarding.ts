@@ -2,7 +2,7 @@ import { getAllBuckets, markOnboardingComplete } from '@second-brain/db'
 import type { ParaBucket } from '@second-brain/shared'
 import { createOnboardingBuckets } from '../onboarding/create-onboarding-buckets.js'
 import { clearOnboarding } from '../onboarding/onboarding-store.js'
-import { invalidateParaCache } from '../para-tree.js'
+import { invalidateParaCache } from '../para/para-cache.js'
 
 interface BucketSpec {
   name: string

@@ -9,7 +9,7 @@ import {
   findSimilarNotes,
 } from '@second-brain/db'
 import { getBucketById } from '@second-brain/db'
-import { getBucketPath, getAllBuckets } from '../services/para-tree.js'
+import { getBucketPath, getAllBuckets } from '../services/para/para-cache.js'
 import type { InboxResponse, InboxItem } from '@second-brain/shared'
 
 export const inboxRouter = Router()

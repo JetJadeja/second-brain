@@ -2,7 +2,7 @@ import { Router } from 'express'
 import { getInboxNotes, countInboxNotes } from '@second-brain/db'
 import { getRecentlyViewed } from '@second-brain/db'
 import { getNoteById, getRecentNotes } from '@second-brain/db'
-import { getBucketPath, getAllBuckets } from '../services/para-tree.js'
+import { getBucketPath, getAllBuckets } from '../services/para/para-cache.js'
 import { buildDashboardAreas } from '../services/build-dashboard-areas.js'
 import type {
   DashboardResponse,

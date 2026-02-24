@@ -79,13 +79,32 @@ export async function extractTweet(url: string): Promise<ExtractionResult> {
     author_handle: authorHandle,
   }
 
+  const { content, title } = buildTweetContent(tweet, authorHandle)
+
   return {
     content: {
-      title: `@${authorHandle}: ${tweet.text.slice(0, 80)}`,
-      content: tweet.text,
+      title,
+      content,
       sourceType: 'tweet',
       source,
     },
+  }
+}
+
+function buildTweetContent(
+  tweet: NonNullable<FxTweetResponse['tweet']>,
+  authorHandle: string,
+): { content: string; title: string } {
+  if (tweet.quote) {
+    const quotedHandle = tweet.quote.author.screen_name
+    const content = `${tweet.text}\n\nQuote tweet by @${quotedHandle}:\n${tweet.quote.text}`
+    const title = `@${authorHandle} QT @${quotedHandle}: ${tweet.quote.text.slice(0, 60)}`
+    return { content, title }
+  }
+
+  return {
+    content: tweet.text,
+    title: `@${authorHandle}: ${tweet.text.slice(0, 80)}`,
   }
 }
 

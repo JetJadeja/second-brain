@@ -5,6 +5,9 @@ import { executeArchiveProject } from './execute-archive.js'
 import { executeReclassifyNote } from './execute-reclassify.js'
 import { executeCreateSubBucket } from './execute-create-sub-bucket.js'
 import { executeCreateBucket } from './execute-create-bucket.js'
+import { executeMergeBuckets } from './execute-merge.js'
+import { executeRenameBucket } from './execute-rename.js'
+import { executeDeleteBucket } from './execute-delete.js'
 
 const splitBucketSchema = z.object({
   bucket_id: z.string(),
@@ -42,6 +45,27 @@ const createBucketSchema = z.object({
   parent_type: z.enum(['project', 'area', 'resource']),
 })
 
+const mergeBucketsSchema = z.object({
+  source_bucket_id: z.string(),
+  source_name: z.string(),
+  target_bucket_id: z.string(),
+  target_name: z.string(),
+  reason: z.string(),
+})
+
+const renameBucketSchema = z.object({
+  bucket_id: z.string(),
+  old_name: z.string(),
+  new_name: z.string(),
+  reason: z.string(),
+})
+
+const deleteBucketSchema = z.object({
+  bucket_id: z.string(),
+  bucket_name: z.string(),
+  reason: z.string(),
+})
+
 export async function executeSuggestion(
   userId: string,
   suggestion: Suggestion,
@@ -57,6 +81,12 @@ export async function executeSuggestion(
       return executeCreateSubBucket(userId, createSubBucketSchema.parse(suggestion.payload))
     case 'create_bucket':
       return executeCreateBucket(userId, createBucketSchema.parse(suggestion.payload))
+    case 'merge_buckets':
+      return executeMergeBuckets(userId, mergeBucketsSchema.parse(suggestion.payload))
+    case 'rename_bucket':
+      return executeRenameBucket(userId, renameBucketSchema.parse(suggestion.payload))
+    case 'delete_bucket':
+      return executeDeleteBucket(userId, deleteBucketSchema.parse(suggestion.payload))
     default:
       throw new Error(`Unknown suggestion type: ${suggestion.type}`)
   }

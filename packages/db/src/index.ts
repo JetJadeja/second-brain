@@ -1,6 +1,7 @@
 export { getServiceClient, getAnonClient } from './client.js'
 
 export * from './queries/notes.js'
+export * from './queries/note-stats.js'
 export * from './queries/para.js'
 export * from './queries/inbox.js'
 export * from './queries/connections.js'

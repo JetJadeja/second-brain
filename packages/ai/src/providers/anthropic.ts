@@ -2,7 +2,7 @@ import Anthropic from '@anthropic-ai/sdk'
 
 let client: Anthropic | null = null
 
-function getClient(): Anthropic {
+export function getClient(): Anthropic {
   if (client) return client
 
   const apiKey = process.env['ANTHROPIC_API_KEY']
@@ -14,14 +14,14 @@ function getClient(): Anthropic {
   return client
 }
 
+export const DEFAULT_MODEL = 'claude-sonnet-4-20250514'
+
 interface CallClaudeParams {
   messages: Array<{ role: 'user' | 'assistant'; content: string }>
   system?: string
   model?: string
   maxTokens?: number
 }
-
-const DEFAULT_MODEL = 'claude-sonnet-4-20250514'
 
 export async function callClaude(params: CallClaudeParams): Promise<string> {
   const { messages, system, model = DEFAULT_MODEL, maxTokens = 1024 } = params
@@ -104,13 +104,13 @@ export async function callClaudeVision(params: CallClaudeVisionParams): Promise<
   }
 }
 
-function isRetryable(error: unknown): boolean {
+export function isRetryable(error: unknown): boolean {
   if (error instanceof Anthropic.APIError) {
     return error.status === 429 || error.status === 529
   }
   return false
 }
 
-function sleep(ms: number): Promise<void> {
+export function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }

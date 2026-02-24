@@ -160,19 +160,3 @@ export async function getNotesByBucket(
   return { data: (data ?? []) as Note[], total: count ?? 0 }
 }
 
-export async function countNotesByBucket(
-  userId: string,
-): Promise<Map<string, number>> {
-  const { data } = await getServiceClient()
-    .from('notes')
-    .select('bucket_id')
-    .eq('user_id', userId)
-    .not('bucket_id', 'is', null)
-
-  const counts = new Map<string, number>()
-  for (const row of data ?? []) {
-    const bid = row.bucket_id as string
-    counts.set(bid, (counts.get(bid) ?? 0) + 1)
-  }
-  return counts
-}

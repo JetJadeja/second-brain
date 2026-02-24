@@ -28,7 +28,7 @@ export async function saveConversationMessage(
 
 export async function getRecentConversation(
   userId: string,
-  limit: number = 20,
+  limit: number = 500,
 ): Promise<ConversationEntry[]> {
   const { data, error } = await getServiceClient()
     .from('conversation_messages')
@@ -51,4 +51,45 @@ export async function getRecentConversation(
     noteIds: (row.note_ids as string[]) ?? [],
     timestamp: new Date(row.created_at as string).getTime(),
   }))
+}
+
+export async function deleteOldConversationMessages(
+  userId: string,
+  keepCount: number,
+): Promise<void> {
+  try {
+    // Find the cutoff timestamp: the created_at of the Nth most recent message
+    const { data: cutoffRow, error: cutoffError } = await getServiceClient()
+      .from('conversation_messages')
+      .select('created_at')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .range(keepCount, keepCount)
+      .limit(1)
+
+    if (cutoffError) {
+      console.error('[deleteOldConversationMessages] Cutoff query failed:', cutoffError.message)
+      return
+    }
+
+    // No row at that offset means user has <= keepCount messages
+    const oldest = cutoffRow?.[0]
+    if (!oldest) return
+
+    const cutoff = oldest.created_at as string
+
+    // Delete all messages at or before the cutoff
+    const { error: deleteError } = await getServiceClient()
+      .from('conversation_messages')
+      .delete()
+      .eq('user_id', userId)
+      .lte('created_at', cutoff)
+
+    if (deleteError) {
+      console.error('[deleteOldConversationMessages] Delete failed:', deleteError.message)
+    }
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error('[deleteOldConversationMessages] Failed:', msg)
+  }
 }

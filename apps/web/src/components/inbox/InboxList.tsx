@@ -2,8 +2,7 @@ import { useState } from 'react'
 import type { InboxItem } from '../../lib/types'
 import { SourceIcon } from '../ui/SourceIcon'
 import { Chip } from '../ui/Chip'
-import { Button } from '../ui/Button'
-import { apiPost, apiDelete } from '../../lib/api-client'
+import { InboxBatchActions } from './InboxBatchActions'
 import { useQueryClient } from '@tanstack/react-query'
 
 interface InboxListProps {
@@ -32,7 +31,7 @@ export function InboxList({ items, onActionComplete }: InboxListProps) {
     }
   }
 
-  const invalidateAll = async () => {
+  const handleBatchComplete = async () => {
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: ['inbox'] }),
       queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
@@ -41,44 +40,15 @@ export function InboxList({ items, onActionComplete }: InboxListProps) {
     onActionComplete()
   }
 
-  const handleBatchConfirm = async () => {
-    const classifications = items
-      .filter((i) => selected.has(i.id) && i.ai_suggested_bucket)
-      .map((i) => ({ note_id: i.id, bucket_id: i.ai_suggested_bucket! }))
-    if (classifications.length === 0) return
-    await apiPost('/api/inbox/batch-classify', { classifications })
-    await invalidateAll()
-  }
-
-  const handleBatchArchive = async () => {
-    for (const id of selected) {
-      await apiPost(`/api/inbox/${id}/archive`)
-    }
-    await invalidateAll()
-  }
-
-  const handleBatchDelete = async () => {
-    for (const id of selected) {
-      await apiDelete(`/api/inbox/${id}`)
-    }
-    await invalidateAll()
-  }
-
   return (
     <div className="flex flex-col gap-4">
       {selected.size > 0 && (
-        <div className="flex items-center gap-3 p-3 bg-surface border border-border rounded">
-          <span className="text-sm text-text-secondary">{selected.size} selected</span>
-          <Button variant="primary" className="text-xs px-3 py-1" onClick={handleBatchConfirm}>
-            Confirm as suggested
-          </Button>
-          <Button variant="secondary" className="text-xs px-3 py-1" onClick={handleBatchArchive}>
-            Archive all
-          </Button>
-          <Button variant="secondary" className="text-xs px-3 py-1 text-red-500" onClick={handleBatchDelete}>
-            Delete all
-          </Button>
-        </div>
+        <InboxBatchActions
+          items={items}
+          selected={selected}
+          selectedCount={selected.size}
+          onComplete={handleBatchComplete}
+        />
       )}
 
       <div className="border border-border rounded overflow-hidden">

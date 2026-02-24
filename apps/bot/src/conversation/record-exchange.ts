@@ -1,6 +1,6 @@
-import { saveConversationMessage } from '@second-brain/db'
+import { saveConversationMessage, deleteOldConversationMessages } from '@second-brain/db'
 import type { ConversationRole } from '@second-brain/shared'
-import { addEntry } from './conversation-store.js'
+import { addEntry, MAX_ENTRIES } from './conversation-store.js'
 
 /**
  * Records a user message in both in-memory store and database.
@@ -37,6 +37,7 @@ function recordEntry(
     timestamp: Date.now(),
   })
 
-  // Async DB write (fire-and-forget)
+  // Async DB write + cleanup (fire-and-forget)
   saveConversationMessage(userId, role, content, noteIds).catch(() => {})
+  deleteOldConversationMessages(userId, MAX_ENTRIES).catch(() => {})
 }

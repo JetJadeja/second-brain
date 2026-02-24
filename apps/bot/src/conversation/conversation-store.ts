@@ -1,6 +1,6 @@
 import type { ConversationEntry } from '@second-brain/shared'
 
-const MAX_ENTRIES = 20
+const MAX_ENTRIES = 500
 
 const store = new Map<string, ConversationEntry[]>()
 

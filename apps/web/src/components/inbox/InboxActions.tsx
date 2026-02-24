@@ -4,6 +4,7 @@ import { Button } from '../ui/Button'
 import { ParaPicker } from '../para/ParaPicker'
 import { apiPost, apiDelete } from '../../lib/api-client'
 import { useQueryClient } from '@tanstack/react-query'
+import { useToastStore } from '../../stores/toast-store'
 
 interface InboxActionsProps {
   noteId: string
@@ -19,6 +20,7 @@ export function InboxActions({
   onActionComplete,
 }: InboxActionsProps) {
   const queryClient = useQueryClient()
+  const addToast = useToastStore((s) => s.addToast)
   const [showPicker, setShowPicker] = useState(false)
   const [loading, setLoading] = useState(false)
 
@@ -33,35 +35,55 @@ export function InboxActions({
   const handleConfirm = async () => {
     if (!suggestedBucketId) return
     setLoading(true)
-    await apiPost(`/api/inbox/${noteId}/classify`, { bucket_id: suggestedBucketId })
-    await invalidateAll()
-    setLoading(false)
-    onActionComplete()
+    try {
+      await apiPost(`/api/inbox/${noteId}/classify`, { bucket_id: suggestedBucketId })
+      await invalidateAll()
+      onActionComplete()
+    } catch {
+      addToast('Failed to classify note')
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const handleSelect = async (bucketId: string) => {
+  const handleSelect = async (bucketId: string, _bucketPath: string) => {
     setLoading(true)
     setShowPicker(false)
-    await apiPost(`/api/inbox/${noteId}/classify`, { bucket_id: bucketId })
-    await invalidateAll()
-    setLoading(false)
-    onActionComplete()
+    try {
+      await apiPost(`/api/inbox/${noteId}/classify`, { bucket_id: bucketId })
+      await invalidateAll()
+      onActionComplete()
+    } catch {
+      addToast('Failed to classify note')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleArchive = async () => {
     setLoading(true)
-    await apiPost(`/api/inbox/${noteId}/archive`)
-    await invalidateAll()
-    setLoading(false)
-    onActionComplete()
+    try {
+      await apiPost(`/api/inbox/${noteId}/archive`)
+      await invalidateAll()
+      onActionComplete()
+    } catch {
+      addToast('Failed to archive note')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleDelete = async () => {
     setLoading(true)
-    await apiDelete(`/api/inbox/${noteId}`)
-    await invalidateAll()
-    setLoading(false)
-    onActionComplete()
+    try {
+      await apiDelete(`/api/inbox/${noteId}`)
+      await invalidateAll()
+      onActionComplete()
+    } catch {
+      addToast('Failed to delete note')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (

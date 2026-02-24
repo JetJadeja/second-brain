@@ -89,6 +89,7 @@ function buildTree(
       name: b.name,
       type: b.type,
       parent_id: b.parent_id,
+      description: b.description ?? null,
       is_active: b.is_active,
       sort_order: b.sort_order,
       note_count: noteCounts.get(b.id) ?? 0,

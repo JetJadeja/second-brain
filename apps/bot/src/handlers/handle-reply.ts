@@ -1,11 +1,8 @@
-import { getNoteById, updateNote } from '@second-brain/db'
+import { getNoteById } from '@second-brain/db'
 import type { BotContext } from '../context.js'
 import { getReceiptNoteId } from './receipt-store.js'
-import { classifyContent } from '../processors/classify-content.js'
-import { getBucketPath } from './resolve-bucket-path.js'
-import { detectIntent } from '../intent/detect-intent.js'
-import { handleMoveNote } from '../intent/handlers/handle-move-note.js'
-import { loadHistory } from '../conversation/load-history.js'
+import { runAgent } from '../agent/run-agent.js'
+import { storeReceipt } from './receipt-store.js'
 import { recordUserMessage, recordBotResponse } from '../conversation/record-exchange.js'
 
 export async function handleReply(ctx: BotContext): Promise<void> {
@@ -28,65 +25,25 @@ export async function handleReply(ctx: BotContext): Promise<void> {
   if (!replyText) return
 
   await ctx.replyWithChatAction('typing')
-
-  // Record the reply in conversation history
   recordUserMessage(userId, replyText)
 
-  // Check if this is a move instruction
-  const conversationHistory = await loadHistory(userId)
-  const intent = await detectIntent({
-    userId,
-    messageText: replyText,
-    hasAttachment: false,
-    hasUrl: false,
-    conversationHistory,
-  })
+  const noteContext = buildNoteContext(note, noteId)
+  const result = await runAgent(ctx, noteContext)
+  const sentMessage = await ctx.reply(result.text)
 
-  if (intent.type === 'move_note') {
-    await handleMoveNote(ctx, intent)
-    return
+  if (result.noteIds.length > 0) {
+    storeReceipt(chatId, sentMessage.message_id, result.noteIds[0]!)
   }
 
-  // Otherwise, re-classify with the reply as additional context
-  await reclassifyNote(ctx, userId, noteId, note, replyText)
+  recordBotResponse(userId, result.text, result.noteIds)
 }
 
-async function reclassifyNote(
-  ctx: BotContext,
-  userId: string,
+function buildNoteContext(
+  note: { title: string; original_content: string | null; source_type: string },
   noteId: string,
-  note: { title: string; original_content: string | null; ai_summary: string | null; source_type: string },
-  userContext: string,
-): Promise<void> {
-  const classification = await classifyContent({
-    userId,
-    title: note.title,
-    content: note.original_content ?? '',
-    summary: note.ai_summary,
-    sourceType: note.source_type as import('@second-brain/shared').NoteSource,
-    userNote: userContext,
-  })
-
-  if (!classification) {
-    await ctx.reply("Couldn't re-classify with that context. Try being more specific.")
-    return
-  }
-
-  await updateNote(userId, noteId, {
-    ai_suggested_bucket: classification.bucket_id || null,
-    ai_confidence: classification.confidence,
-    tags: classification.tags,
-    user_note: userContext,
-  } as Record<string, unknown>)
-
-  const bucketPath = await getBucketPath(userId, classification.bucket_id)
-  const tags = classification.tags.map((t) => `#${t}`).join(' ')
-
-  let reply = `Updated suggestion: ${bucketPath ?? 'Inbox'}`
-  if (tags) reply += `\nTags: ${tags}`
-  reply += '\n\nReact with 👍 to confirm.'
-
-  await ctx.reply(reply)
-
-  recordBotResponse(userId, `Reclassified '${note.title}' → ${bucketPath ?? 'Inbox'}`, [noteId])
+): string {
+  return (
+    `The user is replying to a receipt for note "${note.title}" (ID: ${noteId}, type: ${note.source_type}). ` +
+    `Their reply is about this note. They might want to move it, reclassify it, or ask about it.`
+  )
 }

@@ -1,9 +1,16 @@
 export { callClaude, callClaudeVision } from './providers/anthropic.js'
+export { callClaudeWithTools } from './providers/anthropic-tools.js'
+export type {
+  AnthropicTool,
+  AnthropicMessage,
+  AnthropicMessageParam,
+  AnthropicContentBlock,
+  AnthropicToolUseBlock,
+  AnthropicToolResultBlockParam,
+} from './providers/anthropic-tools.js'
 export { getOpenAIClient } from './providers/openai.js'
 export { buildSummarizePrompt } from './prompts/summarize.js'
 export { buildClassifyPrompt } from './prompts/classify.js'
 export { buildExtractContextPrompt } from './prompts/extract-user-context.js'
-export { buildDetectIntentPrompt } from './prompts/detect-intent.js'
-export { buildOnboardingPrompt } from './prompts/onboarding.js'
 export { buildAnalyzeBucketPrompt } from './prompts/analyze-bucket.js'
 export { generateEmbedding } from './generate-embedding.js'

@@ -28,6 +28,15 @@ export function buildSuggestionDescription(
       return `Create sub-bucket "${s(payload, 'new_name')}" under "${s(payload, 'parent_name')}" and move ${count} notes.`
     }
 
+    case 'merge_buckets':
+      return `Merge "${s(payload, 'source_name')}" into "${s(payload, 'target_name')}" — ${s(payload, 'reason')}`
+
+    case 'rename_bucket':
+      return `Rename "${s(payload, 'old_name')}" to "${s(payload, 'new_name')}" — ${s(payload, 'reason')}`
+
+    case 'delete_bucket':
+      return `Remove empty bucket "${s(payload, 'bucket_name')}" — ${s(payload, 'reason')}`
+
     default:
       return `Suggestion: ${type}`
   }

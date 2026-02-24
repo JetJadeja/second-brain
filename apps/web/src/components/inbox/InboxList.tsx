@@ -80,7 +80,13 @@ export function InboxList({ items, onActionComplete }: InboxListProps) {
                 {item.data.ai_summary && <span className="text-xs text-text-tertiary truncate block">{item.data.ai_summary}</span>}
               </div>
               <div className="w-48">
-                {item.data.ai_suggested_bucket_path && <Chip label={item.data.ai_suggested_bucket_path} truncate />}
+                {item.data.ai_suggested_bucket_path && (
+                  <Chip
+                    label={item.data.ai_suggested_bucket_path}
+                    truncate
+                    className={item.data.ai_confidence !== null && item.data.ai_confidence < 0.7 ? 'opacity-60 border-dashed' : ''}
+                  />
+                )}
               </div>
               <span className="text-xs text-text-tertiary w-24" title={formatFullDate(item.data.captured_at)}>
                 {formatRelativeTime(item.data.captured_at)}

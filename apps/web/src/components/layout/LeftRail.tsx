@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { LayoutDashboard, Inbox, Search, GitFork, RefreshCw, PanelLeftClose, PanelLeft, LogOut } from 'lucide-react'
+import { LayoutDashboard, Inbox, Search, GitFork, RefreshCw, PanelLeftClose, PanelLeft, LogOut, Settings } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { NavItem } from '../nav/NavItem'
 import { ParaSection } from '../nav/ParaSection'
 import { ParaBucketItem } from '../nav/ParaBucketItem'
@@ -94,8 +95,16 @@ export function LeftRail() {
         <NavItem label="Review" href="/review" icon={RefreshCw} />
       </nav>
 
-      <div className="border-t border-border p-2 flex items-center justify-between">
+      <div className="border-t border-border p-2 flex items-center gap-1">
         <ThemeToggle />
+        <Link
+          to="/settings"
+          className="p-1.5 rounded text-text-tertiary hover:text-text-primary hover:bg-hover transition-colors"
+          title="Settings"
+        >
+          <Settings size={14} />
+        </Link>
+        <div className="flex-1" />
         <button
           type="button"
           onClick={() => { signOut() }}

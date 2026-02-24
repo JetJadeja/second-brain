@@ -2,17 +2,15 @@ import { Router } from 'express'
 import { z } from 'zod'
 import {
   getNoteById,
-  updateNote,
   deleteNote,
   incrementViewCount,
   getConnectionsForNote,
   createConnection,
-  getBucketById,
   insertNoteView,
-  insertDistillationHistory,
 } from '@second-brain/db'
 import { getBucketPath } from '../services/para/para-cache.js'
 import { buildNoteRelations } from '../services/notes/build-note-relations.js'
+import { updateNoteWithHistory, BucketNotFoundError } from '../services/notes/update-note-fields.js'
 import type { NoteDetailResponse } from '@second-brain/shared'
 
 export const notesRouter = Router()
@@ -99,33 +97,16 @@ notesRouter.patch('/:noteId', async (req, res) => {
     return
   }
 
-  // Archive distillation history if distillation is changing
-  const fields = parsed.data
-  if (
-    (fields.distillation !== undefined || fields.distillation_status !== undefined) &&
-    existing.distillation
-  ) {
-    await insertDistillationHistory(
-      userId,
-      noteId,
-      existing.distillation,
-      existing.distillation_status,
-    )
-  }
-
-  // If setting bucket_id, also mark classified
-  const updateFields: Record<string, unknown> = { ...fields }
-  if (fields.bucket_id) {
-    const bucket = await getBucketById(userId, fields.bucket_id)
-    if (!bucket) {
+  try {
+    const updated = await updateNoteWithHistory(userId, noteId, parsed.data, existing)
+    res.json(updated)
+  } catch (err) {
+    if (err instanceof BucketNotFoundError) {
       res.status(404).json({ error: 'Target bucket not found' })
       return
     }
-    updateFields['is_classified'] = true
+    throw err
   }
-
-  const updated = await updateNote(userId, noteId, updateFields)
-  res.json(updated)
 })
 
 notesRouter.delete('/:noteId', async (req, res) => {

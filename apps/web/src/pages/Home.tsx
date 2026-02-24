@@ -1,12 +1,16 @@
+import { Link } from 'react-router-dom'
 import { SectionHeader } from '../components/ui/SectionHeader'
 import { EmptyState } from '../components/ui/EmptyState'
 import { InboxPulse } from '../components/dashboard/InboxPulse'
 import { NoteGrid } from '../components/dashboard/NoteGrid'
 import { AreaCard } from '../components/dashboard/AreaCard'
+import { Button } from '../components/ui/Button'
 import { useDashboard } from '../hooks/use-dashboard'
+import { useLinkStatus } from '../hooks/use-link-status'
 
 export default function Home() {
   const { data, isLoading, error } = useDashboard()
+  const { isLinked } = useLinkStatus()
 
   if (isLoading) {
     return (
@@ -38,7 +42,14 @@ export default function Home() {
         {data.recent_and_relevant.length > 0 ? (
           <NoteGrid notes={data.recent_and_relevant} />
         ) : (
-          <EmptyState message="No notes yet. Capture something via Telegram to get started." />
+          <EmptyState
+            message={isLinked
+              ? 'No notes yet. Send something to the bot to see it here.'
+              : 'Connect your Telegram account to get started.'}
+            action={!isLinked ? (
+              <Link to="/settings"><Button variant="secondary">Connect</Button></Link>
+            ) : undefined}
+          />
         )}
       </section>
 

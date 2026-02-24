@@ -1,6 +1,6 @@
 import type { ExtractedContent } from '@second-brain/shared'
 import { processNote } from '../processors/process-note.js'
-import { getBucketPath } from '../processors/resolve-bucket-path.js'
+import { getBucketPath } from '../para/para-cache.js'
 import { runExtractionAgent } from '../extractors/run-extraction-agent.js'
 import { extractThought } from '../extractors/extract-thought.js'
 import { fallbackExtract } from '../extractors/fallback-extract.js'

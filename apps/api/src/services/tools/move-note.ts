@@ -1,6 +1,6 @@
 import { getNoteById, updateNote, getAllBuckets } from '@second-brain/db'
 import type { ParaBucket } from '@second-brain/shared'
-import { getBucketPath } from '../processors/resolve-bucket-path.js'
+import { getBucketPath } from '../para/para-cache.js'
 import { invalidateParaCache } from '../para/para-cache.js'
 
 export interface MoveNoteResult {

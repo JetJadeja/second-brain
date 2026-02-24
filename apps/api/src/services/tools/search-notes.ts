@@ -1,6 +1,6 @@
 import { generateEmbedding } from '@second-brain/ai'
 import { hybridSearch } from '@second-brain/db'
-import { getBucketPath } from '../processors/resolve-bucket-path.js'
+import { getBucketPath } from '../para/para-cache.js'
 
 export interface SearchResult {
   title: string

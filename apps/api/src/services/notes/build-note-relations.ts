@@ -1,5 +1,5 @@
 import { getNoteById } from '@second-brain/db'
-import { getBucketPath } from './para/para-cache.js'
+import { getBucketPath } from '../para/para-cache.js'
 import type { NoteDetailResponse, NoteConnection } from '@second-brain/shared'
 
 type RelatedNote = NoteDetailResponse['related_notes'][number]

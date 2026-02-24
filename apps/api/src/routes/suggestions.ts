@@ -5,7 +5,7 @@ import {
   updateSuggestionStatus,
 } from '@second-brain/db'
 import type { SuggestionsResponse } from '@second-brain/shared'
-import { executeSuggestion } from '../services/execute-suggestion.js'
+import { executeSuggestion } from '../services/suggestions/execute-suggestion.js'
 
 export const suggestionsRouter = Router()
 

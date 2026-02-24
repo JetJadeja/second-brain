@@ -12,7 +12,7 @@ import {
   insertDistillationHistory,
 } from '@second-brain/db'
 import { getBucketPath } from '../services/para/para-cache.js'
-import { buildNoteRelations } from '../services/build-note-relations.js'
+import { buildNoteRelations } from '../services/notes/build-note-relations.js'
 import type { NoteDetailResponse } from '@second-brain/shared'
 
 export const notesRouter = Router()

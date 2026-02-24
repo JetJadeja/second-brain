@@ -3,6 +3,7 @@ import { executeSearchNotes } from './search-notes.js'
 import { executeShowInbox } from './show-inbox.js'
 import { executeCreateBucket } from './create-bucket.js'
 import { executeMoveNote } from './move-note.js'
+import { executeManageBucket } from './manage-bucket.js'
 import { executeFinalizeOnboarding } from './finalize-onboarding.js'
 import type { ExtractedContent } from '@second-brain/shared'
 
@@ -61,6 +62,14 @@ async function dispatchTool(
         String(input['note_id'] ?? ''),
         String(input['target_path'] ?? ''),
       )
+
+    case 'manage_bucket':
+      return executeManageBucket(context.userId, {
+        action: input['action'] as 'rename' | 'move' | 'delete',
+        bucketName: String(input['bucket_name'] ?? ''),
+        newName: input['new_name'] as string | undefined,
+        newParentName: input['new_parent_name'] as string | undefined,
+      })
 
     case 'finalize_onboarding':
       return executeFinalizeOnboarding(

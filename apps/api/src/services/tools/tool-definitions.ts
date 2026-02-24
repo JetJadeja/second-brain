@@ -94,6 +94,34 @@ export const AGENT_TOOLS: AnthropicTool[] = [
     },
   },
   {
+    name: 'manage_bucket',
+    description:
+      'Rename, move, or delete a folder. Use when the user wants to restructure their folders. For delete, check note count first and ask the user what to do with the notes.',
+    input_schema: {
+      type: 'object' as const,
+      properties: {
+        action: {
+          type: 'string',
+          enum: ['rename', 'move', 'delete'],
+          description: 'The management action to perform',
+        },
+        bucket_name: {
+          type: 'string',
+          description: 'Name or path of the bucket to manage (e.g., "Cars" or "Resources > Cars")',
+        },
+        new_name: {
+          type: 'string',
+          description: 'New name for the bucket (rename only)',
+        },
+        new_parent_name: {
+          type: 'string',
+          description: 'Name of the new parent folder (move only)',
+        },
+      },
+      required: ['action', 'bucket_name'],
+    },
+  },
+  {
     name: 'finalize_onboarding',
     description:
       'Create the user\'s complete folder structure and finish onboarding. Only use this during onboarding, after you\'ve gathered enough information about the user\'s life, projects, and interests. Pass the full structure you\'ve designed.',

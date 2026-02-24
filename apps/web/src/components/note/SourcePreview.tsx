@@ -1,4 +1,5 @@
 import { TextPreview } from './previews/TextPreview'
+import { ArticlePreview } from './previews/ArticlePreview'
 
 interface SourcePreviewProps {
   sourceType: string
@@ -11,6 +12,7 @@ export function SourcePreview({ sourceType, source, originalContent }: SourcePre
 
   switch (sourceType) {
     case 'article':
+      return <ArticlePreview source={source} originalContent={originalContent} />
     case 'tweet':
     case 'thread':
     case 'youtube':

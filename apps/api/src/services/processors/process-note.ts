@@ -29,24 +29,9 @@ export async function processNote(
     .filter(Boolean)
     .join('\n\n')
 
-  // Steps 1, 2, 3 run in parallel
-  const [embedding, summary, classification] = await Promise.all([
-    generateEmbedding(embeddingText),
-    summarizeContent({
-      title: extracted.title,
-      content: extracted.content,
-      sourceType: extracted.sourceType,
-      userNote,
-    }),
-    classifyContent({
-      userId,
-      title: extracted.title,
-      content: extracted.content,
-      summary: null, // summary isn't ready yet — classify uses raw content
-      sourceType: extracted.sourceType,
-      userNote,
-    }),
-  ])
+  const { summary, embedding, classification } = options?.summary
+    ? await withPrecomputedSummary(userId, extracted, userNote, embeddingText, options.summary)
+    : await withFreshSummary(userId, extracted, userNote, embeddingText)
 
   // Step 4: Save note (may create a bucket from classification suggestion)
   const { note, createdBucketName } = await saveNote({
@@ -67,4 +52,61 @@ export async function processNote(
   maybeTriggerAnalysis(userId)
 
   return { note, summary, classification, createdBucketName, warning: options?.warning }
+}
+
+interface PipelineResult {
+  summary: string | null
+  embedding: number[] | null
+  classification: ClassifyResult | null
+}
+
+/** Agent provided a summary — run embedding + classify in parallel, classify gets the real summary. */
+async function withPrecomputedSummary(
+  userId: string,
+  extracted: ExtractedContent,
+  userNote: string | null,
+  embeddingText: string,
+  summary: string,
+): Promise<PipelineResult> {
+  const [embedding, classification] = await Promise.all([
+    generateEmbedding(embeddingText),
+    classifyContent({
+      userId,
+      title: extracted.title,
+      content: extracted.content,
+      summary,
+      sourceType: extracted.sourceType,
+      userNote,
+    }),
+  ])
+  return { summary, embedding, classification }
+}
+
+/** No pre-computed summary — generate one first, then classify with it. */
+async function withFreshSummary(
+  userId: string,
+  extracted: ExtractedContent,
+  userNote: string | null,
+  embeddingText: string,
+): Promise<PipelineResult> {
+  const [embedding, summary] = await Promise.all([
+    generateEmbedding(embeddingText),
+    summarizeContent({
+      title: extracted.title,
+      content: extracted.content,
+      sourceType: extracted.sourceType,
+      userNote,
+    }),
+  ])
+
+  const classification = await classifyContent({
+    userId,
+    title: extracted.title,
+    content: extracted.content,
+    summary,
+    sourceType: extracted.sourceType,
+    userNote,
+  })
+
+  return { summary, embedding, classification }
 }

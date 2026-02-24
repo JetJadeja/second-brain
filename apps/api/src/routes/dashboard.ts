@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { getInboxNotes, countInboxNotes, getRecentNotes, getRecentlyViewed } from '@second-brain/db'
+import { getInboxNotes, countInboxNotes, getRecentNotes, getRecentlyViewed, getPendingSuggestions } from '@second-brain/db'
 import { getAllBuckets } from '../services/para/para-cache.js'
 import { buildDashboardAreas } from '../services/dashboard/build-dashboard-areas.js'
 import { buildDashboardInbox, buildDashboardRecent } from '../services/dashboard/build-dashboard-content.js'
@@ -10,14 +10,17 @@ export const dashboardRouter = Router()
 dashboardRouter.get('/', async (req, res) => {
   const userId = req.userId!
 
-  const [inboxCount, inboxRecent, recentNotes, recentViews, buckets] =
+  const [noteCount, suggestions, inboxRecent, recentNotes, recentViews, buckets] =
     await Promise.all([
       countInboxNotes(userId),
+      getPendingSuggestions(userId),
       getInboxNotes(userId, { limit: 5 }),
       getRecentNotes(userId, { limit: 15 }),
       getRecentlyViewed(userId, 15),
       getAllBuckets(userId),
     ])
+
+  const inboxCount = noteCount + suggestions.length
 
   const recentInbox = await buildDashboardInbox(userId, inboxRecent.data)
   const merged = await buildDashboardRecent(userId, recentNotes.data, recentViews)

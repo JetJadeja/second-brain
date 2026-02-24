@@ -33,5 +33,12 @@ bot.on('message', requireLinkedUser, async (ctx, next) => {
 // Main message handler — the agent handles everything (including onboarding)
 bot.on('message', requireLinkedUser, runAgentHandler)
 
+// Global error handler — catches unhandled errors in any handler
+bot.catch((err) => {
+  const ctx = err.ctx
+  console.error(`[bot] error for ${ctx.from?.id}:`, err.error)
+  ctx.reply('something went wrong — try again in a moment').catch(() => {})
+})
+
 bot.start()
-console.log('Bot started')
+console.log('[bot] started')

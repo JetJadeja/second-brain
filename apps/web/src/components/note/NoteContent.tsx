@@ -79,13 +79,6 @@ export function NoteContent({ note }: NoteContentProps) {
         originalContent={note.original_content}
       />
 
-      {note.tags.length > 0 && (
-        <div className="flex gap-2 flex-wrap">
-          {note.tags.map((tag) => (
-            <Chip key={tag} label={`#${tag}`} />
-          ))}
-        </div>
-      )}
     </div>
   )
 }

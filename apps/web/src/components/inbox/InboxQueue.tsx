@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react'
 import type { InboxItem } from '../../lib/types'
 import { Card } from '../ui/Card'
 import { SourceIcon } from '../ui/SourceIcon'
-import { Chip } from '../ui/Chip'
 import { InboxActions } from './InboxActions'
 
 interface InboxQueueProps {
@@ -73,14 +72,6 @@ export function InboxQueue({ items, onActionComplete }: InboxQueueProps) {
               {item.original_content}
             </p>
           </details>
-        )}
-
-        {item.tags.length > 0 && (
-          <div className="flex gap-2 mb-4 flex-wrap">
-            {item.tags.map((tag) => (
-              <Chip key={tag} label={`#${tag}`} />
-            ))}
-          </div>
         )}
 
         {item.related_notes.length > 0 && (

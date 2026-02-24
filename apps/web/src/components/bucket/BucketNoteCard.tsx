@@ -4,7 +4,6 @@ import { formatRelativeTime, formatFullDate } from '../../lib/format-time'
 import { Card } from '../ui/Card'
 import { SourceIcon } from '../ui/SourceIcon'
 import { DistillationDot } from '../ui/DistillationDot'
-import { Chip } from '../ui/Chip'
 
 interface BucketNoteCardProps {
   note: BucketNote
@@ -32,9 +31,6 @@ export function BucketNoteCard({ note }: BucketNoteCardProps) {
         {note.connection_count > 0 && (
           <span className="text-xs text-text-tertiary">{note.connection_count} links</span>
         )}
-        {note.tags.slice(0, 3).map((tag) => (
-          <Chip key={tag} label={`#${tag}`} />
-        ))}
       </div>
     </Card>
   )

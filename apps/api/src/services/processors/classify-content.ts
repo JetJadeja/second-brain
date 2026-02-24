@@ -1,4 +1,4 @@
-import { buildClassifyPrompt, callClaude } from '@second-brain/ai'
+import { buildClassifyPrompt, callClaude, parseLlmJson } from '@second-brain/ai'
 import { getAllBuckets, getSampleNoteTitles } from '@second-brain/db'
 import { buildParaTree } from '@second-brain/shared'
 import type { NoteSource, ClassifyResult, SuggestNewBucket } from '@second-brain/shared'
@@ -41,9 +41,8 @@ export async function classifyContent(params: ClassifyParams): Promise<ClassifyR
 
 function parseClassifyResponse(text: string): ClassifyResult | null {
   try {
-    // Strip markdown code fences if present
-    const cleaned = text.replace(/```json?\n?/g, '').replace(/```/g, '').trim()
-    const parsed = JSON.parse(cleaned) as Record<string, unknown>
+    const parsed = parseLlmJson(text)
+    if (!parsed) return null
 
     const result: ClassifyResult = {
       bucket_id: String(parsed['bucket_id'] ?? ''),

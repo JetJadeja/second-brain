@@ -3,6 +3,7 @@ import {
   buildExtractionAgentSystem,
   buildExtractionAgentUser,
   extractText,
+  parseLlmJson,
   type AnthropicContentBlock,
   type AnthropicToolResultBlockParam,
 } from '@second-brain/ai'
@@ -97,17 +98,15 @@ interface AgentOutput {
 }
 
 function parseAgentJson(text: string): AgentOutput | null {
-  try {
-    const cleaned = text.replace(/```json?\n?/g, '').replace(/```/g, '').trim()
-    const parsed = JSON.parse(cleaned) as Record<string, unknown>
-    return {
-      title: typeof parsed['title'] === 'string' ? parsed['title'] : '',
-      sourceType: typeof parsed['sourceType'] === 'string' ? parsed['sourceType'] : '',
-      summary: typeof parsed['summary'] === 'string' ? parsed['summary'] : null,
-    }
-  } catch {
+  const parsed = parseLlmJson(text)
+  if (!parsed) {
     console.error('[extractionAgent] Failed to parse agent JSON:', text.slice(0, 200))
     return null
+  }
+  return {
+    title: typeof parsed['title'] === 'string' ? parsed['title'] : '',
+    sourceType: typeof parsed['sourceType'] === 'string' ? parsed['sourceType'] : '',
+    summary: typeof parsed['summary'] === 'string' ? parsed['summary'] : null,
   }
 }
 

@@ -1,4 +1,4 @@
-import { callClaude, buildAnalyzeBucketPrompt } from '@second-brain/ai'
+import { callClaude, buildAnalyzeBucketPrompt, parseLlmJson } from '@second-brain/ai'
 import {
   getAllBuckets,
   countNotesByBucket,
@@ -73,10 +73,8 @@ function parseSplitResponse(
   noteIds: string[],
 ): Array<{ name: string; note_ids: string[] }> | null {
   try {
-    const cleaned = text.replace(/```json?\n?/g, '').replace(/```/g, '').trim()
-    const parsed = JSON.parse(cleaned) as Record<string, unknown>
-
-    if (!parsed['should_split']) return null
+    const parsed = parseLlmJson(text)
+    if (!parsed || !parsed['should_split']) return null
     if (!Array.isArray(parsed['splits'])) return null
 
     return (parsed['splits'] as Array<Record<string, unknown>>).map((split) => ({

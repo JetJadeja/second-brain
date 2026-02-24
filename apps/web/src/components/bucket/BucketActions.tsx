@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
 import { apiDelete } from '../../lib/api-client'
+import { useToastStore } from '../../stores/toast-store'
 
 interface BucketActionsProps {
   bucketId: string
@@ -17,6 +18,7 @@ export function BucketActions({ bucketId, bucketName, noteCount, onRename }: Buc
   const menuRef = useRef<HTMLDivElement>(null)
   const queryClient = useQueryClient()
   const navigate = useNavigate()
+  const addToast = useToastStore((s) => s.addToast)
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -32,9 +34,15 @@ export function BucketActions({ bucketId, bucketName, noteCount, onRename }: Buc
   }, [menuOpen])
 
   async function handleDelete() {
-    await apiDelete(`/api/para/buckets/${bucketId}`)
-    await queryClient.invalidateQueries({ queryKey: ['para-tree'] })
-    navigate('/dashboard')
+    try {
+      await apiDelete(`/api/para/buckets/${bucketId}`)
+      await queryClient.invalidateQueries({ queryKey: ['para-tree'] })
+      addToast('Bucket deleted')
+      navigate('/dashboard')
+    } catch {
+      addToast('Failed to delete bucket')
+      setConfirmDelete(false)
+    }
   }
 
   return (

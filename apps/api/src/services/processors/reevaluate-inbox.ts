@@ -34,7 +34,7 @@ export async function reevaluateInbox(
         await updateNote(userId, note.id, {
           ai_suggested_bucket: result.bucket_id || null,
           ai_confidence: result.confidence,
-        } as Record<string, unknown>)
+        })
       } catch (error: unknown) {
         const msg = error instanceof Error ? error.message : String(error)
         console.error(`[reevaluate] failed for note ${note.id}:`, msg)

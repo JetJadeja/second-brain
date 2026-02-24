@@ -28,7 +28,7 @@ export async function executeMoveNote(
   await updateNote(userId, noteId, {
     bucket_id: targetBucket.id,
     is_classified: true,
-  } as Record<string, unknown>)
+  })
 
   invalidateParaCache(userId)
   const resolvedPath = await getBucketPath(userId, targetBucket.id)

@@ -16,13 +16,8 @@ export async function completeOnboarding(userId: string): Promise<string> {
   const summary = buildStructureSummary(buckets)
 
   return summary
-    ? `Your Second Brain is ready! Here's your folder structure:\n\n${summary}\n\n` +
-      "You can always add more folders later — just tell me " +
-      "'create a resource folder for Espresso Machines' or anything like that. " +
-      "Now send me anything and I'll organize it!"
-    : "You're all set! Send me anything — links, thoughts, images — " +
-      "and I'll save it to your second brain. " +
-      "You can create folders anytime by telling me."
+    ? `all set! here's what we built:\n\n${summary}\n\nsend me anything and I'll file it`
+    : "ready to go — send me anything and I'll organize it"
 }
 
 function buildStructureSummary(buckets: ParaBucket[]): string {

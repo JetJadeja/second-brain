@@ -9,9 +9,10 @@ interface InboxCardProps {
   item: DashboardInboxItem
   onConfirm: (id: string) => void
   onChange: (id: string) => void
+  disabled?: boolean
 }
 
-export function InboxCard({ item, onConfirm, onChange }: InboxCardProps) {
+export function InboxCard({ item, onConfirm, onChange, disabled }: InboxCardProps) {
   return (
     <Card className="flex-shrink-0 w-72 p-4">
       <div className="flex items-center gap-2 mb-2">
@@ -23,11 +24,11 @@ export function InboxCard({ item, onConfirm, onChange }: InboxCardProps) {
         <Chip label={item.ai_suggested_bucket_path} truncate className="mb-3" />
       )}
       <div className="flex gap-2">
-        <Button variant="primary" className="text-xs px-3 py-1 inline-flex items-center gap-1" onClick={() => onConfirm(item.id)}>
+        <Button variant="primary" className="text-xs px-3 py-1 inline-flex items-center gap-1" onClick={() => onConfirm(item.id)} disabled={disabled}>
           <Check size={12} />
           Confirm
         </Button>
-        <Button variant="secondary" className="text-xs px-3 py-1" onClick={() => onChange(item.id)}>
+        <Button variant="secondary" className="text-xs px-3 py-1" onClick={() => onChange(item.id)} disabled={disabled}>
           Change
         </Button>
       </div>

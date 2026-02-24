@@ -1,16 +1,26 @@
 import { Router } from 'express'
 import { z } from 'zod'
-import type { ChatResponse } from '@second-brain/shared'
+import type { ChatResponse, ExtractedContent } from '@second-brain/shared'
+import { NOTE_SOURCES } from '@second-brain/shared'
 import { runAgent } from '../services/agent/run-agent.js'
 import { recordUserMessage, recordBotResponse } from '../services/conversation/record-exchange.js'
 import { startOnboarding } from '../services/onboarding/start-onboarding.js'
 
 export const chatRouter = Router()
 
+const extractedContentSchema = z.object({
+  title: z.string(),
+  content: z.string(),
+  sourceType: z.enum(NOTE_SOURCES),
+  source: z.record(z.string(), z.unknown()),
+  thumbnailUrl: z.string().optional(),
+  mediaUrls: z.array(z.string()).optional(),
+})
+
 const chatRequestSchema = z.object({
   userId: z.string(),
   message: z.string(),
-  preExtracted: z.any().optional(),
+  preExtracted: extractedContentSchema.optional(),
   noteContext: z.string().optional(),
   startOnboarding: z.boolean().optional(),
   attachmentDescription: z.string().optional(),
@@ -37,7 +47,7 @@ chatRouter.post('/', async (req, res) => {
 
     // Run agent
     const result = await runAgent(userId, message, {
-      preExtracted,
+      preExtracted: preExtracted as ExtractedContent | undefined,
       noteContext,
       attachmentDescription,
       platform,

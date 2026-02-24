@@ -22,13 +22,18 @@ export async function createConnection(
   type: 'explicit' | 'ai_detected' = 'explicit',
   similarity?: number,
 ): Promise<NoteConnection> {
+  // Normalize direction: smaller UUID is always source_id.
+  // This prevents bidirectional duplicates (A→B and B→A).
+  const [normalizedSource, normalizedTarget] =
+    sourceId < targetId ? [sourceId, targetId] : [targetId, sourceId]
+
   const { data, error } = await getServiceClient()
     .from('note_connections')
     .upsert(
       {
         user_id: userId,
-        source_id: sourceId,
-        target_id: targetId,
+        source_id: normalizedSource,
+        target_id: normalizedTarget,
         type,
         similarity: similarity ?? null,
       },

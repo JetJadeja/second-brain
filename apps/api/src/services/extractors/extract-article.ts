@@ -47,11 +47,13 @@ export async function extractArticle(url: string): Promise<ExtractionResult> {
 
   const textContent = article.textContent.trim()
 
+  const title = article.title ? cleanTitle(article.title) : domain
+
   if (isLikelyPaywall(textContent, domain)) {
     const source: ArticleSource = { url, domain, author: article.byline ?? undefined }
     return {
       content: {
-        title: article.title || domain,
+        title,
         content: textContent,
         sourceType: 'article',
         source,
@@ -68,7 +70,7 @@ export async function extractArticle(url: string): Promise<ExtractionResult> {
 
   return {
     content: {
-      title: article.title || domain,
+      title,
       content: textContent,
       sourceType: 'article',
       source,
@@ -91,6 +93,11 @@ function buildFallback(url: string, domain: string): ExtractedContent {
     sourceType: 'article',
     source: { url, domain } as ArticleSource,
   }
+}
+
+/** Strip common site name suffixes from HTML <title> tags (e.g., "— Medium", "| Blog"). */
+function cleanTitle(title: string): string {
+  return title.replace(/\s*[—|•\-]\s+\S+(\s+\S+){0,2}\s*$/, '').trim()
 }
 
 function isAbortError(error: unknown): boolean {

@@ -1,9 +1,8 @@
 import { getNoteById } from '@second-brain/db'
 import type { BotContext } from '../context.js'
-import { getReceiptNoteId } from './receipt-store.js'
-import { runAgent } from '../agent/run-agent.js'
-import { storeReceipt } from './receipt-store.js'
-import { recordUserMessage, recordBotResponse } from '../conversation/record-exchange.js'
+import { getReceiptNoteId, storeReceipt } from './receipt-store.js'
+import { sendChatMessage } from '../api-client.js'
+import { buildChatRequest } from '../telegram/build-chat-request.js'
 
 export async function handleReply(ctx: BotContext): Promise<void> {
   const userId = ctx.userId
@@ -25,17 +24,16 @@ export async function handleReply(ctx: BotContext): Promise<void> {
   if (!replyText) return
 
   await ctx.replyWithChatAction('typing')
-  recordUserMessage(userId, replyText)
 
   const noteContext = buildNoteContext(note, noteId)
-  const result = await runAgent(ctx, noteContext)
-  const sentMessage = await ctx.reply(result.text)
+  const request = await buildChatRequest(ctx, { noteContext })
+  const response = await sendChatMessage(request)
 
-  if (result.noteIds.length > 0) {
-    storeReceipt(chatId, sentMessage.message_id, result.noteIds[0]!)
+  const sentMessage = await ctx.reply(response.text)
+
+  if (response.noteIds.length > 0) {
+    storeReceipt(chatId, sentMessage.message_id, response.noteIds[0]!)
   }
-
-  recordBotResponse(userId, result.text, result.noteIds)
 }
 
 function buildNoteContext(

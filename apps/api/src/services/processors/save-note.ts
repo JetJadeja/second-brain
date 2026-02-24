@@ -1,6 +1,5 @@
-import { createNote } from '@second-brain/db'
+import { createNote, createSuggestion } from '@second-brain/db'
 import type { Note, ExtractedContent, ClassifyResult } from '@second-brain/shared'
-import { createSuggestedBucket } from './create-suggested-bucket.js'
 
 interface SaveNoteParams {
   userId: string
@@ -19,7 +18,6 @@ export interface SaveNoteResult {
 export async function saveNote(params: SaveNoteParams): Promise<SaveNoteResult> {
   const { userId, extracted, userNote, summary, embedding, classification } = params
 
-  const createdBucketName = await handleBucketCreation(userId, classification)
   const bucketFields = resolveBucketFields(classification)
   const isThought = extracted.sourceType === 'thought' || extracted.sourceType === 'voice_memo'
 
@@ -37,25 +35,31 @@ export async function saveNote(params: SaveNoteParams): Promise<SaveNoteResult> 
     ...bucketFields,
   })
 
-  return { note, createdBucketName }
+  await maybeCreateBucketSuggestion(userId, note, classification)
+
+  return { note, createdBucketName: null }
 }
 
-async function handleBucketCreation(
+async function maybeCreateBucketSuggestion(
   userId: string,
+  note: Note,
   classification: ClassifyResult | null,
-): Promise<string | null> {
-  if (!classification?.suggest_new_bucket) return null
-  if (classification.confidence < 0.4) return null
+): Promise<void> {
+  if (!classification?.suggest_new_bucket) return
+  if (classification.confidence < 0.4) return
 
-  const bucketId = await createSuggestedBucket(userId, classification.suggest_new_bucket)
-  if (!bucketId) return null
-
-  // Replace the suggestion with the real bucket ID
-  const name = classification.suggest_new_bucket.name
-  classification.bucket_id = bucketId
-  classification.suggest_new_bucket = undefined
-
-  return name
+  const { name, parent_type } = classification.suggest_new_bucket
+  try {
+    await createSuggestion(userId, 'create_bucket', {
+      note_id: note.id,
+      note_title: note.title,
+      bucket_name: name,
+      parent_type,
+    })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error('[save-note] Failed to create bucket suggestion:', msg)
+  }
 }
 
 interface BucketFields {

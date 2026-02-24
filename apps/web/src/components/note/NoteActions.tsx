@@ -4,6 +4,7 @@ import { FolderInput, Trash2 } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
 import { apiPatch, apiDelete } from '../../lib/api-client'
 import { ParaPicker } from '../para/ParaPicker'
+import { useToastStore } from '../../stores/toast-store'
 
 interface NoteActionsProps {
   noteId: string
@@ -13,20 +14,38 @@ interface NoteActionsProps {
 export function NoteActions({ noteId, currentBucketId }: NoteActionsProps) {
   const [showPicker, setShowPicker] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [loading, setLoading] = useState(false)
   const queryClient = useQueryClient()
   const navigate = useNavigate()
+  const addToast = useToastStore((s) => s.addToast)
 
   async function handleMove(bucketId: string) {
     if (bucketId === currentBucketId) return
-    await apiPatch(`/api/notes/${noteId}`, { bucket_id: bucketId })
-    setShowPicker(false)
-    await queryClient.invalidateQueries({ queryKey: ['note', noteId] })
-    await queryClient.invalidateQueries({ queryKey: ['para-tree'] })
+    setLoading(true)
+    try {
+      await apiPatch(`/api/notes/${noteId}`, { bucket_id: bucketId })
+      setShowPicker(false)
+      await queryClient.invalidateQueries({ queryKey: ['note', noteId] })
+      await queryClient.invalidateQueries({ queryKey: ['para-tree'] })
+      addToast('Note moved')
+    } catch {
+      addToast('Failed to move note')
+    } finally {
+      setLoading(false)
+    }
   }
 
   async function handleDelete() {
-    await apiDelete(`/api/notes/${noteId}`)
-    navigate('/dashboard')
+    setLoading(true)
+    try {
+      await apiDelete(`/api/notes/${noteId}`)
+      addToast('Note deleted')
+      navigate('/dashboard')
+    } catch {
+      addToast('Failed to delete note')
+      setLoading(false)
+      setConfirmDelete(false)
+    }
   }
 
   return (

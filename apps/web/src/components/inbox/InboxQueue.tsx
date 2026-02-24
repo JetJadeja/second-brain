@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import type { UnifiedInboxItem } from '../../lib/types'
+import { formatRelativeTime, formatFullDate } from '../../lib/format-time'
 import { Card } from '../ui/Card'
 import { SourceIcon } from '../ui/SourceIcon'
 import { InboxActions } from './InboxActions'
@@ -59,10 +60,13 @@ export function InboxQueue({ items, onActionComplete }: InboxQueueProps) {
       ) : (
         <>
           <Card className="p-6">
-            <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center gap-3 mb-2">
               <SourceIcon source={item.data.source_type} className="text-lg" />
               <h2 className="text-lg font-semibold text-text-primary">{item.data.title}</h2>
             </div>
+            <span className="text-xs text-text-tertiary mb-4 block" title={formatFullDate(item.data.captured_at)}>
+              {formatRelativeTime(item.data.captured_at)}
+            </span>
 
             {item.data.ai_summary && (
               <p className="text-sm text-text-secondary mb-4">{item.data.ai_summary}</p>

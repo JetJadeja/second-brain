@@ -17,6 +17,7 @@ export function SidebarTreeItem({ node, depth }: SidebarTreeItemProps) {
   const isActive = pathname === href
   const hasChildren = node.children.length > 0
   const isExpanded = expanded.includes(node.id)
+  const isEmpty = !hasChildren && node.note_count === 0
 
   return (
     <div>
@@ -40,7 +41,7 @@ export function SidebarTreeItem({ node, depth }: SidebarTreeItemProps) {
           to={href}
           className={`flex-1 truncate py-1 pl-1 text-sm ${
             isActive ? 'text-text-primary font-medium' : 'text-text-secondary hover:text-text-primary'
-          }`}
+          } ${isEmpty ? 'opacity-50' : ''}`}
         >
           {node.name}
         </Link>

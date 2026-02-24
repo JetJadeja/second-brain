@@ -1,6 +1,7 @@
 import type { NoteDetailResponse } from '../../lib/types'
 import { SourceIcon } from '../ui/SourceIcon'
 import { Chip } from '../ui/Chip'
+import { SourcePreview } from './SourcePreview'
 
 interface NoteContentProps {
   note: NoteDetailResponse['note']
@@ -23,16 +24,12 @@ function DistillationBar({ status }: { status: string }) {
 }
 
 export function NoteContent({ note }: NoteContentProps) {
-  const sourceUrl = note.source['url'] as string | undefined
-  const sourceDomain = note.source['domain'] as string | undefined
-
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
         <h1 className="text-2xl font-semibold text-text-primary">{note.title}</h1>
         <div className="flex items-center gap-3 text-sm text-text-tertiary">
           <SourceIcon source={note.source_type} />
-          {sourceDomain && <span>{sourceDomain}</span>}
           <span>Captured: {note.captured_at}</span>
           <span>{note.view_count} views</span>
         </div>
@@ -67,16 +64,11 @@ export function NoteContent({ note }: NoteContentProps) {
         </div>
       )}
 
-      {note.original_content && (
-        <details>
-          <summary className="text-sm text-text-tertiary cursor-pointer hover:text-text-secondary">
-            Original content
-          </summary>
-          <div className="mt-3 text-sm text-text-secondary whitespace-pre-wrap">
-            {note.original_content}
-          </div>
-        </details>
-      )}
+      <SourcePreview
+        sourceType={note.source_type}
+        source={note.source}
+        originalContent={note.original_content}
+      />
 
       {note.tags.length > 0 && (
         <div className="flex gap-2 flex-wrap">
@@ -84,17 +76,6 @@ export function NoteContent({ note }: NoteContentProps) {
             <Chip key={tag} label={`#${tag}`} />
           ))}
         </div>
-      )}
-
-      {sourceUrl && (
-        <a
-          href={sourceUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-sm text-blue-500 hover:underline"
-        >
-          View original source
-        </a>
       )}
     </div>
   )

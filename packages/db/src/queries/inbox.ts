@@ -78,6 +78,31 @@ export async function batchClassify(
   return count
 }
 
+export async function getStaleInboxNotes(
+  userId: string,
+  filter: 'low_confidence' | 'no_suggestion',
+  limit = 20,
+): Promise<Note[]> {
+  const sb = getServiceClient()
+  let query = sb
+    .from('notes')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('is_classified', false)
+    .order('captured_at', { ascending: false })
+    .limit(limit)
+
+  if (filter === 'low_confidence') {
+    query = query.or('ai_confidence.lt.0.7,ai_suggested_bucket.is.null')
+  } else {
+    query = query.is('ai_suggested_bucket', null)
+  }
+
+  const { data, error } = await query
+  if (error) throw new Error(`getStaleInboxNotes: ${error.message}`)
+  return (data ?? []) as Note[]
+}
+
 export async function archiveNote(
   userId: string,
   noteId: string,

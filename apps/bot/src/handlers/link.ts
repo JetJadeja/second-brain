@@ -6,9 +6,7 @@ import {
 } from '@second-brain/db'
 import type { BotContext } from '../context.js'
 import { cacheUserId } from '../middleware/user-cache.js'
-import { startOnboarding } from '../onboarding/start-onboarding.js'
-import { runAgent } from '../agent/run-agent.js'
-import { recordBotResponse } from '../conversation/record-exchange.js'
+import { sendChatMessage } from '../api-client.js'
 
 class LinkError extends Error {}
 
@@ -81,12 +79,15 @@ export async function handleLink(ctx: BotContext): Promise<void> {
   console.log(`[link] linked telegram=${telegramId} to user=${userId}`)
   await ctx.reply("linked — let's set up your second brain.")
 
-  // Phase 3: Start onboarding — failures are non-fatal
+  // Phase 3: Start onboarding via API — failures are non-fatal
   try {
-    await startOnboarding(userId)
-    const result = await runAgent(ctx)
-    await ctx.reply(result.text)
-    recordBotResponse(userId, result.text)
+    const response = await sendChatMessage({
+      userId,
+      message: '/start',
+      startOnboarding: true,
+      platform: 'Telegram',
+    })
+    await ctx.reply(response.text)
   } catch (error) {
     console.error('[link] onboarding failed after successful link:', error)
   }

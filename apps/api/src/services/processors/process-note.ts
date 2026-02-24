@@ -4,7 +4,7 @@ import { summarizeContent } from './summarize-content.js'
 import { classifyContent } from './classify-content.js'
 import { detectConnections } from './detect-connections.js'
 import { saveNote } from './save-note.js'
-import { maybeTriggerAnalysis } from '../maintenance/trigger-analysis.js'
+import { maybeTriggerReorganization } from '../reorganization/trigger-reorganization.js'
 
 export interface ProcessedNote {
   note: Note
@@ -50,8 +50,8 @@ export async function processNote(
     )
   }
 
-  // Step 6: Maybe trigger maintenance analysis (fire and forget)
-  maybeTriggerAnalysis(userId)
+  // Step 6: Maybe trigger reorganization analysis (fire and forget)
+  maybeTriggerReorganization(userId)
 
   return { note, summary, classification, createdBucketName, warning: options?.warning }
 }

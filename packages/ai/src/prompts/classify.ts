@@ -64,7 +64,7 @@ const RESPONSE_FORMAT = `\nRESPOND with ONLY valid JSON (no markdown, no code fe
 }
 
 If no subfolder fits well, set bucket_id to null and include:
-"suggest_new_bucket": { "name": "<short folder name>", "parent_type": "<project|area|resource>" }
+"suggest_new_bucket": { "name": "<2-4 word folder name, max 25 chars>", "parent_type": "<project|area|resource>" }
 
 If a good subfolder exists, use its bucket_id and omit suggest_new_bucket.\n`
 

@@ -1,11 +1,8 @@
 import {
-  callClaudeWithTools,
+  runAgentLoop,
   buildExtractionAgentSystem,
   buildExtractionAgentUser,
-  extractText,
   parseLlmJson,
-  type AnthropicContentBlock,
-  type AnthropicToolResultBlockParam,
 } from '@second-brain/ai'
 import type { ExtractedContent, NoteSource } from '@second-brain/shared'
 import { EXTRACTION_TOOLS } from './extraction-tools.js'
@@ -19,58 +16,27 @@ export interface ExtractionAgentResult {
 }
 
 export async function runExtractionAgent(url: string): Promise<ExtractionAgentResult> {
-  const system = buildExtractionAgentSystem()
-  const userMessage = buildExtractionAgentUser(url)
-  const messages = [{ role: 'user' as const, content: userMessage }]
+  let lastToolData: ExtractionToolResult | null = null
 
-  const response = await callClaudeWithTools({
-    system,
-    messages,
+  const result = await runAgentLoop({
+    system: buildExtractionAgentSystem(),
+    messages: [{ role: 'user' as const, content: buildExtractionAgentUser(url) }],
     tools: EXTRACTION_TOOLS,
     model: HAIKU_MODEL,
     maxTokens: 2048,
+    maxTurns: 3,
+    toolExecutor: async (name, input) => {
+      const toolData = await executeExtractionTool(name, input)
+      lastToolData = toolData
+      return toolData.text
+    },
   })
 
-  if (response.stop_reason !== 'tool_use') {
+  if (!lastToolData) {
     throw new Error('Extraction agent did not call any tools')
   }
 
-  const { toolResult, toolData } = await executeTools(response.content)
-
-  const followUp = await callClaudeWithTools({
-    system: '',
-    messages: [
-      ...messages,
-      { role: 'assistant' as const, content: response.content },
-      { role: 'user' as const, content: [toolResult] },
-    ],
-    tools: EXTRACTION_TOOLS,
-    model: HAIKU_MODEL,
-    maxTokens: 1024,
-  })
-
-  const agentText = extractText(followUp.content, 'first')
-  return assembleResult(agentText, toolData)
-}
-
-async function executeTools(
-  content: AnthropicContentBlock[],
-): Promise<{ toolResult: AnthropicToolResultBlockParam; toolData: ExtractionToolResult }> {
-  for (const block of content) {
-    if (block.type === 'tool_use') {
-      const toolData = await executeExtractionTool(
-        block.name,
-        block.input as Record<string, unknown>,
-      )
-      const toolResult: AnthropicToolResultBlockParam = {
-        type: 'tool_result',
-        tool_use_id: block.id,
-        content: toolData.text,
-      }
-      return { toolResult, toolData }
-    }
-  }
-  throw new Error('No tool_use block found in response')
+  return assembleResult(result.text, lastToolData)
 }
 
 function assembleResult(
@@ -109,4 +75,3 @@ function parseAgentJson(text: string): AgentOutput | null {
     summary: typeof parsed['summary'] === 'string' ? parsed['summary'] : null,
   }
 }
-

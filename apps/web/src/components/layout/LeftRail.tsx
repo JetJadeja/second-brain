@@ -3,7 +3,7 @@ import { LayoutDashboard, Inbox, Search, GitFork, RefreshCw, PanelLeftClose, Pan
 import { Link } from 'react-router-dom'
 import { NavItem } from '../nav/NavItem'
 import { ParaSection } from '../nav/ParaSection'
-import { ParaBucketItem } from '../nav/ParaBucketItem'
+import { SidebarTreeItem } from '../nav/SidebarTreeItem'
 import { Badge } from '../ui/Badge'
 import { ThemeToggle } from '../ui/ThemeToggle'
 import { useAuthStore } from '../../stores/auth-store'
@@ -66,25 +66,25 @@ export function LeftRail() {
 
         <ParaSection label="Projects" defaultOpen>
           {projectsRoot?.children.map((b) => (
-            <ParaBucketItem key={b.id} name={b.name} href={`/para/${b.id}`} />
+            <SidebarTreeItem key={b.id} node={b} depth={0} />
           ))}
         </ParaSection>
 
         <ParaSection label="Areas" defaultOpen>
           {areasRoot?.children.map((b) => (
-            <ParaBucketItem key={b.id} name={b.name} href={`/para/${b.id}`} />
+            <SidebarTreeItem key={b.id} node={b} depth={0} />
           ))}
         </ParaSection>
 
         <ParaSection label="Resources">
           {resourcesRoot?.children.map((b) => (
-            <ParaBucketItem key={b.id} name={b.name} href={`/para/${b.id}`} />
+            <SidebarTreeItem key={b.id} node={b} depth={0} />
           ))}
         </ParaSection>
 
         <ParaSection label="Archive">
           {archiveRoot?.children.map((b) => (
-            <ParaBucketItem key={b.id} name={b.name} href={`/para/${b.id}`} />
+            <SidebarTreeItem key={b.id} node={b} depth={0} />
           ))}
         </ParaSection>
 

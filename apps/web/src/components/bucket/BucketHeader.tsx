@@ -48,6 +48,7 @@ export function BucketHeader({ bucket }: BucketHeaderProps) {
           <input
             ref={inputRef}
             value={name}
+            maxLength={40}
             onChange={(e) => setName(e.target.value)}
             onBlur={handleRename}
             onKeyDown={(e) => { if (e.key === 'Enter') handleRename(); if (e.key === 'Escape') { setName(bucket.name); setEditing(false) } }}

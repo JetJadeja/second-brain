@@ -63,7 +63,7 @@ export function LeftRail() {
   }
 
   return (
-    <aside className="w-60 h-screen flex-shrink-0 border-r border-border bg-surface flex flex-col">
+    <aside className="w-64 h-screen flex-shrink-0 border-r border-border bg-surface flex flex-col">
       <div className="flex items-center justify-between p-4 border-b border-border">
         <span className="text-sm font-semibold text-text-primary">Second Brain</span>
         <button

@@ -24,13 +24,16 @@ export async function createConnection(
 ): Promise<NoteConnection> {
   const { data, error } = await getServiceClient()
     .from('note_connections')
-    .insert({
-      user_id: userId,
-      source_id: sourceId,
-      target_id: targetId,
-      type,
-      similarity: similarity ?? null,
-    })
+    .upsert(
+      {
+        user_id: userId,
+        source_id: sourceId,
+        target_id: targetId,
+        type,
+        similarity: similarity ?? null,
+      },
+      { onConflict: 'source_id,target_id' },
+    )
     .select()
     .single()
 

@@ -1,5 +1,6 @@
 import { Check } from 'lucide-react'
 import type { DashboardInboxItem } from '../../lib/types'
+import { formatRelativeTime, formatFullDate } from '../../lib/format-time'
 import { Card } from '../ui/Card'
 import { SourceIcon } from '../ui/SourceIcon'
 import { Chip } from '../ui/Chip'
@@ -19,7 +20,10 @@ export function InboxCard({ item, onConfirm, onChange, disabled }: InboxCardProp
         <SourceIcon source={item.source_type} />
         <span className="text-sm font-medium text-text-primary truncate">{item.title}</span>
       </div>
-      <p className="text-xs text-text-tertiary mb-3 line-clamp-2">{item.ai_summary}</p>
+      <p className="text-xs text-text-tertiary mb-2 line-clamp-2">{item.ai_summary}</p>
+      <span className="text-xs text-text-tertiary mb-3 block" title={formatFullDate(item.captured_at)}>
+        {formatRelativeTime(item.captured_at)}
+      </span>
       {item.ai_suggested_bucket_path && (
         <Chip label={item.ai_suggested_bucket_path} truncate className="mb-3" />
       )}

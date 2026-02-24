@@ -1,4 +1,5 @@
 import type { Note, InboxItem } from '@second-brain/shared'
+import { SIMILARITY_THRESHOLD_RELATED } from '@second-brain/shared'
 import { findSimilarNotes } from '@second-brain/db'
 import { getBucketPath } from '../para/para-cache.js'
 
@@ -37,9 +38,7 @@ async function findRelated(
   try {
     const emb = parseEmbedding(note.embedding)
     if (emb.length === 0) return []
-    return (await findSimilarNotes(userId, emb, note.id, 3)).filter(
-      (r) => r.similarity > 0.3,
-    )
+    return findSimilarNotes(userId, emb, note.id, 3, SIMILARITY_THRESHOLD_RELATED)
   } catch {
     return []
   }

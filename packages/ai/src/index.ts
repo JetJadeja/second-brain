@@ -17,3 +17,5 @@ export { buildExtractionAgentSystem, buildExtractionAgentUser } from './prompts/
 export { generateEmbedding } from './generate-embedding.js'
 export { parseLlmJson } from './parse-llm-json.js'
 export { extractText } from './extract-text-blocks.js'
+export { runAgentLoop } from './run-agent-loop.js'
+export type { AgentLoopParams, AgentLoopResult, ToolCallRecord } from './run-agent-loop.js'

@@ -8,8 +8,10 @@ interface SummarizeParams {
   userNote?: string | null
 }
 
+const MIN_CONTENT_LENGTH = 100
+
 export async function summarizeContent(params: SummarizeParams): Promise<string | null> {
-  if (!params.content.trim()) return null
+  if (params.content.trim().length < MIN_CONTENT_LENGTH) return null
 
   try {
     const prompt = buildSummarizePrompt({

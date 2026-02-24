@@ -1,6 +1,7 @@
 import { getAllBuckets, updateBucket, deleteBucket } from '@second-brain/db'
 import type { ParaBucket } from '@second-brain/shared'
 import { invalidateParaCache } from '../para-tree.js'
+import { reevaluateInbox } from '../processors/reevaluate-inbox.js'
 
 interface ManageBucketInput {
   action: 'rename' | 'move' | 'delete'
@@ -47,6 +48,7 @@ export async function executeManageBucket(
     case 'delete': {
       await deleteBucket(userId, bucket.id)
       invalidateParaCache(userId)
+      void reevaluateInbox(userId, 'delete')
       return { action: 'delete', bucketName: bucket.name }
     }
 

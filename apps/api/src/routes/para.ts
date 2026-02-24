@@ -13,6 +13,7 @@ import {
   invalidateParaCache,
   getAllBuckets,
 } from '../services/para-tree.js'
+import { reevaluateInbox } from '../services/processors/reevaluate-inbox.js'
 import type {
   ParaTreeResponse,
   BucketDetailResponse,
@@ -139,6 +140,7 @@ paraRouter.post('/buckets', async (req, res) => {
 
   const bucket = await createBucket(userId, parsed.data)
   invalidateParaCache(userId)
+  void reevaluateInbox(userId, 'create')
   res.status(201).json(bucket)
 })
 
@@ -174,5 +176,6 @@ paraRouter.delete('/buckets/:bucketId', async (req, res) => {
 
   await deleteBucket(userId, bucketId)
   invalidateParaCache(userId)
+  void reevaluateInbox(userId, 'delete')
   res.json({ success: true })
 })

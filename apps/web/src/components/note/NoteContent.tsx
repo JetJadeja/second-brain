@@ -2,6 +2,7 @@ import type { NoteDetailResponse } from '../../lib/types'
 import { SourceIcon } from '../ui/SourceIcon'
 import { Chip } from '../ui/Chip'
 import { SourcePreview } from './SourcePreview'
+import { NoteActions } from './NoteActions'
 
 interface NoteContentProps {
   note: NoteDetailResponse['note']
@@ -35,7 +36,10 @@ export function NoteContent({ note }: NoteContentProps) {
         </div>
       </div>
 
-      {note.bucket_path && <Chip label={note.bucket_path} />}
+      <div className="flex items-center gap-3">
+        {note.bucket_path && <Chip label={note.bucket_path} />}
+        <NoteActions noteId={note.id} currentBucketId={note.bucket_id} />
+      </div>
 
       <DistillationBar status={note.distillation_status} />
 

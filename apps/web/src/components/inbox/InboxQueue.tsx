@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback } from 'react'
-import type { InboxItem } from '../../lib/types'
+import type { UnifiedInboxItem } from '../../lib/types'
 import { Card } from '../ui/Card'
 import { SourceIcon } from '../ui/SourceIcon'
 import { InboxActions } from './InboxActions'
+import { SuggestionCard } from './SuggestionCard'
 
 interface InboxQueueProps {
-  items: InboxItem[]
+  items: UnifiedInboxItem[]
   onActionComplete: () => void
 }
 
@@ -53,47 +54,53 @@ export function InboxQueue({ items, onActionComplete }: InboxQueueProps) {
         </div>
       </div>
 
-      <Card className="p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <SourceIcon source={item.source_type} className="text-lg" />
-          <h2 className="text-lg font-semibold text-text-primary">{item.title}</h2>
-        </div>
-
-        {item.ai_summary && (
-          <p className="text-sm text-text-secondary mb-4">{item.ai_summary}</p>
-        )}
-
-        {item.original_content && (
-          <details className="mb-4">
-            <summary className="text-sm text-text-tertiary cursor-pointer hover:text-text-secondary">
-              Show original content
-            </summary>
-            <p className="mt-2 text-sm text-text-secondary whitespace-pre-wrap">
-              {item.original_content}
-            </p>
-          </details>
-        )}
-
-        {item.related_notes.length > 0 && (
-          <div className="border-t border-border pt-4">
-            <h3 className="text-xs font-medium text-text-tertiary uppercase mb-2">Related Notes</h3>
-            <div className="flex flex-col gap-1">
-              {item.related_notes.map((note) => (
-                <span key={note.id} className="text-sm text-text-secondary">
-                  {note.title}
-                </span>
-              ))}
+      {item.kind === 'suggestion' ? (
+        <SuggestionCard suggestion={item.data} onActionComplete={handleComplete} />
+      ) : (
+        <>
+          <Card className="p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <SourceIcon source={item.data.source_type} className="text-lg" />
+              <h2 className="text-lg font-semibold text-text-primary">{item.data.title}</h2>
             </div>
-          </div>
-        )}
-      </Card>
 
-      <InboxActions
-        noteId={item.id}
-        suggestedBucketId={item.ai_suggested_bucket}
-        suggestedBucketPath={item.ai_suggested_bucket_path}
-        onActionComplete={handleComplete}
-      />
+            {item.data.ai_summary && (
+              <p className="text-sm text-text-secondary mb-4">{item.data.ai_summary}</p>
+            )}
+
+            {item.data.original_content && (
+              <details className="mb-4">
+                <summary className="text-sm text-text-tertiary cursor-pointer hover:text-text-secondary">
+                  Show original content
+                </summary>
+                <p className="mt-2 text-sm text-text-secondary whitespace-pre-wrap">
+                  {item.data.original_content}
+                </p>
+              </details>
+            )}
+
+            {item.data.related_notes.length > 0 && (
+              <div className="border-t border-border pt-4">
+                <h3 className="text-xs font-medium text-text-tertiary uppercase mb-2">Related Notes</h3>
+                <div className="flex flex-col gap-1">
+                  {item.data.related_notes.map((note) => (
+                    <span key={note.id} className="text-sm text-text-secondary">
+                      {note.title}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </Card>
+
+          <InboxActions
+            noteId={item.data.id}
+            suggestedBucketId={item.data.ai_suggested_bucket}
+            suggestedBucketPath={item.data.ai_suggested_bucket_path}
+            onActionComplete={handleComplete}
+          />
+        </>
+      )}
     </div>
   )
 }

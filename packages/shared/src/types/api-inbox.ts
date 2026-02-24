@@ -1,10 +1,22 @@
-import type { NoteSource } from './enums.js'
+import type { NoteSource, SuggestionType } from './enums.js'
 
 export interface InboxResponse {
-  items: InboxItem[]
+  items: UnifiedInboxItem[]
   total: number
   page: number
   limit: number
+}
+
+export type UnifiedInboxItem =
+  | { kind: 'note'; data: InboxItem }
+  | { kind: 'suggestion'; data: SuggestionItem }
+
+export interface SuggestionItem {
+  id: string
+  type: SuggestionType
+  payload: Record<string, unknown>
+  description: string
+  created_at: string
 }
 
 export interface InboxItem {

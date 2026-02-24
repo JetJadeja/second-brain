@@ -22,6 +22,7 @@ async function buildItem(userId: string, n: Note): Promise<InboxItem> {
     source: n.source,
     ai_suggested_bucket: n.ai_suggested_bucket,
     ai_suggested_bucket_path: await getBucketPath(userId, n.ai_suggested_bucket),
+    ai_confidence: n.ai_confidence,
     user_note: n.user_note,
     captured_at: n.captured_at,
     related_notes: relatedNotes,

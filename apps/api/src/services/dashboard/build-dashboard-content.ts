@@ -16,6 +16,7 @@ export async function buildDashboardInbox(
       source: n.source,
       ai_suggested_bucket: n.ai_suggested_bucket,
       ai_suggested_bucket_path: await getBucketPath(userId, n.ai_suggested_bucket),
+      ai_confidence: n.ai_confidence,
       captured_at: n.captured_at,
     })),
   )

@@ -14,11 +14,16 @@ export interface ProcessedNote {
   warning?: string
 }
 
+export interface ProcessNoteOptions {
+  summary?: string | null
+  warning?: string
+}
+
 export async function processNote(
   userId: string,
   extracted: ExtractedContent,
   userNote: string | null,
-  warning?: string,
+  options?: ProcessNoteOptions,
 ): Promise<ProcessedNote> {
   const embeddingText = [extracted.title, extracted.content, userNote]
     .filter(Boolean)
@@ -61,5 +66,5 @@ export async function processNote(
   // Step 6: Maybe trigger maintenance analysis (fire and forget)
   maybeTriggerAnalysis(userId)
 
-  return { note, summary, classification, createdBucketName, warning }
+  return { note, summary, classification, createdBucketName, warning: options?.warning }
 }

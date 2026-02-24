@@ -1,12 +1,9 @@
 import type { ExtractedContent } from '@second-brain/shared'
 import { processNote } from '../processors/process-note.js'
 import { getBucketPath } from '../processors/resolve-bucket-path.js'
-import { classifyUrl } from '../extractors/classify-url.js'
-import { extractArticle } from '../extractors/extract-article.js'
-import { extractTweet } from '../extractors/extract-tweet.js'
-import { extractReel } from '../extractors/extract-reel.js'
-import { extractYoutube } from '../extractors/extract-youtube.js'
+import { runExtractionAgent } from '../extractors/run-extraction-agent.js'
 import { extractThought } from '../extractors/extract-thought.js'
+import { fallbackExtract } from '../extractors/fallback-extract.js'
 
 const URL_REGEX = /https?:\/\/[^\s]+/
 
@@ -32,6 +29,7 @@ export async function executeSaveNote(input: SaveNoteInput): Promise<SaveNoteRes
 
   let extracted: ExtractedContent
   let resolvedUserNote = userNote ?? null
+  let agentSummary: string | null = null
 
   if (preExtracted) {
     extracted = preExtracted
@@ -39,9 +37,12 @@ export async function executeSaveNote(input: SaveNoteInput): Promise<SaveNoteRes
     const result = await extractContent(content)
     extracted = result.extracted
     resolvedUserNote = resolvedUserNote ?? result.userNote
+    agentSummary = result.summary
   }
 
-  const result = await processNote(userId, extracted, resolvedUserNote)
+  const result = await processNote(userId, extracted, resolvedUserNote, {
+    summary: agentSummary,
+  })
   const suggestedBucket = await getBucketPath(userId, result.note.ai_suggested_bucket)
 
   return {
@@ -57,50 +58,27 @@ export async function executeSaveNote(input: SaveNoteInput): Promise<SaveNoteRes
 interface ExtractionResult {
   extracted: ExtractedContent
   userNote: string | null
+  summary: string | null
 }
 
 async function extractContent(content: string): Promise<ExtractionResult> {
   const urlMatch = content.match(URL_REGEX)
 
   if (!urlMatch) {
-    return { extracted: extractThought(content), userNote: null }
+    return { extracted: extractThought(content), userNote: null, summary: null }
   }
 
-  const url = urlMatch[0]
+  const url = urlMatch[0]!
   const userNote = content.replace(URL_REGEX, '').trim() || null
-  const sourceType = classifyUrl(url)
 
-  const extracted = await extractBySourceType(url, sourceType)
-  return { extracted: extracted ?? extractThought(content), userNote }
-}
-
-async function extractBySourceType(
-  url: string,
-  sourceType: string,
-): Promise<ExtractedContent | null> {
   try {
-    switch (sourceType) {
-      case 'tweet':
-      case 'thread': {
-        const result = await extractTweet(url)
-        return result.content
-      }
-      case 'reel': {
-        const result = await extractReel(url)
-        return result.content
-      }
-      case 'youtube': {
-        const result = await extractYoutube(url)
-        return result.content
-      }
-      default: {
-        const result = await extractArticle(url)
-        return result.content
-      }
-    }
+    const agentResult = await runExtractionAgent(url)
+    return { extracted: agentResult.extracted, userNote, summary: agentResult.summary }
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : String(error)
-    console.error('[extractBySourceType] Failed:', msg)
-    return null
+    console.error('[extractContent] Agent failed, using fallback:', msg)
+
+    const extracted = await fallbackExtract(url)
+    return { extracted: extracted ?? extractThought(content), userNote, summary: null }
   }
 }

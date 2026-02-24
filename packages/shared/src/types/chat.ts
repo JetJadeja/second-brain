@@ -6,6 +6,8 @@ export interface ChatRequest {
   preExtracted?: ExtractedContent
   noteContext?: string
   startOnboarding?: boolean
+  attachmentDescription?: string
+  platform?: string
 }
 
 export interface ChatResponse {

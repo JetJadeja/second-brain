@@ -4,8 +4,7 @@ import { summarizeContent } from './summarize-content.js'
 import { classifyContent } from './classify-content.js'
 import { detectConnections } from './detect-connections.js'
 import { saveNote } from './save-note.js'
-// TODO: Update import when maintenance moves to API in B.8
-// import { maybeTriggerAnalysis } from '../maintenance/trigger-analysis.js'
+import { maybeTriggerAnalysis } from '../maintenance/trigger-analysis.js'
 
 export interface ProcessedNote {
   note: Note
@@ -59,8 +58,8 @@ export async function processNote(
     detectConnections(userId, note.id, embedding).catch(() => {})
   }
 
-  // TODO: Re-enable when maintenance moves to API in B.8
-  // maybeTriggerAnalysis(userId)
+  // Step 6: Maybe trigger maintenance analysis (fire and forget)
+  maybeTriggerAnalysis(userId)
 
   return { note, summary, classification, createdBucketName, warning }
 }

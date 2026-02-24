@@ -5,13 +5,13 @@ import { useAuthListener } from './hooks/use-auth-listener'
 import { useSystemThemeListener } from './hooks/use-system-theme-listener'
 import { queryClient } from './lib/query-client'
 import { AppShell } from './components/layout/AppShell'
-import Landing from './pages/Landing'
-import Login from './pages/Login'
-import Home from './pages/Home'
-import InboxPage from './pages/InboxPage'
-import BucketPage from './pages/BucketPage'
-import NotePage from './pages/NotePage'
-import SettingsPage from './pages/SettingsPage'
+import { Landing } from './pages/Landing'
+import { Login } from './pages/Login'
+import { Home } from './pages/Home'
+import { InboxPage } from './pages/InboxPage'
+import { BucketPage } from './pages/BucketPage'
+import { NotePage } from './pages/NotePage'
+import { SettingsPage } from './pages/SettingsPage'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const session = useAuthStore((s) => s.session)
@@ -22,7 +22,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return <AppShell>{children}</AppShell>
 }
 
-export default function App() {
+export function App() {
   useAuthListener()
   useSystemThemeListener()
 

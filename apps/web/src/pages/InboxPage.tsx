@@ -7,7 +7,7 @@ import { EmptyState } from '../components/ui/EmptyState'
 
 type InboxMode = 'queue' | 'list'
 
-export default function InboxPage() {
+export function InboxPage() {
   const [mode, setMode] = useState<InboxMode>('queue')
   const { data, isLoading, refetch } = useInbox()
 

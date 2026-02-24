@@ -3,7 +3,7 @@ import { useNote } from '../hooks/use-note'
 import { NoteContent } from '../components/note/NoteContent'
 import { NoteContext } from '../components/note/NoteContext'
 
-export default function NotePage() {
+export function NotePage() {
   const { noteId } = useParams<{ noteId: string }>()
   const { data, isLoading, error } = useNote(noteId)
 

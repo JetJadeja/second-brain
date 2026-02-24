@@ -8,7 +8,7 @@ import { Button } from '../components/ui/Button'
 import { useDashboard } from '../hooks/use-dashboard'
 import { useLinkStatus } from '../hooks/use-link-status'
 
-export default function Home() {
+export function Home() {
   const { data, isLoading, error } = useDashboard()
   const { isLinked } = useLinkStatus()
 

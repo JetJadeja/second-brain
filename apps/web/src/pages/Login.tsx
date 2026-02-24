@@ -5,7 +5,7 @@ import { useForceLightMode } from '../hooks/use-force-light-mode'
 import { AuthInput } from '../components/auth/AuthInput'
 import { Button } from '../components/ui/Button'
 
-export default function Login() {
+export function Login() {
   useForceLightMode()
   const session = useAuthStore((s) => s.session)
   const initializing = useAuthStore((s) => s.initializing)

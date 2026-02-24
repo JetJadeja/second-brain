@@ -1,24 +1,12 @@
 import { Router } from 'express'
 import { z } from 'zod'
-import {
-  getBucketById,
-  createBucket,
-  updateBucket,
-  deleteBucket,
-  getNotesByBucket,
-} from '@second-brain/db'
-import {
-  getParaTree,
-  getBucketPath,
-  invalidateParaCache,
-  getAllBuckets,
-} from '../services/para/para-cache.js'
+import { getBucketById, createBucket, updateBucket, deleteBucket } from '@second-brain/db'
+import { getParaTree, invalidateParaCache, getAllBuckets } from '../services/para/para-cache.js'
+import { buildBucketDetail } from '../services/para/build-bucket-detail.js'
+import { validateBucketType, TypeMismatchError } from '../services/para/validate-bucket-hierarchy.js'
 import { reevaluateInbox } from '../services/processors/reevaluate-inbox.js'
 import { NOTE_SOURCES, DISTILLATION_STATUSES } from '@second-brain/shared'
-import type {
-  ParaTreeResponse,
-  BucketDetailResponse,
-} from '@second-brain/shared'
+import type { ParaTreeResponse } from '@second-brain/shared'
 
 export const paraRouter = Router()
 
@@ -54,59 +42,16 @@ paraRouter.get('/:bucketId', async (req, res) => {
     return
   }
 
-  const page = Number(req.query['page']) || 1
-  const limit = Number(req.query['limit']) || 20
-  const sort = (req.query['sort'] as string) || 'captured_at'
   const sourceTypeParsed = z.enum(NOTE_SOURCES).safeParse(req.query['filter_source_type'])
   const statusParsed = z.enum(DISTILLATION_STATUSES).safeParse(req.query['filter_status'])
 
-  const { data: notes, total } = await getNotesByBucket(userId, bucketId, {
-    page,
-    limit,
-    sort,
+  const response = await buildBucketDetail(userId, bucket, {
+    page: Number(req.query['page']) || 1,
+    limit: Number(req.query['limit']) || 20,
+    sort: (req.query['sort'] as string) || 'captured_at',
     sourceType: sourceTypeParsed.success ? sourceTypeParsed.data : undefined,
     status: statusParsed.success ? statusParsed.data : undefined,
   })
-
-  const path = await getBucketPath(userId, bucketId)
-  const allBuckets = await getAllBuckets(userId)
-  const children = allBuckets.filter((b) => b.parent_id === bucketId)
-
-  // Count distilled and evergreen
-  let distilledCount = 0
-  let evergreenCount = 0
-  for (const n of notes) {
-    if (n.distillation_status === 'distilled') distilledCount++
-    if (n.distillation_status === 'evergreen') evergreenCount++
-  }
-
-  const response: BucketDetailResponse = {
-    bucket: {
-      id: bucket.id,
-      name: bucket.name,
-      type: bucket.type,
-      path: path ?? bucket.name,
-      note_count: total,
-      distilled_count: distilledCount,
-      evergreen_count: evergreenCount,
-      children: children.map((c) => ({ id: c.id, name: c.name, note_count: 0 })),
-    },
-    notes: notes.map((n) => ({
-      id: n.id,
-      title: n.title,
-      ai_summary: n.ai_summary,
-      distillation: n.distillation,
-      source_type: n.source_type,
-      source: n.source,
-      distillation_status: n.distillation_status,
-      captured_at: n.captured_at,
-      connection_count: n.connection_count,
-      tags: n.tags,
-    })),
-    total,
-    page,
-    limit,
-  }
 
   res.json(response)
 })
@@ -125,18 +70,15 @@ paraRouter.post('/buckets', async (req, res) => {
     return
   }
 
-  // Walk up to root to validate type match
-  const allBuckets = await getAllBuckets(userId)
-  let root = parent
-  while (root.parent_id) {
-    const p = allBuckets.find((b) => b.id === root.parent_id)
-    if (!p) break
-    root = p
-  }
-
-  if (root.type !== parsed.data.type) {
-    res.status(400).json({ error: `Type must match root ancestor type: ${root.type}` })
-    return
+  try {
+    const allBuckets = await getAllBuckets(userId)
+    validateBucketType(allBuckets, parsed.data.parent_id, parsed.data.type)
+  } catch (err) {
+    if (err instanceof TypeMismatchError) {
+      res.status(400).json({ error: err.message })
+      return
+    }
+    throw err
   }
 
   const bucket = await createBucket(userId, parsed.data)

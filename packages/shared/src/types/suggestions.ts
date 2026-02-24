@@ -27,8 +27,16 @@ export interface CreateSubBucketPayload {
   note_ids: string[]
 }
 
+export interface CreateBucketPayload {
+  note_id: string
+  note_title: string
+  bucket_name: string
+  parent_type: 'project' | 'area' | 'resource'
+}
+
 export type SuggestionPayload =
   | SplitBucketPayload
   | ReclassifyNotePayload
   | ArchiveProjectPayload
   | CreateSubBucketPayload
+  | CreateBucketPayload

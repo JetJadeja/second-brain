@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import type { UnifiedInboxItem } from '../../lib/types'
 import { formatRelativeTime, formatFullDate } from '../../lib/format-time'
+import { Link } from 'react-router-dom'
 import { Card } from '../ui/Card'
 import { SourceIcon } from '../ui/SourceIcon'
 import { InboxActions } from './InboxActions'
@@ -88,9 +89,10 @@ export function InboxQueue({ items, onActionComplete }: InboxQueueProps) {
                 <h3 className="text-xs font-medium text-text-tertiary uppercase mb-2">Related Notes</h3>
                 <div className="flex flex-col gap-1">
                   {item.data.related_notes.map((note) => (
-                    <span key={note.id} className="text-sm text-text-secondary">
+                    <Link key={note.id} to={`/notes/${note.id}`} className="text-sm text-text-secondary hover:text-text-primary hover:underline inline-flex items-center gap-2">
                       {note.title}
-                    </span>
+                      {note.similarity >= 0.8 && <span className="text-[10px] px-1.5 py-0.5 rounded bg-accent/10 text-accent">Similar</span>}
+                    </Link>
                   ))}
                 </div>
               </div>

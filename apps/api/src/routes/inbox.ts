@@ -1,7 +1,6 @@
 import { Router } from 'express'
 import { z } from 'zod'
 import {
-  getInboxNotes,
   classifyNote,
   batchClassify,
   archiveNote,
@@ -9,7 +8,7 @@ import {
   getBucketById,
 } from '@second-brain/db'
 import { getAllBuckets } from '../services/para/para-cache.js'
-import { buildInboxItems } from '../services/inbox/build-inbox-items.js'
+import { buildUnifiedFeed } from '../services/inbox/build-unified-feed.js'
 import type { InboxResponse } from '@second-brain/shared'
 
 export const inboxRouter = Router()
@@ -27,8 +26,7 @@ inboxRouter.get('/', async (req, res) => {
   const page = Number(req.query['page']) || 1
   const limit = Number(req.query['limit']) || 20
 
-  const { data: notes, total } = await getInboxNotes(userId, { page, limit })
-  const items = await buildInboxItems(userId, notes)
+  const { items, total } = await buildUnifiedFeed(userId, page, limit)
 
   const response: InboxResponse = { items, total, page, limit }
   res.json(response)

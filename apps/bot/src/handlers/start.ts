@@ -14,10 +14,7 @@ export async function handleStart(ctx: BotContext): Promise<void> {
 
   if (!userId) {
     await ctx.reply(
-      'Welcome! To get started, connect your Telegram account:\n\n' +
-      `1) Go to ${WEB_APP_URL}/settings\n` +
-      "2) Click 'Connect Telegram'\n" +
-      '3) Send me /link YOUR_CODE',
+      `hey! to get started, link your account at ${WEB_APP_URL}/settings — then send me the code with /link`,
     )
     return
   }
@@ -39,8 +36,5 @@ export async function handleStart(ctx: BotContext): Promise<void> {
     return
   }
 
-  await ctx.reply(
-    'Welcome back! Send me anything — links, thoughts, images — ' +
-    "and I'll save it to your second brain.",
-  )
+  await ctx.reply("hey — send me anything and I'll organize it")
 }

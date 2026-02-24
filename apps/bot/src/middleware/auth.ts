@@ -25,8 +25,7 @@ export async function requireLinkedUser(
 
   if (!userId) {
     await ctx.reply(
-      `I don't recognize this Telegram account. ` +
-      `Connect it to your Second Brain at ${WEB_APP_URL}/settings`,
+      `hey — I don't have your account linked yet. head to ${WEB_APP_URL}/settings to connect`,
     )
     return
   }

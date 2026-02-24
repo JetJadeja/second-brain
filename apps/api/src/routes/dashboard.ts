@@ -2,14 +2,12 @@ import { Router } from 'express'
 import { getInboxNotes, countInboxNotes } from '@second-brain/db'
 import { getRecentlyViewed } from '@second-brain/db'
 import { getNoteById, getRecentNotes } from '@second-brain/db'
-import { getParaTree, getBucketPath, getAllBuckets } from '../services/para-tree.js'
-import { collectDescendantIds } from '@second-brain/shared'
+import { getBucketPath, getAllBuckets } from '../services/para-tree.js'
+import { buildDashboardAreas } from '../services/build-dashboard-areas.js'
 import type {
   DashboardResponse,
   DashboardInboxItem,
   DashboardNote,
-  DashboardArea,
-  ParaBucket,
 } from '@second-brain/shared'
 
 export const dashboardRouter = Router()
@@ -83,7 +81,7 @@ dashboardRouter.get('/', async (req, res) => {
   }
 
   // Areas: children of top-level Projects and Areas containers
-  const areas = await buildAreas(userId, buckets)
+  const areas = await buildDashboardAreas(userId, buckets)
 
   const response: DashboardResponse = {
     inbox: { count: inboxCount, recent: recentInbox },
@@ -93,80 +91,3 @@ dashboardRouter.get('/', async (req, res) => {
 
   res.json(response)
 })
-
-async function buildAreas(
-  userId: string,
-  buckets: ParaBucket[],
-): Promise<DashboardArea[]> {
-  const topLevel = buckets.filter(
-    (b) => !b.parent_id && (b.type === 'project' || b.type === 'area'),
-  )
-
-  const { getServiceClient } = await import('@second-brain/db')
-  const sb = getServiceClient()
-
-  const areas: DashboardArea[] = []
-  for (const container of topLevel) {
-    const children = buckets.filter((b) => b.parent_id === container.id)
-
-    for (const child of children) {
-      const descendants = collectDescendantIds(child.id, buckets, false)
-      const allIds = [child.id, ...descendants]
-
-      let noteCount = 0
-      let lastCapture: string | null = null
-
-      for (const bid of allIds) {
-        const { count } = await sb
-          .from('notes')
-          .select('id', { count: 'exact', head: true })
-          .eq('user_id', userId)
-          .eq('bucket_id', bid)
-        noteCount += count ?? 0
-
-        const { data: latest } = await sb
-          .from('notes')
-          .select('captured_at')
-          .eq('user_id', userId)
-          .eq('bucket_id', bid)
-          .order('captured_at', { ascending: false })
-          .limit(1)
-
-        if (latest?.[0]) {
-          const cap = latest[0].captured_at as string
-          if (!lastCapture || cap > lastCapture) lastCapture = cap
-        }
-      }
-
-      const health = computeHealth(lastCapture)
-      const subBuckets = buckets.filter((b) => b.parent_id === child.id)
-
-      areas.push({
-        id: child.id,
-        name: child.name,
-        type: child.type,
-        note_count: noteCount,
-        last_capture_at: lastCapture,
-        health,
-        children: subBuckets.map((sb) => ({
-          id: sb.id,
-          name: sb.name,
-          note_count: 0,
-        })),
-      })
-    }
-  }
-
-  return areas
-}
-
-function computeHealth(
-  lastCapture: string | null,
-): 'growing' | 'stable' | 'stagnant' {
-  if (!lastCapture) return 'stagnant'
-  const days = (Date.now() - new Date(lastCapture).getTime()) / 86400000
-  if (days <= 14) return 'growing'
-  if (days <= 28) return 'stable'
-  return 'stagnant'
-}
-

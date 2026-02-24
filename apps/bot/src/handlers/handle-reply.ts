@@ -3,6 +3,8 @@ import type { BotContext } from '../context.js'
 import { getReceiptNoteId, storeReceipt } from './receipt-store.js'
 import { sendChatMessage } from '../api-client.js'
 import { buildChatRequest } from '../telegram/build-chat-request.js'
+import { needsAsyncProcessing, getAckMessage } from './needs-async.js'
+import { processInBackground } from './process-in-background.js'
 
 export async function handleReply(ctx: BotContext): Promise<void> {
   const userId = ctx.userId
@@ -23,9 +25,16 @@ export async function handleReply(ctx: BotContext): Promise<void> {
   const replyText = ctx.message?.text
   if (!replyText) return
 
+  const noteContext = buildNoteContext(note, noteId)
+
+  if (needsAsyncProcessing(ctx)) {
+    await ctx.reply(getAckMessage())
+    processInBackground({ ctx, chatId, buildRequestOptions: { noteContext } })
+    return
+  }
+
   await ctx.replyWithChatAction('typing')
 
-  const noteContext = buildNoteContext(note, noteId)
   const request = await buildChatRequest(ctx, { noteContext })
   const response = await sendChatMessage(request)
 

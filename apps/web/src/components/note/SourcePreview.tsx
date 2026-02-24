@@ -1,5 +1,6 @@
 import { TextPreview } from './previews/TextPreview'
 import { ArticlePreview } from './previews/ArticlePreview'
+import { TweetPreview } from './previews/TweetPreview'
 
 interface SourcePreviewProps {
   sourceType: string
@@ -15,6 +16,7 @@ export function SourcePreview({ sourceType, source, originalContent }: SourcePre
       return <ArticlePreview source={source} originalContent={originalContent} />
     case 'tweet':
     case 'thread':
+      return <TweetPreview source={source} originalContent={originalContent} />
     case 'youtube':
     case 'reel':
     case 'image':

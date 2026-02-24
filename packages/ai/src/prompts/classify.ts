@@ -58,7 +58,6 @@ const RESPONSE_FORMAT = `\nRESPOND with ONLY valid JSON (no markdown, no code fe
 {
   "bucket_id": "<UUID of best matching subfolder, or null if no good match>",
   "confidence": <0.0 to 1.0>,
-  "tags": ["tag1", "tag2"],
   "is_original_thought": <true if user's own idea/thought, false if external content>,
   "suggest_new_bucket": <OPTIONAL — only if no existing bucket fits>
 }

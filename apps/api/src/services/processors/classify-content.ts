@@ -47,7 +47,7 @@ function parseClassifyResponse(text: string): ClassifyResult | null {
     const result: ClassifyResult = {
       bucket_id: String(parsed['bucket_id'] ?? ''),
       confidence: Number(parsed['confidence'] ?? 0),
-      tags: Array.isArray(parsed['tags']) ? parsed['tags'] as string[] : [],
+      tags: [],
       is_original_thought: Boolean(parsed['is_original_thought']),
     }
 

@@ -1,6 +1,7 @@
 import { getNoteById, updateNote, getAllBuckets } from '@second-brain/db'
 import type { ParaBucket } from '@second-brain/shared'
 import { getBucketPath } from '../processors/resolve-bucket-path.js'
+import { invalidateParaCache } from '../para-tree.js'
 
 export interface MoveNoteResult {
   noteTitle: string
@@ -29,6 +30,7 @@ export async function executeMoveNote(
     is_classified: true,
   } as Record<string, unknown>)
 
+  invalidateParaCache(userId)
   const resolvedPath = await getBucketPath(userId, targetBucket.id)
   return { noteTitle: note.title, targetPath: resolvedPath }
 }

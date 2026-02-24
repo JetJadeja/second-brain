@@ -2,6 +2,7 @@ import { getAllBuckets, markOnboardingComplete } from '@second-brain/db'
 import type { ParaBucket } from '@second-brain/shared'
 import { createOnboardingBuckets } from '../onboarding/create-onboarding-buckets.js'
 import { clearOnboarding } from '../onboarding/onboarding-store.js'
+import { invalidateParaCache } from '../para-tree.js'
 
 interface BucketSpec {
   name: string
@@ -20,6 +21,7 @@ export async function executeFinalizeOnboarding(
   buckets: BucketSpec[],
 ): Promise<FinalizeOnboardingResult> {
   const created = await createOnboardingBuckets(userId, buckets)
+  invalidateParaCache(userId)
 
   // Mark onboarding complete in both DB and memory
   clearOnboarding(userId)

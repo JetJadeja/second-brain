@@ -1,6 +1,7 @@
 import { getAllBuckets, createBucket } from '@second-brain/db'
 import type { ParaBucket } from '@second-brain/shared'
 import { getBucketPath } from '../processors/resolve-bucket-path.js'
+import { invalidateParaCache } from '../para-tree.js'
 
 export interface CreateBucketResult {
   bucketId: string
@@ -38,6 +39,7 @@ export async function executeCreateBucket(
     ...(description ? { description: description.trim() } : {}),
   })
 
+  invalidateParaCache(userId)
   const path = await getBucketPath(userId, created.id)
   return { bucketId: created.id, name: created.name, type, path }
 }

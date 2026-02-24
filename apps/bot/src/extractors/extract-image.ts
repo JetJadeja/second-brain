@@ -1,6 +1,10 @@
 import { callClaudeVision } from '@second-brain/ai'
 import type { ExtractedContent, ImageSource } from '@second-brain/shared'
-import type { ExtractionResult } from './extract-article.js'
+
+interface ExtractionResult {
+  content: ExtractedContent
+  warning?: string
+}
 
 const DESCRIBE_PROMPT =
   'Describe this image in detail. What does it show? What text is visible? ' +

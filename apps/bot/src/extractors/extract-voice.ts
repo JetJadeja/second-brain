@@ -1,6 +1,10 @@
 import { getOpenAIClient } from '@second-brain/ai'
 import type { ExtractedContent, VoiceMemoSource } from '@second-brain/shared'
-import type { ExtractionResult } from './extract-article.js'
+
+interface ExtractionResult {
+  content: ExtractedContent
+  warning?: string
+}
 
 export async function extractVoice(
   buffer: Buffer,

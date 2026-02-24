@@ -1,6 +1,10 @@
 import { PDFParse } from 'pdf-parse'
 import type { ExtractedContent, PdfSource } from '@second-brain/shared'
-import type { ExtractionResult } from './extract-article.js'
+
+interface ExtractionResult {
+  content: ExtractedContent
+  warning?: string
+}
 
 const MIN_MEANINGFUL_TEXT = 50
 

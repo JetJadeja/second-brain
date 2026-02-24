@@ -98,14 +98,21 @@ function buildTweetContent(
   if (tweet.quote) {
     const quotedHandle = tweet.quote.author.screen_name
     const content = `${tweet.text}\n\nQuote tweet by @${quotedHandle}:\n${tweet.quote.text}`
-    const title = `@${authorHandle} QT @${quotedHandle}: ${tweet.quote.text.slice(0, 60)}`
-    return { content, title }
+    return { content, title: truncateTitle(tweet.quote.text) }
   }
 
   return {
     content: tweet.text,
-    title: `@${authorHandle}: ${tweet.text.slice(0, 80)}`,
+    title: truncateTitle(tweet.text),
   }
+}
+
+function truncateTitle(text: string, maxLen = 80): string {
+  const clean = text.replace(/\n+/g, ' ').trim()
+  if (clean.length <= maxLen) return clean
+  const truncated = clean.slice(0, maxLen)
+  const lastSpace = truncated.lastIndexOf(' ')
+  return (lastSpace > maxLen * 0.5 ? truncated.slice(0, lastSpace) : truncated) + '...'
 }
 
 function parseTweetPath(url: string): string | null {

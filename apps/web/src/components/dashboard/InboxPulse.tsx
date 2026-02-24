@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import type { DashboardInboxItem } from '../../lib/types'
 import { SectionHeader } from '../ui/SectionHeader'
 import { InboxCard } from './InboxCard'
@@ -12,6 +13,7 @@ interface InboxPulseProps {
 }
 
 export function InboxPulse({ items, totalCount }: InboxPulseProps) {
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const addToast = useToastStore((s) => s.addToast)
   const [loadingId, setLoadingId] = useState<string | null>(null)
@@ -33,8 +35,8 @@ export function InboxPulse({ items, totalCount }: InboxPulseProps) {
     }
   }
 
-  const handleChange = (id: string) => {
-    console.log('Change inbox item:', id)
+  const handleChange = (_id: string) => {
+    navigate('/inbox')
   }
 
   return (

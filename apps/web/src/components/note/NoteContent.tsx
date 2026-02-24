@@ -42,7 +42,7 @@ export function NoteContent({ note }: NoteContentProps) {
       </div>
 
       <div className="flex items-center gap-3">
-        {note.bucket_path && <Chip label={note.bucket_path} />}
+        {note.bucket_path && <Chip label={note.bucket_path} truncate />}
         <NoteActions noteId={note.id} currentBucketId={note.bucket_id} />
       </div>
 

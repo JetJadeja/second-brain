@@ -20,7 +20,7 @@ export function InboxCard({ item, onConfirm, onChange }: InboxCardProps) {
       </div>
       <p className="text-xs text-text-tertiary mb-3 line-clamp-2">{item.ai_summary}</p>
       {item.ai_suggested_bucket_path && (
-        <Chip label={item.ai_suggested_bucket_path} className="mb-3" />
+        <Chip label={item.ai_suggested_bucket_path} truncate className="mb-3" />
       )}
       <div className="flex gap-2">
         <Button variant="primary" className="text-xs px-3 py-1 inline-flex items-center gap-1" onClick={() => onConfirm(item.id)}>

@@ -23,7 +23,7 @@ export function NoteCard({ note }: NoteCardProps) {
       <p className="text-xs text-text-tertiary mb-3 line-clamp-2">{getExcerpt(note)}</p>
       <div className="flex items-center gap-3 flex-wrap">
         <DistillationDot status={note.distillation_status} />
-        {note.bucket_path && <Chip label={note.bucket_path} />}
+        {note.bucket_path && <Chip label={note.bucket_path} truncate />}
         <span className="text-xs text-text-tertiary" title={formatFullDate(note.captured_at)}>
           {formatRelativeTime(note.captured_at)}
         </span>

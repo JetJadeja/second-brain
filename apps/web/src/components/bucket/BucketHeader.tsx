@@ -79,6 +79,7 @@ export function BucketHeader({ bucket }: BucketHeaderProps) {
             <Chip
               key={child.id}
               label={`${child.name} (${child.note_count})`}
+              truncate
               onClick={() => navigate(`/para/${child.id}`)}
             />
           ))}

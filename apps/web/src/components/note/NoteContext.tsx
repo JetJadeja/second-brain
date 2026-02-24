@@ -31,7 +31,7 @@ function RelatedNotes({ notes }: { notes: NoteDetailResponse['related_notes'] })
               <span className="text-xs text-text-tertiary block truncate mt-1">{note.ai_summary}</span>
             )}
             <div className="flex items-center gap-2 mt-1">
-              {note.bucket_path && <Chip label={note.bucket_path} />}
+              {note.bucket_path && <Chip label={note.bucket_path} truncate />}
               <span className="text-xs text-text-tertiary">
                 {note.connection_type === 'ai_detected' ? 'AI detected' : 'Explicit'}
               </span>
@@ -60,7 +60,7 @@ function Backlinks({ notes }: { notes: NoteDetailResponse['backlinks'] }) {
             onClick={() => navigate(`/notes/${note.id}`)}
           >
             <span className="text-sm text-text-primary block truncate">{note.title}</span>
-            {note.bucket_path && <Chip label={note.bucket_path} className="mt-1" />}
+            {note.bucket_path && <Chip label={note.bucket_path} truncate className="mt-1" />}
           </Card>
         ))}
       </div>

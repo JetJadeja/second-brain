@@ -101,7 +101,7 @@ export function InboxList({ items, onActionComplete }: InboxListProps) {
             </div>
             <div className="w-48">
               {item.ai_suggested_bucket_path && (
-                <Chip label={item.ai_suggested_bucket_path} />
+                <Chip label={item.ai_suggested_bucket_path} truncate />
               )}
             </div>
             <span className="text-xs text-text-tertiary w-24" title={formatFullDate(item.captured_at)}>

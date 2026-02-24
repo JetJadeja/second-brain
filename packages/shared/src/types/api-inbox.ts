@@ -28,7 +28,6 @@ export interface InboxItem {
   source: Record<string, unknown>
   ai_suggested_bucket: string | null
   ai_suggested_bucket_path: string | null
-  tags: string[]
   user_note: string | null
   captured_at: string
   related_notes: Array<{

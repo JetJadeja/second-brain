@@ -6,6 +6,7 @@ import { Chip } from '../ui/Chip'
 import { Button } from '../ui/Button'
 import { apiPost, apiDelete } from '../../lib/api-client'
 import { useQueryClient } from '@tanstack/react-query'
+import { useToastStore } from '../../stores/toast-store'
 
 interface InboxListProps {
   items: InboxItem[]
@@ -14,7 +15,9 @@ interface InboxListProps {
 
 export function InboxList({ items, onActionComplete }: InboxListProps) {
   const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [loading, setLoading] = useState(false)
   const queryClient = useQueryClient()
+  const addToast = useToastStore((s) => s.addToast)
 
   const toggleSelect = (id: string) => {
     setSelected((prev) => {
@@ -47,22 +50,50 @@ export function InboxList({ items, onActionComplete }: InboxListProps) {
       .filter((i) => selected.has(i.id) && i.ai_suggested_bucket)
       .map((i) => ({ note_id: i.id, bucket_id: i.ai_suggested_bucket! }))
     if (classifications.length === 0) return
-    await apiPost('/api/inbox/batch-classify', { classifications })
-    await invalidateAll()
+    setLoading(true)
+    try {
+      await apiPost('/api/inbox/batch-classify', { classifications })
+      await invalidateAll()
+      addToast(`${classifications.length} notes classified`)
+    } catch {
+      addToast('Failed to classify notes')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleBatchArchive = async () => {
-    for (const id of selected) {
-      await apiPost(`/api/inbox/${id}/archive`)
+    setLoading(true)
+    try {
+      const results = await Promise.allSettled(
+        [...selected].map((id) => apiPost(`/api/inbox/${id}/archive`)),
+      )
+      const failed = results.filter((r) => r.status === 'rejected').length
+      await invalidateAll()
+      if (failed > 0) addToast(`${selected.size - failed} archived, ${failed} failed`)
+      else addToast(`${selected.size} notes archived`)
+    } catch {
+      addToast('Failed to archive notes')
+    } finally {
+      setLoading(false)
     }
-    await invalidateAll()
   }
 
   const handleBatchDelete = async () => {
-    for (const id of selected) {
-      await apiDelete(`/api/inbox/${id}`)
+    setLoading(true)
+    try {
+      const results = await Promise.allSettled(
+        [...selected].map((id) => apiDelete(`/api/inbox/${id}`)),
+      )
+      const failed = results.filter((r) => r.status === 'rejected').length
+      await invalidateAll()
+      if (failed > 0) addToast(`${selected.size - failed} deleted, ${failed} failed`)
+      else addToast(`${selected.size} notes deleted`)
+    } catch {
+      addToast('Failed to delete notes')
+    } finally {
+      setLoading(false)
     }
-    await invalidateAll()
   }
 
   return (
@@ -70,13 +101,13 @@ export function InboxList({ items, onActionComplete }: InboxListProps) {
       {selected.size > 0 && (
         <div className="flex items-center gap-3 p-3 bg-surface border border-border rounded">
           <span className="text-sm text-text-secondary">{selected.size} selected</span>
-          <Button variant="primary" className="text-xs px-3 py-1" onClick={handleBatchConfirm}>
+          <Button variant="primary" className="text-xs px-3 py-1" onClick={handleBatchConfirm} disabled={loading}>
             Confirm as suggested
           </Button>
-          <Button variant="secondary" className="text-xs px-3 py-1" onClick={handleBatchArchive}>
+          <Button variant="secondary" className="text-xs px-3 py-1" onClick={handleBatchArchive} disabled={loading}>
             Archive all
           </Button>
-          <Button variant="secondary" className="text-xs px-3 py-1 text-red-500" onClick={handleBatchDelete}>
+          <Button variant="secondary" className="text-xs px-3 py-1 text-red-500" onClick={handleBatchDelete} disabled={loading}>
             Delete all
           </Button>
         </div>

@@ -1,6 +1,5 @@
 import type { NoteSource } from '@second-brain/shared'
 import type { BotContext } from '../context.js'
-import { classifyUrl } from '../handlers/classify-url.js'
 
 export interface DetectedMessage {
   sourceType: NoteSource
@@ -71,7 +70,7 @@ export function detectMessageType(ctx: BotContext): DetectedMessage {
     const url = urls[0]!
     const userNote = text.replace(URL_REGEX, '').trim() || null
     return {
-      sourceType: classifyUrl(url),
+      sourceType: 'article', // extraction agent determines real type on the API side
       url,
       userNote,
       attachment: null,

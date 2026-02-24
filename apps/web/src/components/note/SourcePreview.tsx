@@ -2,6 +2,8 @@ import { TextPreview } from './previews/TextPreview'
 import { ArticlePreview } from './previews/ArticlePreview'
 import { TweetPreview } from './previews/TweetPreview'
 import { YoutubePreview } from './previews/YoutubePreview'
+import { MediaPreview } from './previews/MediaPreview'
+import { FilePreview } from './previews/FilePreview'
 
 interface SourcePreviewProps {
   sourceType: string
@@ -22,9 +24,11 @@ export function SourcePreview({ sourceType, source, originalContent }: SourcePre
       return <YoutubePreview source={source} originalContent={originalContent} />
     case 'reel':
     case 'image':
+      return <MediaPreview sourceType={sourceType} source={source} originalContent={originalContent} />
     case 'pdf':
     case 'document':
     case 'voice_memo':
+      return <FilePreview sourceType={sourceType} source={source} originalContent={originalContent} />
     case 'thought':
     default:
       return <TextPreview url={url} originalContent={originalContent} />

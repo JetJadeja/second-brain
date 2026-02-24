@@ -17,6 +17,7 @@ export interface DashboardInboxItem {
   source: Record<string, unknown>
   ai_suggested_bucket: string | null
   ai_suggested_bucket_path: string | null
+  ai_confidence: number | null
   captured_at: string
 }
 

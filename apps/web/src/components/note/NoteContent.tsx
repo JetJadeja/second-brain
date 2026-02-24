@@ -1,4 +1,5 @@
 import type { NoteDetailResponse } from '../../lib/types'
+import { formatRelativeTime, formatFullDate } from '../../lib/format-time'
 import { SourceIcon } from '../ui/SourceIcon'
 import { Chip } from '../ui/Chip'
 import { SourcePreview } from './SourcePreview'
@@ -31,8 +32,12 @@ export function NoteContent({ note }: NoteContentProps) {
         <h1 className="text-2xl font-semibold text-text-primary">{note.title}</h1>
         <div className="flex items-center gap-3 text-sm text-text-tertiary">
           <SourceIcon source={note.source_type} />
-          <span>Captured: {note.captured_at}</span>
-          <span>{note.view_count} views</span>
+          <span title={formatFullDate(note.captured_at)}>
+            Captured: {formatRelativeTime(note.captured_at)}
+          </span>
+          {note.view_count > 0 && (
+            <span>{note.view_count} {note.view_count === 1 ? 'view' : 'views'}</span>
+          )}
         </div>
       </div>
 

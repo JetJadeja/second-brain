@@ -8,10 +8,11 @@ import {
   getConnectionsForNote,
   createConnection,
   getBucketById,
+  insertNoteView,
+  insertDistillationHistory,
 } from '@second-brain/db'
-import { insertNoteView } from '@second-brain/db'
-import { insertDistillationHistory } from '@second-brain/db'
 import { getBucketPath } from '../services/para-tree.js'
+import { buildNoteRelations } from '../services/build-note-relations.js'
 import type { NoteDetailResponse } from '@second-brain/shared'
 
 export const notesRouter = Router()
@@ -45,37 +46,12 @@ notesRouter.get('/:noteId', async (req, res) => {
   incrementViewCount(userId, noteId).catch(() => {})
   insertNoteView(userId, noteId).catch(() => {})
 
-  const connections = await getConnectionsForNote(userId, noteId)
-  const bucketPath = await getBucketPath(userId, note.bucket_id)
+  const [connections, bucketPath] = await Promise.all([
+    getConnectionsForNote(userId, noteId),
+    getBucketPath(userId, note.bucket_id),
+  ])
 
-  // Build related notes from connections
-  const relatedNotes: NoteDetailResponse['related_notes'] = []
-  const backlinks: NoteDetailResponse['backlinks'] = []
-
-  for (const conn of connections) {
-    const otherId = conn.source_id === noteId ? conn.target_id : conn.source_id
-    const otherNote = await getNoteById(userId, otherId)
-    if (!otherNote) continue
-
-    const otherPath = await getBucketPath(userId, otherNote.bucket_id)
-
-    if (conn.target_id === noteId) {
-      backlinks.push({
-        id: otherNote.id,
-        title: otherNote.title,
-        bucket_path: otherPath,
-      })
-    }
-
-    relatedNotes.push({
-      id: otherNote.id,
-      title: otherNote.title,
-      ai_summary: otherNote.ai_summary,
-      similarity: conn.similarity ?? 0,
-      bucket_path: otherPath,
-      connection_type: conn.type,
-    })
-  }
+  const { relatedNotes, backlinks } = await buildNoteRelations(userId, noteId, connections)
 
   const response: NoteDetailResponse = {
     note: {

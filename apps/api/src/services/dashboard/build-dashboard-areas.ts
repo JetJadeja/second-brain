@@ -1,4 +1,4 @@
-import { getBucketStats } from '@second-brain/db'
+import { getBucketStats, countNotesByBucket } from '@second-brain/db'
 import { collectDescendantIds } from '@second-brain/shared'
 import type { DashboardArea, ParaBucket } from '@second-brain/shared'
 
@@ -14,13 +14,14 @@ export async function buildDashboardAreas(
     (b) => !b.parent_id && (b.type === 'project' || b.type === 'area'),
   )
 
+  const noteCounts = await countNotesByBucket(userId)
   const areas: DashboardArea[] = []
 
   for (const container of topLevel) {
     const children = buckets.filter((b) => b.parent_id === container.id)
 
     for (const child of children) {
-      const area = await buildArea(userId, child, buckets)
+      const area = await buildArea(userId, child, buckets, noteCounts)
       areas.push(area)
     }
   }
@@ -32,6 +33,7 @@ async function buildArea(
   userId: string,
   bucket: ParaBucket,
   allBuckets: ParaBucket[],
+  noteCounts: Map<string, number>,
 ): Promise<DashboardArea> {
   const descendantIds = collectDescendantIds(bucket.id, allBuckets)
   const stats = await getBucketStats(userId, descendantIds)
@@ -47,7 +49,7 @@ async function buildArea(
     children: subBuckets.map((sb) => ({
       id: sb.id,
       name: sb.name,
-      note_count: 0,
+      note_count: noteCounts.get(sb.id) ?? 0,
     })),
   }
 }

@@ -28,3 +28,27 @@ export async function getRecentlyViewed(
   if (error) throw new Error(`getRecentlyViewed: ${error.message}`)
   return (data ?? []) as RecentView[]
 }
+
+export async function incrementViewCount(
+  userId: string,
+  noteId: string,
+): Promise<void> {
+  const sb = getServiceClient()
+
+  const { data: note } = await sb
+    .from('notes')
+    .select('view_count')
+    .eq('id', noteId)
+    .eq('user_id', userId)
+    .single()
+
+  if (note) {
+    await sb
+      .from('notes')
+      .update({
+        view_count: (note.view_count as number) + 1,
+        last_viewed_at: new Date().toISOString(),
+      })
+      .eq('id', noteId)
+  }
+}

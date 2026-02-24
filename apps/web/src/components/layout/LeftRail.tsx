@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { LayoutDashboard, Inbox, Search, GitFork, RefreshCw, PanelLeftClose, PanelLeft, LogOut, Settings } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { NavItem } from '../nav/NavItem'
 import { ParaSection } from '../nav/ParaSection'
 import { SidebarTreeItem } from '../nav/SidebarTreeItem'
@@ -9,10 +9,20 @@ import { ThemeToggle } from '../ui/ThemeToggle'
 import { useAuthStore } from '../../stores/auth-store'
 import { useParaTree } from '../../hooks/use-para-tree'
 import { useDashboard } from '../../hooks/use-dashboard'
+import { useExpandedBuckets } from '../../stores/expanded-buckets-store'
 import type { ParaTreeNode } from '../../lib/types'
 
 function findTopLevelByType(tree: ParaTreeNode[], type: string): ParaTreeNode | undefined {
   return tree.find((node) => node.type === type)
+}
+
+function findAncestorIds(nodes: ParaTreeNode[], targetId: string, path: string[] = []): string[] | null {
+  for (const node of nodes) {
+    if (node.id === targetId) return path
+    const found = findAncestorIds(node.children, targetId, [...path, node.id])
+    if (found) return found
+  }
+  return null
 }
 
 export function LeftRail() {
@@ -20,9 +30,18 @@ export function LeftRail() {
   const [collapsed, setCollapsed] = useState(false)
   const { data: paraData } = useParaTree()
   const { data: dashData } = useDashboard()
+  const { pathname } = useLocation()
+  const expandAll = useExpandedBuckets((s) => s.expandAll)
 
   const tree = paraData?.tree ?? []
   const inboxCount = dashData?.inbox.count ?? 0
+
+  useEffect(() => {
+    const match = pathname.match(/^\/para\/(.+)$/)
+    if (!match || tree.length === 0) return
+    const ancestors = findAncestorIds(tree, match[1]!, [])
+    if (ancestors && ancestors.length > 0) expandAll(ancestors)
+  }, [pathname, tree, expandAll])
 
   const projectsRoot = findTopLevelByType(tree, 'project')
   const areasRoot = findTopLevelByType(tree, 'area')

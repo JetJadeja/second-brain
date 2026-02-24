@@ -14,6 +14,7 @@ import {
   getAllBuckets,
 } from '../services/para-tree.js'
 import { reevaluateInbox } from '../services/processors/reevaluate-inbox.js'
+import { NOTE_SOURCES, DISTILLATION_STATUSES } from '@second-brain/shared'
 import type {
   ParaTreeResponse,
   BucketDetailResponse,
@@ -56,15 +57,15 @@ paraRouter.get('/:bucketId', async (req, res) => {
   const page = Number(req.query['page']) || 1
   const limit = Number(req.query['limit']) || 20
   const sort = (req.query['sort'] as string) || 'captured_at'
-  const sourceType = req.query['filter_source_type'] as string | undefined
-  const status = req.query['filter_status'] as string | undefined
+  const sourceTypeParsed = z.enum(NOTE_SOURCES).safeParse(req.query['filter_source_type'])
+  const statusParsed = z.enum(DISTILLATION_STATUSES).safeParse(req.query['filter_status'])
 
   const { data: notes, total } = await getNotesByBucket(userId, bucketId, {
     page,
     limit,
     sort,
-    sourceType: sourceType as any,
-    status: status as any,
+    sourceType: sourceTypeParsed.success ? sourceTypeParsed.data : undefined,
+    status: statusParsed.success ? statusParsed.data : undefined,
   })
 
   const path = await getBucketPath(userId, bucketId)

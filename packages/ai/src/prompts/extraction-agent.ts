@@ -19,7 +19,7 @@ WORKFLOW:
 
 RESPONSE FORMAT (respond with ONLY this JSON, no markdown fences):
 {
-  "title": "Clean, descriptive title for this content",
+  "title": "3-10 word descriptive title. No @ handles, no site names, no URLs.",
   "sourceType": "article|tweet|thread|reel|youtube",
   "summary": "Information-dense summary with specific facts, names, numbers, and key points. Scale length with content: 1-2 sentences for tweets, a paragraph for long articles. Or null if content is too thin."
 }
@@ -30,5 +30,5 @@ RULES:
 - For tweets with quoted tweets, make sure the title and summary reflect both the outer tweet and the quoted content.
 - For threads, the sourceType should be "thread".
 - For Instagram content, the sourceType should be "reel".
-- The title should be clean and descriptive — not a URL, not truncated gibberish.
+- The title must be 3-10 words. Describe the content, don't quote it. No @ handles, no site names, no URL fragments. For tweets, describe what the tweet is about.
 - The summary should extract specific details — facts, names, numbers, steps, frameworks. Someone reading only the summary should learn the key details.`

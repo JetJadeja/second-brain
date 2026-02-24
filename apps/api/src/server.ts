@@ -8,6 +8,8 @@ import { paraRouter } from './routes/para.js'
 import { notesRouter } from './routes/notes.js'
 import { linkRouter } from './routes/link.js'
 import { suggestionsRouter } from './routes/suggestions.js'
+import { chatRouter } from './routes/chat.js'
+import { requireInternalAuth } from './middleware/internal-auth.js'
 
 const app = express()
 const port = process.env['API_PORT'] || 3001
@@ -23,6 +25,9 @@ app.use(express.json())
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok' })
 })
+
+// Internal routes (bot-to-api) — must be before public auth middleware
+app.use('/api/internal/chat', requireInternalAuth, chatRouter)
 
 // All /api routes require auth + default bucket initialization
 app.use('/api', requireAuth, ensureDefaultBuckets)

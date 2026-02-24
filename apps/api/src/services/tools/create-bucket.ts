@@ -21,8 +21,8 @@ export async function executeCreateBucket(
   if (!name.trim()) {
     throw new Error('Bucket name cannot be empty')
   }
-  if (name.length > 100) {
-    throw new Error('Bucket name is too long (max 100 characters)')
+  if (name.length > 40) {
+    throw new Error('Bucket name is too long (max 40 characters)')
   }
 
   const buckets = await getAllBuckets(userId)

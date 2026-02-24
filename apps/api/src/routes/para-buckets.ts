@@ -8,14 +8,14 @@ import { reevaluateInbox } from '../services/processors/reevaluate-inbox.js'
 export const paraBucketsRouter = Router()
 
 const createBucketSchema = z.object({
-  name: z.string().min(1).max(100),
+  name: z.string().min(1).max(40),
   type: z.enum(['project', 'area', 'resource', 'archive']),
   parent_id: z.string().uuid(),
   description: z.string().optional(),
 })
 
 const updateBucketSchema = z.object({
-  name: z.string().min(1).max(100).optional(),
+  name: z.string().min(1).max(40).optional(),
   parent_id: z.string().uuid().optional(),
   sort_order: z.number().optional(),
   is_active: z.boolean().optional(),

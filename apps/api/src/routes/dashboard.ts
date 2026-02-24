@@ -3,6 +3,7 @@ import { getInboxNotes, countInboxNotes } from '@second-brain/db'
 import { getRecentlyViewed } from '@second-brain/db'
 import { getNoteById, getRecentNotes } from '@second-brain/db'
 import { getParaTree, getBucketPath, getAllBuckets } from '../services/para-tree.js'
+import { collectDescendantIds } from '@second-brain/shared'
 import type {
   DashboardResponse,
   DashboardInboxItem,
@@ -109,7 +110,7 @@ async function buildAreas(
     const children = buckets.filter((b) => b.parent_id === container.id)
 
     for (const child of children) {
-      const descendants = collectDescendantIds(child.id, buckets)
+      const descendants = collectDescendantIds(child.id, buckets, false)
       const allIds = [child.id, ...descendants]
 
       let noteCount = 0
@@ -169,20 +170,3 @@ function computeHealth(
   return 'stagnant'
 }
 
-function collectDescendantIds(
-  rootId: string,
-  buckets: ParaBucket[],
-): string[] {
-  const ids: string[] = []
-  const queue = [rootId]
-  while (queue.length > 0) {
-    const pid = queue.shift()!
-    for (const b of buckets) {
-      if (b.parent_id === pid) {
-        ids.push(b.id)
-        queue.push(b.id)
-      }
-    }
-  }
-  return ids
-}

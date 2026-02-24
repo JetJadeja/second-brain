@@ -1,4 +1,5 @@
 import { getServiceClient } from '../client.js'
+import { collectDescendantIds } from '@second-brain/shared'
 import type { ParaBucket } from '@second-brain/shared'
 
 export async function getAllBuckets(userId: string): Promise<ParaBucket[]> {
@@ -66,7 +67,7 @@ export async function deleteBucket(
 
   // Collect this bucket + all descendants
   const allBuckets = await getAllBuckets(userId)
-  const toDelete = collectDescendants(bucketId, allBuckets)
+  const toDelete = collectDescendantIds(bucketId, allBuckets)
 
   // Unclassify notes in all affected buckets
   for (const bid of toDelete) {
@@ -85,26 +86,6 @@ export async function deleteBucket(
     .eq('user_id', userId)
 
   if (error) throw new Error(`deleteBucket: ${error.message}`)
-}
-
-function collectDescendants(
-  rootId: string,
-  buckets: ParaBucket[],
-): string[] {
-  const ids = [rootId]
-  const queue = [rootId]
-
-  while (queue.length > 0) {
-    const parentId = queue.shift()!
-    for (const b of buckets) {
-      if (b.parent_id === parentId) {
-        ids.push(b.id)
-        queue.push(b.id)
-      }
-    }
-  }
-
-  return ids
 }
 
 export async function countUserBuckets(userId: string): Promise<number> {

@@ -4,7 +4,8 @@ import { requireAuth } from './middleware/auth.js'
 import { ensureDefaultBuckets } from './middleware/ensure-buckets.js'
 import { dashboardRouter } from './routes/dashboard.js'
 import { inboxRouter } from './routes/inbox.js'
-import { paraRouter } from './routes/para.js'
+import { paraTreeRouter } from './routes/para-tree.js'
+import { paraBucketsRouter } from './routes/para-buckets.js'
 import { notesRouter } from './routes/notes.js'
 import { linkRouter } from './routes/link.js'
 import { suggestionsRouter } from './routes/suggestions.js'
@@ -34,7 +35,8 @@ app.use('/api', requireAuth, ensureDefaultBuckets)
 
 app.use('/api/dashboard', dashboardRouter)
 app.use('/api/inbox', inboxRouter)
-app.use('/api/para', paraRouter)
+app.use('/api/para', paraTreeRouter)
+app.use('/api/para', paraBucketsRouter)
 app.use('/api/notes', notesRouter)
 app.use('/api/link', linkRouter)
 app.use('/api/suggestions', suggestionsRouter)

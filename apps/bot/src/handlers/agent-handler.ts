@@ -86,7 +86,8 @@ async function handleMultiLink(
     } catch (error: unknown) {
       const errMsg = error instanceof Error ? error.message : String(error)
       console.error(`[multi-link] Failed to process ${msg.url}:`, errMsg)
-      results.push({ url: msg.url ?? '', error: errMsg })
+      const stage = classifyError(error)
+      results.push({ url: msg.url ?? '', error: formatUserError('article', stage) })
     }
   }
 

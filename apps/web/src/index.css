@@ -395,6 +395,15 @@
   100% { transform: scale(1); }
 }
 
+@keyframes pulse-subtle {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@utility animate-pulse-subtle {
+  animation: pulse-subtle 1.5s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-\[char-stagger_150ms_ease-out_both\] { animation: none; opacity: 1; }
   .animate-\[waiting-pulse_1\.5s_ease-in-out_infinite\] { animation: none; opacity: 1; }

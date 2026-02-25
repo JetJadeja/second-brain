@@ -1,6 +1,7 @@
 import { createNote, createSuggestion, findExistingNoteByUrl, findExistingNoteByContentHash } from '@second-brain/db'
 import { normalizeUrl, computeContentHash } from '@second-brain/shared'
 import type { Note, ExtractedContent, ClassifyResult } from '@second-brain/shared'
+import { resolveBucketFields } from './resolve-bucket-fields.js'
 
 interface SaveNoteParams {
   userId: string
@@ -103,50 +104,3 @@ async function checkForDuplicate(
   return null
 }
 
-interface BucketFields {
-  bucket_id: string | null
-  ai_suggested_bucket: string | null
-  ai_confidence: number | null
-  is_classified: boolean
-}
-
-function resolveBucketFields(classification: ClassifyResult | null): BucketFields {
-  if (!classification || !classification.bucket_id) {
-    return {
-      bucket_id: null,
-      ai_suggested_bucket: null,
-      ai_confidence: classification?.confidence ?? null,
-      is_classified: false,
-    }
-  }
-
-  const { bucket_id, confidence } = classification
-
-  // Low confidence — don't suggest
-  if (confidence < 0.4) {
-    return {
-      bucket_id: null,
-      ai_suggested_bucket: null,
-      ai_confidence: confidence,
-      is_classified: false,
-    }
-  }
-
-  // Medium confidence — suggest but don't auto-classify
-  if (confidence < 0.85) {
-    return {
-      bucket_id: null,
-      ai_suggested_bucket: bucket_id,
-      ai_confidence: confidence,
-      is_classified: false,
-    }
-  }
-
-  // High confidence — suggest but never auto-assign. User always confirms via inbox.
-  return {
-    bucket_id: null,
-    ai_suggested_bucket: bucket_id,
-    ai_confidence: confidence,
-    is_classified: false,
-  }
-}

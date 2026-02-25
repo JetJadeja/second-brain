@@ -25,8 +25,8 @@ export async function runExtractionAgent(url: string): Promise<ExtractionAgentRe
     messages: [{ role: 'user' as const, content: buildExtractionAgentUser(url) }],
     tools: EXTRACTION_TOOLS,
     model: HAIKU_MODEL,
-    maxTokens: 2048,
-    maxTurns: 3,
+    maxTokens: 3072,
+    maxTurns: 7,
     toolExecutor: async (name, input) => {
       const toolData = await executeExtractionTool(name, input)
       if (PRIMARY_TOOLS.has(name)) {

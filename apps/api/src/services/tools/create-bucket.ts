@@ -1,8 +1,11 @@
-import { getAllBuckets, createBucket } from '@second-brain/db'
+import { getAllBuckets, createBucket, countNotesByBucket } from '@second-brain/db'
+import { collectDescendantIds } from '@second-brain/shared'
 import type { ParaBucket } from '@second-brain/shared'
 import { getBucketPath } from '../para/para-cache.js'
 import { invalidateParaCache } from '../para/para-cache.js'
 import { reevaluateInbox } from '../processors/reevaluate-inbox.js'
+
+const MIN_NOTES_FOR_SUB_BUCKET = 15
 
 export interface CreateBucketResult {
   bucketId: string
@@ -31,6 +34,18 @@ export async function executeCreateBucket(
   if (!parentId) {
     const target = parentName ? `"${parentName}"` : `${type}s container`
     throw new Error(`Could not find ${target}`)
+  }
+
+  const parent = buckets.find((b) => b.id === parentId)
+  if (parent && parent.parent_id !== null) {
+    const noteCounts = await countNotesByBucket(userId)
+    const totalNotes = collectDescendantIds(parent.id, buckets)
+      .reduce((sum, id) => sum + (noteCounts.get(id) ?? 0), 0)
+    if (totalNotes < MIN_NOTES_FOR_SUB_BUCKET) {
+      throw new Error(
+        `Cannot create sub-bucket: "${parent.name}" needs at least ${MIN_NOTES_FOR_SUB_BUCKET} notes (currently has ${totalNotes})`,
+      )
+    }
   }
 
   const created = await createBucket(userId, {

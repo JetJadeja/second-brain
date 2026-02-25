@@ -14,7 +14,6 @@ export type SidebarParaSectionProps = {
 }
 
 export function SidebarParaSection({ buckets, collapsed }: SidebarParaSectionProps) {
-  const [showMore, setShowMore] = useState(false)
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set())
 
   function toggleExpand(id: string): void {
@@ -33,8 +32,7 @@ export function SidebarParaSection({ buckets, collapsed }: SidebarParaSectionPro
     canCreate: CREATABLE_TYPES.includes(paraType),
   }))
 
-  const visibleGroups = showMore ? grouped : grouped.filter((g) => g.paraType !== 'resource' && g.paraType !== 'archive')
-  const hiddenCount = grouped.length - visibleGroups.length
+  const visibleGroups = grouped
 
   return (
     <div className="flex-1 overflow-y-auto px-2">
@@ -59,15 +57,6 @@ export function SidebarParaSection({ buckets, collapsed }: SidebarParaSectionPro
         </div>
       ))}
 
-      {!collapsed && hiddenCount > 0 && (
-        <button
-          type="button"
-          onClick={() => setShowMore(!showMore)}
-          className="w-full py-1 text-center font-caption text-surface-300 hover:text-surface-400 transition-colors"
-        >
-          {showMore ? 'Show less ↑' : 'Show more ↓'}
-        </button>
-      )}
     </div>
   )
 }

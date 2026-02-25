@@ -4,6 +4,7 @@ import { sendChatMessage } from '../api-client.js'
 import { buildChatRequest } from '../telegram/build-chat-request.js'
 import { detectMessageType, type DetectedMessage } from '../telegram/detect-message-type.js'
 import { formatMultiLinkResults } from '../telegram/format-multi-link-result.js'
+import { classifyError, formatUserError } from './format-error.js'
 import { storeReceipt } from './receipt-store.js'
 import { needsAsyncProcessing, getAckMessage } from './needs-async.js'
 import { processInBackground } from './process-in-background.js'
@@ -39,13 +40,20 @@ async function handleMessage(ctx: BotContext, chatId: number, userId: string): P
 
   await ctx.replyWithChatAction('typing')
 
-  const request = await buildChatRequest(ctx)
-  const response = await sendChatMessage(request)
+  try {
+    const request = await buildChatRequest(ctx)
+    const response = await sendChatMessage(request)
 
-  const sentMessage = await ctx.reply(response.text)
+    const sentMessage = await ctx.reply(response.text)
 
-  if (response.noteIds.length > 0) {
-    storeReceipt(chatId, sentMessage.message_id, response.noteIds[0]!)
+    if (response.noteIds.length > 0) {
+      storeReceipt(chatId, sentMessage.message_id, response.noteIds[0]!)
+    }
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : String(error)
+    console.error('[agent-handler] sync path failed:', msg)
+    const stage = classifyError(error)
+    await ctx.reply(formatUserError(detected.sourceType, stage))
   }
 }
 

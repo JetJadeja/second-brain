@@ -58,7 +58,7 @@ export function useInbox() {
     [items],
   )
 
-  const cluster = useMemo((): BatchCluster | null => {
+  const clusters = useMemo((): BatchCluster[] => {
     const candidates = noteItems.filter((n) => n.ai_suggested_bucket && (n.ai_confidence ?? 0) >= 0.7)
     const groups = new Map<string, string[]>()
     for (const n of candidates) {
@@ -67,13 +67,14 @@ export function useInbox() {
       ids.push(n.id)
       groups.set(key, ids)
     }
+    const result: BatchCluster[] = []
     for (const [bucketId, ids] of groups) {
       if (ids.length >= 3) {
         const note = candidates.find((n) => n.ai_suggested_bucket === bucketId)!
-        return { bucketId, bucketPath: note.ai_suggested_bucket_path ?? bucketId, noteIds: ids, count: ids.length }
+        result.push({ bucketId, bucketPath: note.ai_suggested_bucket_path ?? bucketId, noteIds: ids, count: ids.length })
       }
     }
-    return null
+    return result
   }, [noteItems])
 
   const toggleSelect = useCallback((id: string) => {
@@ -178,7 +179,7 @@ export function useInbox() {
   return {
     items, totalCount, isLoading, error,
     selectedIds, focusedIndex, setFocusedIndex, expandedId,
-    cluster, noteItems,
+    clusters, noteItems,
     toggleSelect, toggleAll, clearSelection, toggleExpand,
     classifyNote, batchClassify, archiveNote, deleteNote,
     acceptSuggestion, dismissSuggestion,

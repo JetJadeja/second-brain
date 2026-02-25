@@ -52,14 +52,13 @@ export function InboxPage() {
     setMoveTarget(null)
   }, [moveTarget, inbox])
 
-  const handleBatchConfirm = () => {
-    if (!inbox.cluster) return
-    const classifications = inbox.cluster.noteIds.map((id) => ({
+  const handleClusterConfirm = useCallback((cluster: { bucketId: string; noteIds: string[] }) => {
+    const classifications = cluster.noteIds.map((id) => ({
       note_id: id,
-      bucket_id: inbox.cluster!.bucketId,
+      bucket_id: cluster.bucketId,
     }))
     void inbox.batchClassify(classifications)
-  }
+  }, [inbox])
 
   const allSelected = inbox.noteItems.length > 0 && inbox.selectedIds.size === inbox.noteItems.length
   const someSelected = inbox.selectedIds.size > 0
@@ -106,8 +105,8 @@ export function InboxPage() {
 
       <div className="mt-4 space-y-3">
         <SmartBatchBanner
-          cluster={inbox.cluster}
-          onConfirm={handleBatchConfirm}
+          clusters={inbox.clusters}
+          onConfirm={handleClusterConfirm}
           onDismiss={() => {/* dismiss cluster for session */}}
         />
       </div>

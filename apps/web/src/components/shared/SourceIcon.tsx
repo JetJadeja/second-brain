@@ -33,7 +33,21 @@ export type SourceIconProps = {
   className?: string
 }
 
+const SOURCE_LABELS: Record<NoteSource, string> = {
+  article: 'Article',
+  tweet: 'Tweet',
+  thread: 'Thread',
+  reel: 'Reel',
+  image: 'Image',
+  pdf: 'PDF',
+  voice_memo: 'Voice memo',
+  thought: 'Thought',
+  youtube: 'YouTube',
+  document: 'Document',
+  other: 'File',
+}
+
 export function SourceIcon({ sourceType, size = 16, className }: SourceIconProps) {
   const Icon = SOURCE_ICON_MAP[sourceType] ?? File
-  return <Icon size={size} className={cn('text-surface-400', className)} />
+  return <Icon size={size} className={cn('text-surface-400', className)} aria-label={SOURCE_LABELS[sourceType] ?? 'File'} role="img" />
 }

@@ -67,7 +67,7 @@ export function useBucket() {
     const channel = supabase.channel(`bucket-${bucketId}`)
       .on('postgres_changes', {
         event: '*', schema: 'public', table: 'notes',
-        filter: `bucket_id=eq.${bucketId}`,
+        filter: `user_id=eq.${userId}`,
       }, () => fetchBucket(1, false))
       .subscribe()
     return () => { supabase.removeChannel(channel) }

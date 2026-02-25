@@ -56,16 +56,18 @@ KEY DISTINCTION — Areas vs Resources:
 
 const RESPONSE_FORMAT = `\nRESPOND with ONLY valid JSON (no markdown, no code fences):
 {
-  "bucket_id": "<UUID of best matching subfolder, or null if no good match>",
+  "bucket_id": "<UUID of best matching subfolder, or null>",
   "confidence": <0.0 to 1.0>,
   "is_original_thought": <true if user's own idea/thought, false if external content>,
-  "suggest_new_bucket": <OPTIONAL — only if no existing bucket fits>
+  "suggest_new_bucket": <OPTIONAL — rarely used, see rules below>
 }
 
-If no subfolder fits well, set bucket_id to null and include:
-"suggest_new_bucket": { "name": "<2-4 word folder name, max 25 chars>", "parent_type": "<project|area|resource>" }
+CLASSIFICATION PRIORITY (follow this order strictly):
+1. ALWAYS prefer an existing bucket, even if the match is imperfect. A note about "success mindset" fits in "Self Improvement" or "Personal Growth" — use the closest match.
+2. If NO existing bucket is even a rough match, set bucket_id to null and OMIT suggest_new_bucket. The note goes to inbox for the user to decide. This is the safe default.
+3. ONLY as a rare exception: if you are highly confident the topic is completely absent from every existing folder, include suggest_new_bucket: { "name": "<2-4 word folder name, max 25 chars>", "parent_type": "<project|area|resource>" }
 
-If a good subfolder exists, use its bucket_id and omit suggest_new_bucket.\n`
+A single note is never sufficient evidence that a new bucket is needed. When uncertain, choose option 1 or 2 — never option 3.\n`
 
 function formatTree(
   nodes: ParaTreeNode[],

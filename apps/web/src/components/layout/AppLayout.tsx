@@ -1,5 +1,6 @@
 import { Outlet } from 'react-router-dom'
 import { useNavigationShortcuts } from '@/hooks/useNavigationShortcuts'
+import { CommandPaletteModal } from '@/features/command-palette/components/CommandPaletteModal'
 import { Sidebar } from './Sidebar'
 import { ContentArea } from './ContentArea'
 
@@ -12,6 +13,7 @@ export function AppLayout() {
       <ContentArea>
         <Outlet />
       </ContentArea>
+      <CommandPaletteModal />
     </div>
   )
 }

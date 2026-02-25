@@ -1,14 +1,17 @@
 import { Search } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { KeyboardBadge } from '@/components/shared/KeyboardBadge'
+import { useCommandPaletteStore } from '@/stores/command-palette.store'
 
 export type SidebarSearchProps = {
   collapsed: boolean
 }
 
 export function SidebarSearch({ collapsed }: SidebarSearchProps) {
+  const openPalette = useCommandPaletteStore((s) => s.openPalette)
+
   function handleClick(): void {
-    // Placeholder — command palette opens in Phase 10
+    openPalette()
   }
 
   if (collapsed) {

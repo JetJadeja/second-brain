@@ -69,7 +69,7 @@ const deleteBucketSchema = z.object({
 export async function executeSuggestion(
   userId: string,
   suggestion: Suggestion,
-): Promise<void> {
+): Promise<string[]> {
   switch (suggestion.type) {
     case 'split_bucket':
       return executeSplitBucket(userId, splitBucketSchema.parse(suggestion.payload))

@@ -7,7 +7,7 @@ const MIN_NOTES_FOR_SUB_BUCKET = 15
 export async function executeCreateSubBucket(
   userId: string,
   payload: CreateSubBucketPayload,
-): Promise<void> {
+): Promise<string[]> {
   const parent = await getBucketById(userId, payload.parent_bucket_id)
   if (!parent) {
     throw new Error(`Parent bucket not found: ${payload.parent_bucket_id}`)
@@ -35,4 +35,5 @@ export async function executeCreateSubBucket(
   for (const noteId of payload.note_ids) {
     await updateNote(userId, noteId, { bucket_id: subBucket.id })
   }
+  return payload.note_ids
 }

@@ -5,7 +5,7 @@ import type { MergeBucketsPayload } from '@second-brain/shared'
 export async function executeMergeBuckets(
   userId: string,
   payload: MergeBucketsPayload,
-): Promise<void> {
+): Promise<string[]> {
   const source = await getBucketById(userId, payload.source_bucket_id)
   if (!source) throw new Error(`Source bucket not found: ${payload.source_bucket_id}`)
 
@@ -23,4 +23,5 @@ export async function executeMergeBuckets(
 
   // Delete the source bucket (handles descendants + unclassifies)
   await deleteBucket(userId, source.id)
+  return []
 }

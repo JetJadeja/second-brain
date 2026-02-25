@@ -4,7 +4,7 @@ import type { CreateBucketPayload } from '@second-brain/shared'
 export async function executeCreateBucket(
   userId: string,
   payload: CreateBucketPayload,
-): Promise<void> {
+): Promise<string[]> {
   const buckets = await getAllBuckets(userId)
 
   const root = buckets.find(
@@ -27,4 +27,5 @@ export async function executeCreateBucket(
       })).id
 
   await classifyNote(userId, payload.note_id, bucketId)
+  return [payload.note_id]
 }

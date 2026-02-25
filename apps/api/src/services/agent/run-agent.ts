@@ -7,7 +7,7 @@ import { buildAgentSystemPrompt } from './system-prompt.js'
 import { AGENT_TOOLS } from '../tools/tool-definitions.js'
 import { buildMessages } from './build-messages.js'
 import { executeTool } from '../tools/execute-tool.js'
-import { loadOnboardingPhase } from '../onboarding/load-onboarding.js'
+import { loadIsOnboarding } from '../onboarding/load-onboarding.js'
 
 export interface AgentResult {
   text: string
@@ -26,14 +26,13 @@ export async function runAgent(
   message: string,
   options?: RunAgentOptions,
 ): Promise<AgentResult> {
-  const [history, buckets, onboardingPhase] = await Promise.all([
+  const [history, buckets, isOnboarding] = await Promise.all([
     loadHistory(userId),
     getAllBuckets(userId),
-    loadOnboardingPhase(userId),
+    loadIsOnboarding(userId),
   ])
 
   const paraTree = buildParaTree(buckets)
-  const isOnboarding = onboardingPhase !== null
 
   const system = buildAgentSystemPrompt({
     bucketTree: paraTree,

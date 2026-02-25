@@ -29,7 +29,7 @@ function buildApiFilters(filters?: SearchFilters): Record<string, unknown> | und
 
 export const commandPaletteService = {
   searchNotes(query: string, filters?: SearchFilters, limit = 20): Promise<SearchResponse> {
-    return apiClient.post<SearchResponse>('/api/search', {
+    return apiClient.post<SearchResponse>('/search', {
       query,
       mode: 'notes',
       filters: buildApiFilters(filters),
@@ -38,7 +38,7 @@ export const commandPaletteService = {
   },
 
   askQuestion(query: string, filters?: SearchFilters): Promise<AskResponse> {
-    return apiClient.post<AskResponse>('/api/search', {
+    return apiClient.post<AskResponse>('/search', {
       query,
       mode: 'answer',
       filters: buildApiFilters(filters),

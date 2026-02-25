@@ -1,5 +1,5 @@
 import type { ParaTreeNode } from '@second-brain/shared'
-import { buildOnboardingPrompt } from './onboarding-prompt.js'
+import { buildOnboardingPrompt } from '../onboarding-prompt.js'
 
 interface SystemPromptParams {
   bucketTree: ParaTreeNode[]

@@ -30,6 +30,7 @@ export interface Note {
   distillation: string | null
   source_type: NoteSource
   source: Record<string, unknown>
+  source_url: string | null
   user_note: string | null
   bucket_id: string | null
   ai_suggested_bucket: string | null

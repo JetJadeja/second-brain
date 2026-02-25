@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { MoreHorizontal, Pencil, ArrowRight, Trash2 } from 'lucide-react'
+import { MoreHorizontal, Pencil, ArrowRight, Trash2, Archive, ArchiveRestore } from 'lucide-react'
 import { ParaDot } from '@/components/shared/ParaDot'
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
@@ -15,11 +15,14 @@ type BucketHeaderProps = {
   onCancelRename: () => void
   onSubmitRename: () => void
   onDelete: () => void
+  onArchive?: () => void
+  onRestore?: () => void
 }
 
 export function BucketHeader({
   bucket, isRenaming, editName, onEditName,
   onStartRename, onCancelRename, onSubmitRename, onDelete,
+  onArchive, onRestore,
 }: BucketHeaderProps) {
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -66,6 +69,16 @@ export function BucketHeader({
           <DropdownMenuItem>
             <ArrowRight size={14} className="mr-2" /> Move to…
           </DropdownMenuItem>
+          {onArchive && (
+            <DropdownMenuItem onClick={onArchive}>
+              <Archive size={14} className="mr-2" /> Archive
+            </DropdownMenuItem>
+          )}
+          {onRestore && (
+            <DropdownMenuItem onClick={onRestore}>
+              <ArchiveRestore size={14} className="mr-2" /> Restore
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem className="text-red-500" onClick={onDelete}>
             <Trash2 size={14} className="mr-2" /> Delete
           </DropdownMenuItem>

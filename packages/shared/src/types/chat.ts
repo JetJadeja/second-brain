@@ -13,4 +13,5 @@ export interface ChatRequest {
 export interface ChatResponse {
   text: string
   noteIds: string[]
+  deduplicated?: boolean
 }

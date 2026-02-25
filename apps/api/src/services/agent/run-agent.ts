@@ -12,6 +12,7 @@ import { loadIsOnboarding } from '../onboarding/load-onboarding.js'
 export interface AgentResult {
   text: string
   noteIds: string[]
+  deduplicated: boolean
 }
 
 export interface RunAgentOptions {
@@ -48,6 +49,7 @@ export async function runAgent(
   )
 
   const savedNoteIds = new Set<string>()
+  let wasDeduplicated = false
 
   const result = await runAgentLoop({
     system,
@@ -64,7 +66,11 @@ export async function runAgent(
           const noteId = parsed['noteId']
           if (typeof noteId === 'string') {
             savedNoteIds.add(noteId)
-            await forceInboxState(userId, noteId)
+            if (parsed['deduplicated'] === true) {
+              wasDeduplicated = true
+            } else {
+              await forceInboxState(userId, noteId)
+            }
           }
         } catch { /* result not parseable */ }
       }
@@ -72,7 +78,7 @@ export async function runAgent(
     },
   })
 
-  return { text: result.text, noteIds: collectNoteIds(result.toolCalls) }
+  return { text: result.text, noteIds: collectNoteIds(result.toolCalls), deduplicated: wasDeduplicated }
 }
 
 /**

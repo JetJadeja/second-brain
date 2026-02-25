@@ -59,6 +59,7 @@ chatRouter.post('/', async (req, res) => {
     const response: ChatResponse = {
       text: result.text,
       noteIds: result.noteIds,
+      deduplicated: result.deduplicated || undefined,
     }
 
     res.json(response)

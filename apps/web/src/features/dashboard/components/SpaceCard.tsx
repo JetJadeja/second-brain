@@ -30,13 +30,13 @@ export function SpaceCard({ area }: SpaceCardProps) {
       </div>
 
       <div className="mt-3 space-y-1 relative">
-        {area.child_buckets.slice(0, 3).map((child) => (
+        {area.children.slice(0, 3).map((child) => (
           <p key={child.id} className="font-body-sm text-surface-400 truncate">
             {child.name}
             <span className="text-surface-300 ml-1.5">({child.note_count})</span>
           </p>
         ))}
-        {area.child_buckets.length === 0 && (
+        {area.children.length === 0 && (
           <p className="font-body-sm text-surface-300 italic">No sub-buckets</p>
         )}
       </div>

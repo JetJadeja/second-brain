@@ -23,7 +23,7 @@ export type DashboardArea = {
   name: string
   type: ParaType
   note_count: number
-  child_buckets: Array<{ id: string; name: string; note_count: number }>
+  children: Array<{ id: string; name: string; note_count: number }>
   health: 'growing' | 'stable' | 'stagnant'
 }
 

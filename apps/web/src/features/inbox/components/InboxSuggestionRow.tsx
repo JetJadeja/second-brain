@@ -8,9 +8,8 @@ type InboxSuggestionRowProps = {
 }
 
 export function InboxSuggestionRow({ item, onAccept, onDismiss }: InboxSuggestionRowProps) {
-  const description = typeof item.payload['description'] === 'string'
-    ? item.payload['description']
-    : item.type
+  const description = item.description
+    ?? (typeof item.payload?.['description'] === 'string' ? item.payload['description'] : item.type)
 
   return (
     <div className="flex h-14 items-center px-2">

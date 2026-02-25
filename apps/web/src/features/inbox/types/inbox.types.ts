@@ -18,6 +18,7 @@ export type InboxSuggestionItem = {
   id: string
   type: string
   payload: Record<string, unknown>
+  description?: string
   created_at: string
 }
 

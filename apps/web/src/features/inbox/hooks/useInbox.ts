@@ -18,7 +18,20 @@ export function useInbox() {
 
   const fetchInbox = useCallback(() => {
     inboxService.getInbox()
-      .then((res) => { setItems(res.items); setTotalCount(res.total); setIsLoading(false) })
+      .then((res) => {
+        const mapped = res.items.map((item: Record<string, unknown>): InboxItem => {
+          const raw = item as { kind: string; data: Record<string, unknown> }
+          if (raw.kind === 'suggestion') {
+            const d = raw.data as { id: string; type: string; payload: Record<string, unknown>; description: string; created_at: string }
+            return { item_type: 'suggestion', id: d.id, type: d.type, payload: d.payload, description: d.description, created_at: d.created_at }
+          }
+          const d = raw.data as InboxNoteItem
+          return { ...d, item_type: 'note' }
+        })
+        setItems(mapped)
+        setTotalCount(res.total)
+        setIsLoading(false)
+      })
       .catch((err: unknown) => {
         setError(err instanceof Error ? err.message : 'Failed to load inbox')
         setIsLoading(false)

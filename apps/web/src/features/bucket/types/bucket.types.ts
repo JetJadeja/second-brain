@@ -6,6 +6,7 @@ export type BucketDetail = {
   type: ParaType
   parent_id: string | null
   description: string | null
+  overview: string | null
   is_active: boolean
 }
 

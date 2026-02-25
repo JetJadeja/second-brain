@@ -39,6 +39,8 @@ export async function buildBucketDetail(
       name: bucket.name,
       type: bucket.type,
       path: path ?? bucket.name,
+      description: bucket.description,
+      overview: bucket.overview,
       note_count: total,
       distilled_count: distilledCount,
       evergreen_count: evergreenCount,

@@ -22,6 +22,8 @@ export interface BucketDetailResponse {
     name: string
     type: ParaType
     path: string
+    description: string | null
+    overview: string | null
     note_count: number
     distilled_count: number
     evergreen_count: number

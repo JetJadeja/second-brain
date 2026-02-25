@@ -1,7 +1,8 @@
 import type { ExtractedContent } from '@second-brain/shared'
 import { extractUrlsFromText, stripUrlsFromText } from '@second-brain/shared'
 import { processNote } from '../processors/process-note.js'
-import { getBucketPath } from '../para/para-cache.js'
+import { getAllBuckets, getBucketPath } from '../para/para-cache.js'
+import { updateNote } from '@second-brain/db'
 import { runExtractionAgent } from '../extractors/run-extraction-agent.js'
 import { extractThought } from '../extractors/extract-thought.js'
 import { fallbackExtract } from '../extractors/fallback-extract.js'
@@ -20,6 +21,7 @@ export interface SaveNoteInput {
   userId: string
   content: string
   sourceType?: string
+  suggested_bucket?: string
   preExtracted?: ExtractedContent
   userNote?: string | null
 }
@@ -43,7 +45,9 @@ export async function executeSaveNote(input: SaveNoteInput): Promise<SaveNoteRes
   const result = await processNote(userId, extracted, resolvedUserNote, {
     summary: agentSummary,
   })
-  const suggestedBucket = await getBucketPath(userId, result.note.ai_suggested_bucket)
+
+  const suggestedBucket = await resolveAgentSuggestion(userId, result.note.id, input.suggested_bucket)
+    ?? await getBucketPath(userId, result.note.ai_suggested_bucket)
 
   return {
     noteId: result.note.id,
@@ -82,4 +86,19 @@ async function extractContent(content: string): Promise<ExtractionResult> {
     const extracted = await fallbackExtract(url)
     return { extracted: extracted ?? extractThought(content), userNote, summary: null }
   }
+}
+
+async function resolveAgentSuggestion(
+  userId: string,
+  noteId: string,
+  suggestedName: string | undefined,
+): Promise<string | null> {
+  if (!suggestedName) return null
+
+  const buckets = await getAllBuckets(userId)
+  const match = buckets.find(b => b.name.toLowerCase() === suggestedName.toLowerCase())
+  if (!match) return null
+
+  await updateNote(userId, noteId, { ai_suggested_bucket: match.id })
+  return getBucketPath(userId, match.id)
 }

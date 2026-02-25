@@ -74,7 +74,12 @@ export function BucketPage() {
       />
 
       <div className="mt-4">
-        <IndexCard summary={bucket.bucket.description} isLoading={false} />
+        <IndexCard
+          overview={bucket.bucket.overview ?? null}
+          description={bucket.bucket.description}
+          noteCount={bucket.total}
+          isLoading={false}
+        />
       </div>
 
       <div className="mt-6">

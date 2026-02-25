@@ -6,6 +6,7 @@ import { handleLink } from './handlers/link.js'
 import { handleReaction } from './handlers/handle-reaction.js'
 import { handleReply } from './handlers/handle-reply.js'
 import { runAgentHandler } from './handlers/agent-handler.js'
+import { classifyError, formatUserError } from './handlers/format-error.js'
 
 const token = process.env['TELEGRAM_BOT_TOKEN']
 if (!token) {
@@ -37,7 +38,8 @@ bot.on('message', requireLinkedUser, runAgentHandler)
 bot.catch((err) => {
   const ctx = err.ctx
   console.error(`[bot] error for ${ctx.from?.id}:`, err.error)
-  ctx.reply('something went wrong — try again in a moment').catch(() => {})
+  const stage = classifyError(err.error)
+  ctx.reply(formatUserError('thought', stage)).catch(() => {})
 })
 
 bot.start()

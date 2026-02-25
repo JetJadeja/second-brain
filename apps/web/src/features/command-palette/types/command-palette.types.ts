@@ -18,6 +18,7 @@ export type SearchResult = {
   title: string
   ai_summary: string | null
   source_type: NoteSource
+  distillation_status: DistillationStatus
   bucket_id: string | null
   bucket_path: string | null
   captured_at: string

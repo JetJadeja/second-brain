@@ -23,7 +23,8 @@ export async function buildChatRequest(
   options?: BuildOptions,
 ): Promise<ChatRequest> {
   const userId = ctx.userId!
-  const detected = detectMessageType(ctx)
+  const detectionResult = detectMessageType(ctx)
+  const detected = Array.isArray(detectionResult) ? detectionResult[0]! : detectionResult
   const message = buildMessageText(ctx)
 
   let preExtracted: ExtractedContent | undefined

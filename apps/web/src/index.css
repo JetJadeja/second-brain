@@ -1,48 +1,129 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-@custom-variant dark (&:where(.dark, .dark *));
+@custom-variant dark (&:is([data-theme="dark"] *));
 
-@theme {
-  /* Light mode (default) */
-  --color-surface: #FFFFFF;
-  --color-surface-alt: #F9FAFB;
-  --color-text-primary: #1F2937;
-  --color-text-secondary: #4B5563;
-  --color-text-tertiary: #6B7280;
-  --color-border: #E5E7EB;
-  --color-hover: #F9FAFB;
-  --color-active: #F3F4F6;
-  --color-badge-accent: #EF4444;
-  --color-btn-primary: #000000;
-  --color-btn-primary-hover: #1F2937;
-  --color-btn-secondary: #E5E7EB;
-  --color-btn-secondary-hover: #D1D5DB;
-  --color-btn-secondary-text: #1F2937;
-  --color-btn-cta: #1F2937;
-  --color-btn-cta-hover: #374151;
-  --color-input-border: #D1D5DB;
-  --color-input-text: #374151;
-  --color-ring: #6B7280;
+/* ============================================
+   Second Brain Design System Tokens
+   Dark mode is default. Light mode via data-theme="light".
+   ============================================ */
+
+@theme inline {
+  /* Border radius */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+
+  /* Ember palette */
+  --color-ember-500: #EE4540;
+  --color-ember-600: #C72C41;
+  --color-ember-700: #801336;
+  --color-ember-800: #510A32;
+  --color-ember-900: #2D142C;
+
+  /* Surface scale (dark mode values — default) */
+  --color-surface-0: var(--surface-0);
+  --color-surface-50: var(--surface-50);
+  --color-surface-100: var(--surface-100);
+  --color-surface-150: var(--surface-150);
+  --color-surface-200: var(--surface-200);
+  --color-surface-300: var(--surface-300);
+  --color-surface-400: var(--surface-400);
+  --color-surface-500: var(--surface-500);
+  --color-surface-600: var(--surface-600);
+  --color-surface-700: var(--surface-700);
+  --color-surface-800: var(--surface-800);
+
+  /* Semantic status colors */
+  --color-status-raw: #EE4540;
+  --color-status-keypoints: #C87533;
+  --color-status-distilled: #5B8A72;
+  --color-status-evergreen: #4A90D9;
+  --color-danger: #D94545;
+  --color-success: #45A867;
+
+  /* shadcn compatibility tokens */
+  --color-background: var(--surface-50);
+  --color-foreground: var(--surface-700);
+  --color-card: var(--surface-100);
+  --color-card-foreground: var(--surface-700);
+  --color-popover: var(--surface-100);
+  --color-popover-foreground: var(--surface-700);
+  --color-primary: #EE4540;
+  --color-primary-foreground: #FFFFFF;
+  --color-secondary: var(--surface-150);
+  --color-secondary-foreground: var(--surface-600);
+  --color-muted: var(--surface-150);
+  --color-muted-foreground: var(--surface-400);
+  --color-accent: var(--surface-150);
+  --color-accent-foreground: var(--surface-700);
+  --color-destructive: #D94545;
+  --color-border: var(--surface-200);
+  --color-input: var(--surface-200);
+  --color-ring: #EE4540;
+
+  /* Spacing tokens */
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 20px;
+  --spacing-6: 24px;
+  --spacing-8: 32px;
+  --spacing-10: 40px;
+  --spacing-12: 48px;
+  --spacing-16: 64px;
+
+  /* Font families */
+  --font-sans: 'Geist Sans', 'Geist', 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Geist Mono', 'JetBrains Mono', ui-monospace, monospace;
+
+  /* Transition durations */
+  --duration-micro: 80ms;
+  --duration-standard: 150ms;
+  --duration-structural: 250ms;
+  --duration-emphasis: 400ms;
+  --duration-ambient: 2000ms;
 }
 
-.dark {
-  --color-surface: #111827;
-  --color-surface-alt: #1F2937;
-  --color-text-primary: #F3F4F6;
-  --color-text-secondary: #9CA3AF;
-  --color-text-tertiary: #6B7280;
-  --color-border: #374151;
-  --color-hover: #1F2937;
-  --color-active: #374151;
-  --color-badge-accent: #F87171;
-  --color-btn-primary: #F3F4F6;
-  --color-btn-primary-hover: #D1D5DB;
-  --color-btn-secondary: #374151;
-  --color-btn-secondary-hover: #4B5563;
-  --color-btn-secondary-text: #F3F4F6;
-  --color-btn-cta: #F3F4F6;
-  --color-btn-cta-hover: #D1D5DB;
-  --color-input-border: #4B5563;
-  --color-input-text: #F3F4F6;
-  --color-ring: #6B7280;
+/* Dark mode (default) surface custom properties */
+:root {
+  --surface-0: #0F0A0E;
+  --surface-50: #1A1118;
+  --surface-100: #241B22;
+  --surface-150: #2E232B;
+  --surface-200: #3D3139;
+  --surface-300: #564A52;
+  --surface-400: #7A6E76;
+  --surface-500: #A89BA3;
+  --surface-600: #C9BFC5;
+  --surface-700: #E8E0E5;
+  --surface-800: #F5F0F3;
+}
+
+/* Light mode overrides */
+[data-theme="light"] {
+  --surface-0: #FFFFFF;
+  --surface-50: #FAF7F9;
+  --surface-100: #FFFFFF;
+  --surface-150: #F5F0F3;
+  --surface-200: #E8E0E5;
+  --surface-300: #C9BFC5;
+  --surface-400: #A89BA3;
+  --surface-500: #7A6E76;
+  --surface-600: #564A52;
+  --surface-700: #3D3139;
+  --surface-800: #1A1118;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-surface-50 text-surface-500 font-sans antialiased;
+  }
 }

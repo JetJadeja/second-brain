@@ -10,7 +10,7 @@ import type { Highlight, DistillAction } from '../types/distillation.types'
 export function useDistillation() {
   const { noteId } = useParams<{ noteId: string }>()
   const navigate = useNavigate()
-  const addToast = useToastStore((s) => s.addToast)
+  const toast = useToastStore((s) => s.toast)
 
   const [note, setNote] = useState<NoteDetail | null>(null)
   const [highlights, setHighlights] = useState<Highlight[]>([])
@@ -37,9 +37,9 @@ export function useDistillation() {
         setBullets(parsed)
         initialBullets.current = parsed
       })
-      .catch(() => addToast('Failed to load note', 'error'))
+      .catch(() => toast({ message: 'Failed to load note', type: 'error' }))
       .finally(() => setIsLoading(false))
-  }, [noteId, addToast])
+  }, [noteId, toast])
 
   const addBullet = useCallback((text: string, index?: number) => {
     setBullets((prev) => {
@@ -71,11 +71,11 @@ export function useDistillation() {
       setBullets(res.text.split('\n').filter(Boolean))
     } catch {
       undoStack.current.pop()
-      addToast('AI generation failed — please retry', 'error')
+      toast({ message: 'AI generation failed — please retry', type: 'error' })
     } finally {
       setLoadingAction(null)
     }
-  }, [noteId, loadingAction, bullets, addToast])
+  }, [noteId, loadingAction, bullets, toast])
 
   const save = useCallback(async () => {
     if (!noteId || isSaving || bullets.length === 0) return
@@ -90,14 +90,14 @@ export function useDistillation() {
       }
       await updateNote(noteId, data)
       initialBullets.current = [...bullets]
-      addToast('Distillation saved', 'success')
+      toast({ message: 'Distillation saved', type: 'success' })
       navigate(`/notes/${noteId}`)
     } catch {
-      addToast('Save failed — please retry', 'error')
+      toast({ message: 'Save failed — please retry', type: 'error' })
     } finally {
       setIsSaving(false)
     }
-  }, [noteId, isSaving, bullets, targetStage, addToast, navigate])
+  }, [noteId, isSaving, bullets, targetStage, toast, navigate])
 
   const tryExit = useCallback(() => {
     if (isDirty) { setShowDiscard(true); return }

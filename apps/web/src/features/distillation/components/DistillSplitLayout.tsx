@@ -79,7 +79,6 @@ export function DistillSplitLayout() {
           note={d.note}
           bullets={d.bullets}
           targetStage={d.targetStage}
-          isDirty={d.isDirty}
           isSaving={d.isSaving}
           canUndo={d.canUndo}
           loadingAction={d.loadingAction}

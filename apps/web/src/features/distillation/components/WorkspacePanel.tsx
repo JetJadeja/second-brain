@@ -8,7 +8,6 @@ type WorkspacePanelProps = {
   note: NoteDetail
   bullets: string[]
   targetStage: DistillTarget
-  isDirty: boolean
   isSaving: boolean
   canUndo: boolean
   loadingAction: DistillAction | null
@@ -25,7 +24,7 @@ type WorkspacePanelProps = {
 }
 
 export function WorkspacePanel({
-  note, bullets, targetStage, isDirty, isSaving, canUndo, loadingAction,
+  note, bullets, targetStage, isSaving, canUndo, loadingAction,
   showDiscard, onUpdate, onAdd, onRemove, onAiAssist, onUndo, onSave,
   onExit, onConfirmDiscard, onCancelDiscard,
 }: WorkspacePanelProps) {

@@ -3,13 +3,6 @@ import { cn } from '@/lib/utils'
 import { ParaDot } from '@/components/shared/ParaDot'
 import type { BucketTreeItem } from '@/components/layout/types'
 
-type QuickJumpItem = {
-  id: string
-  label: string
-  icon?: React.ReactNode
-  badge?: number
-}
-
 export type PreSearchContentProps = {
   recentSearches: string[]
   onSelectQuery: (query: string) => void

@@ -23,7 +23,7 @@ export function useCommandPaletteSearch(scopedBucketId?: string | null): Command
   const [askResponse, setAskResponse] = useState<AskResponse | null>(null)
   const [isSearching, setIsSearching] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const timerRef = useRef<ReturnType<typeof setTimeout>>()
+  const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const pageRef = useRef(1)
 
   const executeSearch = useCallback(

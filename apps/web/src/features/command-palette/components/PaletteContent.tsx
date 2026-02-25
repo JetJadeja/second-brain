@@ -18,7 +18,7 @@ export type PaletteContentProps = {
 
 export function PaletteContent({
   paletteMode, search, recentSearches, highlightedIndex,
-  onSelectQuery, onRemoveRecent, onNavigate, onClose,
+  onSelectQuery, onRemoveRecent, onNavigate,
 }: PaletteContentProps) {
   if (paletteMode === 'pre-search') {
     return (
@@ -66,7 +66,6 @@ export function PaletteContent({
       <CommandList
         query={search.query}
         highlightedIndex={highlightedIndex}
-        onExecute={onClose}
       />
     )
   }

@@ -20,7 +20,6 @@ const COMMANDS: PaletteCommand[] = [
 export type CommandListProps = {
   query: string
   highlightedIndex: number
-  onExecute: () => void
 }
 
 function fuzzyMatch(command: string, query: string): boolean {
@@ -48,7 +47,7 @@ function highlightChars(text: string, query: string): React.ReactNode {
   })
 }
 
-export function CommandList({ query, highlightedIndex, onExecute }: CommandListProps) {
+export function CommandList({ query, highlightedIndex }: CommandListProps) {
   const navigate = useNavigate()
   const closePalette = useCommandPaletteStore((s) => s.closePalette)
   const toggleCollapse = useSidebarStore((s) => s.toggleCollapse)

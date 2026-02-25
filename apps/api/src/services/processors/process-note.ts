@@ -5,6 +5,7 @@ import { classifyContent } from './classify-content.js'
 import { detectConnections } from './detect-connections.js'
 import { saveNote } from './save-note.js'
 import { maybeTriggerReorganization } from '../reorganization/trigger-reorganization.js'
+import { maybeTriggerOverview } from '../overview/trigger-overview.js'
 
 export interface ProcessedNote {
   note: Note
@@ -52,6 +53,7 @@ export async function processNote(
       )
     }
     maybeTriggerReorganization(userId)
+    if (note.bucket_id) void maybeTriggerOverview(userId, note.bucket_id)
   }
 
   return { note, summary, classification, createdBucketName, deduplicated, warning: options?.warning }

@@ -5,6 +5,34 @@
 @custom-variant dark (&:is([data-theme="dark"] *));
 
 /* ============================================
+   Font Face Declarations
+   ============================================ */
+
+@font-face {
+  font-family: 'Geist Sans';
+  src: url('./assets/fonts/GeistVariable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Geist';
+  src: url('./assets/fonts/GeistVariable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Geist Mono';
+  src: url('./assets/fonts/GeistMonoVariable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ============================================
    Second Brain Design System Tokens
    Dark mode is default. Light mode via data-theme="light".
    ============================================ */

@@ -12,7 +12,7 @@ import { InboxEmptyState } from '@/features/inbox/components/InboxEmptyState'
 import { InboxSkeleton } from '@/features/inbox/components/InboxSkeleton'
 import type { InboxNoteItem } from '@/features/inbox/types/inbox.types'
 
-type MoveTarget = { noteId: string; title: string }
+type MoveTarget = { noteIds: string[]; label: string }
 
 export function InboxPage() {
   const inbox = useInbox()
@@ -33,12 +33,22 @@ export function InboxPage() {
   })
 
   const openMoveModal = useCallback((item: InboxNoteItem) => {
-    setMoveTarget({ noteId: item.id, title: item.title })
+    setMoveTarget({ noteIds: [item.id], label: `\u201c${item.title}\u201d` })
   }, [])
+
+  const openBatchMoveModal = useCallback(() => {
+    const ids = [...inbox.selectedIds]
+    setMoveTarget({ noteIds: ids, label: `${ids.length} notes` })
+  }, [inbox.selectedIds])
 
   const handleMoveConfirm = useCallback((bucketId: string) => {
     if (!moveTarget) return
-    void inbox.classifyNote(moveTarget.noteId, bucketId)
+    if (moveTarget.noteIds.length === 1) {
+      void inbox.classifyNote(moveTarget.noteIds[0], bucketId)
+    } else {
+      const classifications = moveTarget.noteIds.map((id) => ({ note_id: id, bucket_id: bucketId }))
+      void inbox.batchClassify(classifications)
+    }
     setMoveTarget(null)
   }, [moveTarget, inbox])
 
@@ -140,13 +150,14 @@ export function InboxPage() {
         selectedCount={inbox.selectedIds.size}
         suggestedCount={suggestedCount}
         onConfirmSuggested={handleConfirmSuggested}
+        onMoveTo={openBatchMoveModal}
         onArchive={handleBatchArchive}
         onDelete={handleBatchDelete}
       />
 
       <MoveToModal
         open={moveTarget !== null}
-        label={moveTarget ? `\u201c${moveTarget.title}\u201d` : ''}
+        label={moveTarget?.label ?? ''}
         onMove={handleMoveConfirm}
         onClose={() => setMoveTarget(null)}
       />

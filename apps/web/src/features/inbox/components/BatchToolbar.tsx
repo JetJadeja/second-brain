@@ -5,12 +5,13 @@ type BatchToolbarProps = {
   selectedCount: number
   suggestedCount: number
   onConfirmSuggested: () => void
+  onMoveTo: () => void
   onArchive: () => void
   onDelete: () => void
 }
 
 export function BatchToolbar({
-  selectedCount, suggestedCount, onConfirmSuggested, onArchive, onDelete,
+  selectedCount, suggestedCount, onConfirmSuggested, onMoveTo, onArchive, onDelete,
 }: BatchToolbarProps) {
   const [deleteConfirm, setDeleteConfirm] = useState(false)
   const visible = selectedCount > 0
@@ -44,6 +45,13 @@ export function BatchToolbar({
           className="rounded-sm bg-ember-500 px-3 py-1.5 text-body-sm text-white transition-colors hover:bg-ember-600 disabled:opacity-40"
         >
           {suggestedCount > 0 ? `Confirm ${suggestedCount} suggested` : 'Confirm as suggested'}
+        </button>
+        <button
+          type="button"
+          onClick={onMoveTo}
+          className="rounded-sm px-3 py-1.5 text-body-sm text-surface-400 transition-colors hover:text-surface-500"
+        >
+          Move to
         </button>
         <button
           type="button"

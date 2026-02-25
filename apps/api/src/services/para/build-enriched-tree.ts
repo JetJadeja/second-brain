@@ -1,23 +1,4 @@
-import { getServiceClient } from '@second-brain/db'
 import type { ParaBucket, ParaTreeNode } from '@second-brain/shared'
-
-export async function fetchNoteCounts(
-  userId: string,
-): Promise<Map<string, number>> {
-  const sb = getServiceClient()
-  const { data } = await sb
-    .from('notes')
-    .select('bucket_id')
-    .eq('user_id', userId)
-    .not('bucket_id', 'is', null)
-
-  const counts = new Map<string, number>()
-  for (const row of data ?? []) {
-    const bid = row.bucket_id as string
-    counts.set(bid, (counts.get(bid) ?? 0) + 1)
-  }
-  return counts
-}
 
 export function buildTree(
   buckets: ParaBucket[],

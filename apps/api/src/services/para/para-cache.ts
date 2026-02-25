@@ -1,6 +1,6 @@
-import { getServiceClient } from '@second-brain/db'
+import { getServiceClient, countNotesByBucket } from '@second-brain/db'
 import type { ParaBucket, ParaTreeNode } from '@second-brain/shared'
-import { buildTree, fetchNoteCounts } from './build-enriched-tree.js'
+import { buildTree } from './build-enriched-tree.js'
 import { buildPathMap } from './build-path-map.js'
 
 interface CacheEntry {
@@ -52,7 +52,7 @@ async function ensureCached(userId: string): Promise<CacheEntry> {
   if (error) throw new Error(`Failed to fetch buckets: ${error.message}`)
 
   const buckets = (data ?? []) as ParaBucket[]
-  const noteCounts = await fetchNoteCounts(userId)
+  const noteCounts = await countNotesByBucket(userId)
   const tree = buildTree(buckets, noteCounts)
   const pathMap = buildPathMap(buckets)
 

@@ -1,4 +1,5 @@
 import type { NoteSource, DistillationStatus, BucketDetailResponse, ParaBucket } from '@second-brain/shared'
+import { collectDescendantIds } from '@second-brain/shared'
 import { getNotesByBucket, countNotesByBucket } from '@second-brain/db'
 import { getBucketPath, getAllBuckets } from './para-cache.js'
 
@@ -15,13 +16,14 @@ export async function buildBucketDetail(
   bucket: ParaBucket,
   opts: BucketDetailOpts,
 ): Promise<BucketDetailResponse> {
-  const { data: notes, total } = await getNotesByBucket(userId, bucket.id, opts)
-
   const [path, allBuckets, noteCounts] = await Promise.all([
     getBucketPath(userId, bucket.id),
     getAllBuckets(userId),
     countNotesByBucket(userId),
   ])
+
+  const descendantIds = collectDescendantIds(bucket.id, allBuckets)
+  const { data: notes, total } = await getNotesByBucket(userId, descendantIds, opts)
   const children = allBuckets.filter((b) => b.parent_id === bucket.id)
 
   let distilledCount = 0
@@ -40,7 +42,12 @@ export async function buildBucketDetail(
       note_count: total,
       distilled_count: distilledCount,
       evergreen_count: evergreenCount,
-      children: children.map((c) => ({ id: c.id, name: c.name, note_count: noteCounts.get(c.id) ?? 0 })),
+      children: children.map((c) => ({
+        id: c.id,
+        name: c.name,
+        note_count: collectDescendantIds(c.id, allBuckets)
+          .reduce((sum, id) => sum + (noteCounts.get(id) ?? 0), 0),
+      })),
     },
     notes: notes.map((n) => ({
       id: n.id,

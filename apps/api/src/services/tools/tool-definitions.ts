@@ -17,6 +17,11 @@ export const AGENT_TOOLS: AnthropicTool[] = [
           enum: ['thought', 'article', 'tweet', 'youtube', 'pdf', 'image', 'voice_memo'],
           description: 'Optional hint about the content type. If omitted, auto-detected.',
         },
+        suggested_bucket: {
+          type: 'string',
+          description:
+            'Name of the folder this note best fits in. Use the exact folder name from the user\'s structure.',
+        },
       },
       required: ['content'],
     },

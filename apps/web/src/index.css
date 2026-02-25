@@ -102,6 +102,8 @@
 
 /* Dark mode (default) surface custom properties */
 :root {
+  --knowledge-intensity: 0;
+  --motion-duration: 1;
   --surface-0: #0F0A0E;
   --surface-50: #1A1118;
   --surface-100: #241B22;
@@ -429,5 +431,37 @@
   &:focus-visible {
     outline: 2px solid rgba(238, 69, 64, 0.5);
     outline-offset: 2px;
+  }
+}
+
+/* ============================================
+   Global Focus Visible (applied to all interactive elements)
+   ============================================ */
+
+:focus-visible {
+  outline: 2px solid rgba(238, 69, 64, 0.5);
+  outline-offset: 2px;
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ============================================
+   Reduced Motion — Global Override
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-duration: 0;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

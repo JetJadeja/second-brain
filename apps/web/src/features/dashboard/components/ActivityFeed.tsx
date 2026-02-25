@@ -7,7 +7,7 @@ import type { DashboardInboxItem, DashboardContentItem, FeedItem } from '../type
 type ActivityFeedProps = {
   inboxItems: DashboardInboxItem[]
   recentItems: DashboardContentItem[]
-  onClassify: (noteId: string) => void
+  onClassify: (noteId: string, bucketId: string) => void
 }
 
 export function ActivityFeed({ inboxItems, recentItems, onClassify }: ActivityFeedProps) {

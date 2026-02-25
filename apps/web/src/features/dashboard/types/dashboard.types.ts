@@ -6,6 +6,7 @@ export type DashboardInboxItem = {
   source_type: NoteSource
   captured_at: string
   ai_summary: string | null
+  ai_suggested_bucket: string | null
 }
 
 export type DashboardContentItem = {

@@ -9,7 +9,7 @@ import type { FeedItem } from '../types/dashboard.types'
 
 type ActivityFeedItemProps = {
   item: FeedItem
-  onClassify?: (noteId: string) => void
+  onClassify?: (noteId: string, bucketId: string) => void
 }
 
 export function ActivityFeedItem({ item, onClassify }: ActivityFeedItemProps) {
@@ -55,9 +55,9 @@ export function ActivityFeedItem({ item, onClassify }: ActivityFeedItemProps) {
 
       <div className="flex items-center gap-3 shrink-0">
         <span className="font-mono text-xs text-surface-300">{formatRelativeTime(note.captured_at)}</span>
-        {isCapture && onClassify && (
+        {isCapture && onClassify && 'ai_suggested_bucket' in note && note.ai_suggested_bucket && (
           <button
-            onClick={(e) => { e.stopPropagation(); onClassify(note.id) }}
+            onClick={(e) => { e.stopPropagation(); onClassify(note.id, note.ai_suggested_bucket!) }}
             className="w-7 h-7 rounded-full bg-surface-150 flex items-center justify-center transition-colors duration-[120ms] hover:bg-ember-500 group"
           >
             <Check size={14} className="text-surface-400 group-hover:text-white transition-colors" />

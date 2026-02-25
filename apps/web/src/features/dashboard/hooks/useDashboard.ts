@@ -9,7 +9,7 @@ type UseDashboardReturn = {
   data: DashboardData | null
   isLoading: boolean
   error: string | null
-  classifyNote: (noteId: string) => Promise<void>
+  classifyNote: (noteId: string, bucketId: string) => Promise<void>
 }
 
 export function useDashboard(): UseDashboardReturn {
@@ -53,9 +53,9 @@ export function useDashboard(): UseDashboardReturn {
     return () => { supabase.removeChannel(channel) }
   }, [userId])
 
-  const classifyNote = useCallback(async (noteId: string) => {
+  const classifyNote = useCallback(async (noteId: string, bucketId: string) => {
     try {
-      await dashboardService.classifyNote(noteId)
+      await dashboardService.classifyNote(noteId, bucketId)
       setData((prev) => {
         if (!prev) return prev
         return {

@@ -11,6 +11,7 @@ export interface ProcessedNote {
   summary: string | null
   classification: ClassifyResult | null
   createdBucketName: string | null
+  deduplicated: boolean
   warning?: string
 }
 
@@ -34,7 +35,7 @@ export async function processNote(
     : await withFreshSummary(userId, extracted, userNote, embeddingText)
 
   // Step 4: Save note (may create a bucket from classification suggestion)
-  const { note, createdBucketName } = await saveNote({
+  const { note, createdBucketName, deduplicated } = await saveNote({
     userId,
     extracted,
     userNote,
@@ -43,17 +44,17 @@ export async function processNote(
     classification,
   })
 
-  // Step 5: Detect connections (fire and forget)
-  if (embedding) {
-    detectConnections(userId, note.id, embedding).catch((err) =>
-      console.error('[process-note] connection detection failed:', err),
-    )
+  // Step 5-6: Skip fire-and-forget steps for deduplicated notes
+  if (!deduplicated) {
+    if (embedding) {
+      detectConnections(userId, note.id, embedding).catch((err) =>
+        console.error('[process-note] connection detection failed:', err),
+      )
+    }
+    maybeTriggerReorganization(userId)
   }
 
-  // Step 6: Maybe trigger reorganization analysis (fire and forget)
-  maybeTriggerReorganization(userId)
-
-  return { note, summary, classification, createdBucketName, warning: options?.warning }
+  return { note, summary, classification, createdBucketName, deduplicated, warning: options?.warning }
 }
 
 interface PipelineResult {

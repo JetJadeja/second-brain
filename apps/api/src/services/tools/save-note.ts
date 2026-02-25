@@ -13,6 +13,7 @@ export interface SaveNoteResult {
   summary: string | null
   suggestedBucket: string | null
   createdBucketName: string | null
+  deduplicated: boolean
   warning?: string
 }
 
@@ -51,6 +52,7 @@ export async function executeSaveNote(input: SaveNoteInput): Promise<SaveNoteRes
     summary: result.summary,
     suggestedBucket,
     createdBucketName: result.createdBucketName,
+    deduplicated: result.deduplicated,
     warning: result.warning,
   }
 }

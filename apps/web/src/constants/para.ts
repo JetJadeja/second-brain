@@ -1,9 +1,10 @@
-export const PARA_COLORS = {
-  projects: '#EE4540',
-  areas: '#5B8A72',
-  resources: '#C87533',
+import type { ParaType } from '@/types/enums'
+
+export const PARA_COLORS: Record<ParaType, string> = {
+  project: '#EE4540',
+  area: '#5B8A72',
+  resource: '#C87533',
   archive: '#564A52',
-  inbox: '#EE4540',
 } as const
 
-export type ParaCategory = keyof typeof PARA_COLORS
+export const INBOX_COLOR = '#EE4540'

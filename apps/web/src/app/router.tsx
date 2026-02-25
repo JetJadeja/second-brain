@@ -8,6 +8,7 @@ import { InboxPage } from '@/pages/InboxPage'
 import { BucketPage } from '@/pages/BucketPage'
 import { NoteDetailPage } from '@/pages/NoteDetailPage'
 import { PlaceholderPage } from '@/pages/PlaceholderPage'
+import { DistillationPage } from '@/pages/DistillationPage'
 
 export function AppRouter() {
   return (
@@ -23,6 +24,7 @@ export function AppRouter() {
           <Route path="/inbox" element={<InboxPage />} />
           <Route path="/buckets/:bucketId" element={<BucketPage />} />
           <Route path="/notes/:noteId" element={<NoteDetailPage />} />
+          <Route path="/notes/:noteId/distill" element={<DistillationPage />} />
           <Route path="/graph" element={<PlaceholderPage title="Graph" />} />
           <Route path="/review" element={<PlaceholderPage title="Review" />} />
           <Route path="/settings" element={<PlaceholderPage title="Settings" />} />

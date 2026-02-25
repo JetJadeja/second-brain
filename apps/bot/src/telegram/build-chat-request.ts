@@ -5,6 +5,7 @@ import { downloadTelegramFile } from './download-file.js'
 import { extractPdf } from '../extractors/extract-pdf.js'
 import { extractVoice } from '../extractors/extract-voice.js'
 import { extractImage } from '../extractors/extract-image.js'
+import { extractVideo } from '../extractors/extract-video.js'
 import { uploadToStorage } from '../extractors/upload-to-storage.js'
 import { randomUUID } from 'node:crypto'
 
@@ -102,6 +103,12 @@ async function preExtractBinary(
     const mimeType = detected.attachment.mimeType ?? 'image/jpeg'
     const storagePath = await uploadToStorage(userId, noteId, 'image.jpg', buffer, mimeType)
     const result = await extractImage(buffer, storagePath, mimeType)
+    extracted = result.content
+    warning = result.warning
+  } else if (detected.sourceType === 'video') {
+    const storagePath = await uploadToStorage(userId, noteId, 'video.mp4', buffer, 'video/mp4')
+    const duration = ctx.message?.video?.duration
+    const result = await extractVideo(buffer, storagePath, duration)
     extracted = result.content
     warning = result.warning
   } else {

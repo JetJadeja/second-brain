@@ -134,6 +134,7 @@ export function BucketPage() {
         open={deleteOpen}
         onConfirm={handleDelete}
         onCancel={() => setDeleteOpen(false)}
+        onArchive={bucket.bucket.type !== 'archive' ? handleArchive : undefined}
       />
     </div>
   )

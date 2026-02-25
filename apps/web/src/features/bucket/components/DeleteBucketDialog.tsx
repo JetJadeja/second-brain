@@ -9,10 +9,11 @@ type DeleteBucketDialogProps = {
   open: boolean
   onConfirm: () => void
   onCancel: () => void
+  onArchive?: () => void
 }
 
 export function DeleteBucketDialog({
-  bucketName, noteCount, open, onConfirm, onCancel,
+  bucketName, noteCount, open, onConfirm, onCancel, onArchive,
 }: DeleteBucketDialogProps) {
   return (
     <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) onCancel() }}>
@@ -20,7 +21,8 @@ export function DeleteBucketDialog({
         <DialogHeader>
           <DialogTitle>Delete "{bucketName}"?</DialogTitle>
           <DialogDescription>
-            This will move {noteCount} {noteCount === 1 ? 'note' : 'notes'} back to your inbox. This action cannot be undone.
+            This will permanently delete the bucket and move {noteCount} {noteCount === 1 ? 'note' : 'notes'} back to your inbox.
+            {onArchive && ' Consider archiving instead to preserve your notes\u2019 organization.'}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
@@ -31,6 +33,15 @@ export function DeleteBucketDialog({
           >
             Cancel
           </button>
+          {onArchive && (
+            <button
+              type="button"
+              onClick={onArchive}
+              className="rounded-md bg-ember-500 px-4 py-2 text-body-sm text-white transition-colors hover:bg-ember-600"
+            >
+              Archive instead
+            </button>
+          )}
           <button
             type="button"
             onClick={onConfirm}

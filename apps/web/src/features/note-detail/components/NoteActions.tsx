@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { FolderInput, Sparkles, Archive, Trash2, Link } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 type NoteActionsProps = {
+  noteId: string
   onArchive: () => void
   onDelete: () => void
   onCopyLink: () => void
@@ -31,7 +33,8 @@ function ActionButton({
   )
 }
 
-export function NoteActions({ onArchive, onDelete, onCopyLink }: NoteActionsProps) {
+export function NoteActions({ noteId, onArchive, onDelete, onCopyLink }: NoteActionsProps) {
+  const navigate = useNavigate()
   const [confirmDelete, setConfirmDelete] = useState(false)
 
   useEffect(() => {
@@ -43,7 +46,7 @@ export function NoteActions({ onArchive, onDelete, onCopyLink }: NoteActionsProp
   return (
     <div className="flex items-center gap-1">
       <ActionButton icon={FolderInput} label="Move" onClick={() => {}} />
-      <ActionButton icon={Sparkles} label="Distill" onClick={() => {}} className="text-ember-500 hover:text-ember-600" />
+      <ActionButton icon={Sparkles} label="Distill" onClick={() => navigate(`/notes/${noteId}/distill`)} className="text-ember-500 hover:text-ember-600" />
       <ActionButton icon={Archive} label="Archive" onClick={onArchive} />
       {confirmDelete ? (
         <button

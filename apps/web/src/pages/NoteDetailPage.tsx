@@ -47,8 +47,8 @@ export function NoteDetailPage() {
         <div className="mx-auto max-w-[720px] space-y-4">
           <NoteTitle title={note.title} sourceUrl={sourceUrl} />
           <NoteMetadata note={note} />
-          <NoteActions onArchive={archive} onDelete={deleteNote} onCopyLink={copyLink} />
-          <DistillationBar status={note.distillation_status} />
+          <NoteActions noteId={note.id} onArchive={archive} onDelete={deleteNote} onCopyLink={copyLink} />
+          <DistillationBar status={note.distillation_status} noteId={note.id} />
 
           <div className="space-y-6 pt-2">
             {/* Distilled note layout */}

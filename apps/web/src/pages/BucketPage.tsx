@@ -88,7 +88,7 @@ export function BucketPage() {
       </div>
 
       <div className="mt-4 flex-1">
-        {bucket.notes.length === 0 ? (
+        {bucket.notes.length === 0 && bucket.childBuckets.length === 0 ? (
           <BucketEmptyState />
         ) : (
           <NoteGrid

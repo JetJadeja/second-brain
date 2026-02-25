@@ -1,6 +1,8 @@
 import type { BotContext } from '../context.js'
+import type { ChatResponse } from '@second-brain/shared'
 import { sendChatMessage } from '../api-client.js'
 import { buildChatRequest } from '../telegram/build-chat-request.js'
+import { detectMessageType, type DetectedMessage } from '../telegram/detect-message-type.js'
 import { storeReceipt } from './receipt-store.js'
 import { needsAsyncProcessing, getAckMessage } from './needs-async.js'
 import { processInBackground } from './process-in-background.js'
@@ -17,10 +19,17 @@ export async function runAgentHandler(ctx: BotContext): Promise<void> {
   const chatId = ctx.chat?.id
   if (!chatId) return
 
-  await withUserLock(userId, () => handleMessage(ctx, chatId))
+  await withUserLock(userId, () => handleMessage(ctx, chatId, userId))
 }
 
-async function handleMessage(ctx: BotContext, chatId: number): Promise<void> {
+async function handleMessage(ctx: BotContext, chatId: number, userId: string): Promise<void> {
+  const detected = detectMessageType(ctx)
+
+  if (Array.isArray(detected)) {
+    await handleMultiLink(ctx, chatId, userId, detected)
+    return
+  }
+
   if (needsAsyncProcessing(ctx)) {
     await ctx.reply(getAckMessage())
     processInBackground({ ctx, chatId })
@@ -37,4 +46,50 @@ async function handleMessage(ctx: BotContext, chatId: number): Promise<void> {
   if (response.noteIds.length > 0) {
     storeReceipt(chatId, sentMessage.message_id, response.noteIds[0]!)
   }
+}
+
+export interface MultiLinkResult {
+  url: string
+  response?: ChatResponse
+  error?: string
+}
+
+async function handleMultiLink(
+  ctx: BotContext,
+  chatId: number,
+  userId: string,
+  messages: DetectedMessage[],
+): Promise<void> {
+  await ctx.reply(`on it — processing ${messages.length} links`)
+
+  const results: MultiLinkResult[] = []
+
+  for (const msg of messages) {
+    await ctx.replyWithChatAction('typing')
+
+    try {
+      const response = await sendChatMessage({
+        userId,
+        message: msg.url ?? '',
+        platform: 'Telegram',
+      })
+      results.push({ url: msg.url ?? '', response })
+    } catch (error: unknown) {
+      const errMsg = error instanceof Error ? error.message : String(error)
+      console.error(`[multi-link] Failed to process ${msg.url}:`, errMsg)
+      results.push({ url: msg.url ?? '', error: errMsg })
+    }
+  }
+
+  const confirmation = formatMultiLinkResults(results)
+  await ctx.api.sendMessage(chatId, confirmation)
+}
+
+function formatMultiLinkResults(results: MultiLinkResult[]): string {
+  const lines = results.map((r) => {
+    if (r.error) return `→ ${r.url} — couldn't process`
+    return `→ ${r.response?.text ?? 'captured'}`
+  })
+
+  return `captured ${results.filter((r) => !r.error).length} links:\n${lines.join('\n')}`
 }

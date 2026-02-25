@@ -57,5 +57,9 @@ export function useNoteDetail() {
     toast({ type: 'success', message: 'Link copied' })
   }, [noteId, toast])
 
-  return { note, relatedNotes, backlinks, isLoading, error, archive, deleteNote, copyLink }
+  const updateNote = useCallback((patch: Partial<import('../types/note-detail.types').NoteDetail>) => {
+    setNote((prev) => prev ? { ...prev, ...patch } : prev)
+  }, [])
+
+  return { note, relatedNotes, backlinks, isLoading, error, archive, deleteNote, copyLink, updateNote }
 }

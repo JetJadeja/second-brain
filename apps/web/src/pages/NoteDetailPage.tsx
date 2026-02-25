@@ -4,9 +4,8 @@ import { useNoteDetail } from '@/features/note-detail/hooks/useNoteDetail'
 import { NoteTitle } from '@/features/note-detail/components/NoteTitle'
 import { NoteMetadata } from '@/features/note-detail/components/NoteMetadata'
 import { NoteActions } from '@/features/note-detail/components/NoteActions'
-import { DistillationBar } from '@/features/note-detail/components/DistillationBar'
+import { AnnotationField } from '@/features/note-detail/components/AnnotationField'
 import { ContentSection } from '@/features/note-detail/components/ContentSection'
-import { DistillationContent } from '@/features/note-detail/components/DistillationContent'
 import { KeyPointsList } from '@/features/note-detail/components/KeyPointsList'
 import { AiSummaryCard } from '@/features/note-detail/components/AiSummaryCard'
 import { OriginalContent } from '@/features/note-detail/components/OriginalContent'
@@ -18,7 +17,7 @@ import { AskInput } from '@/features/note-detail/components/AskInput'
 import { NoteDetailSkeleton } from '@/features/note-detail/components/NoteDetailSkeleton'
 
 export function NoteDetailPage() {
-  const { note, relatedNotes, backlinks, isLoading, error, archive, deleteNote, copyLink } = useNoteDetail()
+  const { note, relatedNotes, backlinks, isLoading, error, archive, deleteNote, copyLink, updateNote } = useNoteDetail()
   const navigate = useNavigate()
   const [panelCollapsed, setPanelCollapsed] = useState(false)
 
@@ -36,9 +35,8 @@ export function NoteDetailPage() {
   }
 
   const sourceUrl = typeof note.source['url'] === 'string' ? note.source['url'] : null
-  const hasDistillation = note.distillation !== null
   const hasKeyPoints = note.key_points.length > 0
-  const isRaw = !hasDistillation && !hasKeyPoints
+  const isRaw = note.distillation_status === 'raw' && !note.distillation
 
   return (
     <div className="flex h-full">
@@ -48,16 +46,15 @@ export function NoteDetailPage() {
           <NoteTitle title={note.title} sourceUrl={sourceUrl} />
           <NoteMetadata note={note} />
           <NoteActions noteId={note.id} onArchive={archive} onDelete={deleteNote} onCopyLink={copyLink} />
-          <DistillationBar status={note.distillation_status} noteId={note.id} />
+
+          <AnnotationField
+            noteId={note.id}
+            distillation={note.distillation}
+            distillationStatus={note.distillation_status}
+            onSaved={(text, status) => updateNote({ distillation: text, distillation_status: status })}
+          />
 
           <div className="space-y-6 pt-2">
-            {/* Distilled note layout */}
-            {hasDistillation && (
-              <ContentSection title="Distillation" collapsible={false}>
-                <DistillationContent text={note.distillation!} />
-              </ContentSection>
-            )}
-
             {hasKeyPoints && (
               <ContentSection title="Key Points">
                 <KeyPointsList points={note.key_points} />

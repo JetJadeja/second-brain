@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Clock, FolderOpen } from 'lucide-react'
 import { TelegramOnboardingModal } from '@/features/telegram'
 import { useDashboard } from '@/features/dashboard/hooks/useDashboard'
@@ -16,6 +17,7 @@ const SUGGESTION_CHIPS = ['Recent captures', 'Unclassified notes', 'Knowledge ga
 type MoveTarget = { noteIds: string[]; label: string }
 
 export function DashboardPage() {
+  const navigate = useNavigate()
   const { data, isLoading, error, classifyNote, skipNote } = useDashboard()
   const [moveTarget, setMoveTarget] = useState<MoveTarget | null>(null)
 
@@ -55,6 +57,18 @@ export function DashboardPage() {
               <DashboardSearchBar />
               <DashboardSuggestionChips chips={SUGGESTION_CHIPS} />
             </div>
+
+            {data.unannotated_count > 0 && (
+              <button
+                type="button"
+                onClick={() => navigate('/review')}
+                className="flex w-full items-center gap-2 rounded-lg border border-surface-200 bg-surface-50 px-4 py-2.5 text-left text-body-sm text-surface-500 transition-colors hover:border-ember-200 hover:bg-ember-900/[0.04]"
+              >
+                <span className="text-ember-500">✦</span>
+                {data.unannotated_count} {data.unannotated_count === 1 ? 'note needs' : 'notes need'} your annotation
+                <span className="ml-auto text-surface-300">Review →</span>
+              </button>
+            )}
 
             {/* Activity feed zone */}
             <div>

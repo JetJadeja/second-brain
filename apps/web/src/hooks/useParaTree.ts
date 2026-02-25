@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
+import { supabase } from '@/lib/supabase'
+import { useAuthStore } from '@/stores/auth.store'
 import { getParaTree } from '@/features/bucket/services/bucket.service'
 import type { BucketTreeItem } from '@/components/layout/types'
 import type { ParaType } from '@/types/enums'
@@ -30,6 +32,7 @@ function mapNode(node: ApiNode): BucketTreeItem {
 export function useParaTree() {
   const [buckets, setBuckets] = useState<BucketTreeItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const userId = useAuthStore((s) => s.user?.id)
 
   const fetch = useCallback(() => {
     getParaTree()
@@ -47,6 +50,17 @@ export function useParaTree() {
   }, [])
 
   useEffect(() => { fetch() }, [fetch])
+
+  useEffect(() => {
+    if (!userId) return
+    const channel = supabase.channel('sidebar-para-tree')
+      .on('postgres_changes', {
+        event: '*', schema: 'public', table: 'para_buckets',
+        filter: `user_id=eq.${userId}`,
+      }, fetch)
+      .subscribe()
+    return () => { supabase.removeChannel(channel) }
+  }, [userId, fetch])
 
   return { buckets, isLoading, refetch: fetch }
 }

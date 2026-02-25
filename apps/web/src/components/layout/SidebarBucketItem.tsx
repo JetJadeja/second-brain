@@ -30,7 +30,7 @@ export function SidebarBucketItem({
     <Link
       to={href}
       className={cn(
-        'group relative flex items-center gap-2 rounded-sm h-9 transition-colors duration-[120ms] ease-out',
+        'group relative flex items-center gap-2 rounded-sm h-9 min-w-0 overflow-hidden transition-colors duration-[120ms] ease-out',
         'focus-ring',
         isActive
           ? 'bg-surface-150 text-surface-700'
@@ -63,7 +63,7 @@ export function SidebarBucketItem({
 
       {!collapsed && (
         <>
-          <span className="flex-1 font-body truncate">{bucket.name}</span>
+          <span className="min-w-0 flex-1 font-body truncate">{bucket.name}</span>
           {bucket.noteCount > 0 && (
             <span className="shrink-0 font-mono text-[12px] text-surface-300">{bucket.noteCount}</span>
           )}

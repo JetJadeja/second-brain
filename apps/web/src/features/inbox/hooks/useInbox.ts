@@ -47,6 +47,7 @@ export function useInbox() {
     if (!userId) return
     const channel = supabase.channel('inbox-realtime')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notes', filter: `user_id=eq.${userId}` }, fetchInbox)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'notes', filter: `user_id=eq.${userId}` }, fetchInbox)
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'suggestions', filter: `user_id=eq.${userId}` }, fetchInbox)
       .subscribe()
     return () => { supabase.removeChannel(channel) }

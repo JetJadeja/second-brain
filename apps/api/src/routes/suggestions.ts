@@ -36,9 +36,9 @@ suggestionsRouter.post('/:id/accept', async (req, res) => {
   }
 
   try {
-    await executeSuggestion(userId, suggestion)
+    const affectedNoteIds = await executeSuggestion(userId, suggestion)
     await updateSuggestionStatus(userId, suggestionId, 'accepted')
-    res.json({ success: true })
+    res.json({ success: true, affected_note_ids: affectedNoteIds })
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : String(error)
     console.error(`[suggestions/accept] id=${suggestionId}:`, msg)

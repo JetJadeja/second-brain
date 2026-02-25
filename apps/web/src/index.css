@@ -364,6 +364,44 @@
 }
 
 /* ============================================
+   Telegram Onboarding Animations
+   ============================================ */
+
+@keyframes char-stagger {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes waiting-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+@keyframes celebration-glow {
+  0% { opacity: 0.08; }
+  50% { opacity: 0.2; }
+  100% { opacity: 0; }
+}
+
+@keyframes copy-bounce {
+  0% { transform: scale(0.8); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-\[char-stagger_150ms_ease-out_both\] { animation: none; opacity: 1; }
+  .animate-\[waiting-pulse_1\.5s_ease-in-out_infinite\] { animation: none; opacity: 1; }
+  .animate-\[celebration-glow_400ms_ease-out\] { animation: none; }
+}
+
+/* ============================================
    Focus Ring Utility
    ============================================ */
 

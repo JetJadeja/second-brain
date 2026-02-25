@@ -1,6 +1,5 @@
+import { extractUrlsFromText } from '@second-brain/shared'
 import type { BotContext } from '../context.js'
-
-const URL_REGEX = /https?:\/\/[^\s]+/
 
 const ACK_MESSAGES = ['on it', 'got it', 'looking into this', 'one sec']
 
@@ -14,7 +13,7 @@ export function needsAsyncProcessing(ctx: BotContext): boolean {
   if (msg.video) return true
 
   const text = msg.text ?? msg.caption ?? ''
-  if (URL_REGEX.test(text)) return true
+  if (extractUrlsFromText(text).length > 0) return true
 
   return false
 }

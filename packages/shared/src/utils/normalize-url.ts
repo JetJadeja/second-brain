@@ -49,3 +49,7 @@ export function extractUrlsFromText(text: string): string[] {
 
   return matches.map(normalizeUrl)
 }
+
+export function stripUrlsFromText(text: string): string {
+  return text.replace(URL_REGEX, '').trim()
+}

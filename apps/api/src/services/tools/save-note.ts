@@ -1,11 +1,10 @@
 import type { ExtractedContent } from '@second-brain/shared'
+import { extractUrlsFromText, stripUrlsFromText } from '@second-brain/shared'
 import { processNote } from '../processors/process-note.js'
 import { getBucketPath } from '../para/para-cache.js'
 import { runExtractionAgent } from '../extractors/run-extraction-agent.js'
 import { extractThought } from '../extractors/extract-thought.js'
 import { fallbackExtract } from '../extractors/fallback-extract.js'
-
-const URL_REGEX = /https?:\/\/[^\s]+/
 
 export interface SaveNoteResult {
   noteId: string
@@ -64,14 +63,14 @@ interface ExtractionResult {
 }
 
 async function extractContent(content: string): Promise<ExtractionResult> {
-  const urlMatch = content.match(URL_REGEX)
+  const urls = extractUrlsFromText(content)
 
-  if (!urlMatch) {
+  if (urls.length === 0) {
     return { extracted: extractThought(content), userNote: null, summary: null }
   }
 
-  const url = urlMatch[0]!
-  const userNote = content.replace(URL_REGEX, '').trim() || null
+  const url = urls[0]!
+  const userNote = stripUrlsFromText(content) || null
 
   try {
     const agentResult = await runExtractionAgent(url)

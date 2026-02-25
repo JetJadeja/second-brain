@@ -1,5 +1,5 @@
 import type { NoteSource } from '@second-brain/shared'
-import { normalizeUrl } from '@second-brain/shared'
+import { extractUrlsFromText, stripUrlsFromText } from '@second-brain/shared'
 import type { BotContext } from '../context.js'
 
 export interface DetectedMessage {
@@ -15,8 +15,6 @@ export interface DetectedMessage {
 }
 
 export type DetectionResult = DetectedMessage | DetectedMessage[]
-
-const URL_REGEX = /https?:\/\/[^\s]+/g
 
 export function detectMessageType(ctx: BotContext): DetectionResult {
   const msg = ctx.message
@@ -67,13 +65,13 @@ export function detectMessageType(ctx: BotContext): DetectionResult {
 
   // 2. Check text for URLs
   const text = msg?.text ?? msg?.caption ?? ''
-  const urls = text.match(URL_REGEX)
+  const urls = extractUrlsFromText(text)
 
-  if (urls && urls.length > 0) {
-    const userNote = text.replace(URL_REGEX, '').trim() || null
+  if (urls.length > 0) {
+    const userNote = stripUrlsFromText(text) || null
     const messages = urls.map((url): DetectedMessage => ({
       sourceType: 'article',
-      url: normalizeUrl(url),
+      url,
       userNote,
       attachment: null,
     }))

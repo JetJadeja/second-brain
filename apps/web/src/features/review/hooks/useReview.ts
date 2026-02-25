@@ -1,18 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useToastStore } from '@/stores/toast.store'
 import { reviewService } from '../services/review.service'
+import { ALL_SECTIONS, loadLastReviewed, saveLastReviewed, computeInitialCompletion } from '../lib/review-helpers'
 import type { ReviewData, ReviewSection, ProjectItem } from '../types/review.types'
-
-const STORAGE_KEY = 'second-brain-last-reviewed'
-const ALL_SECTIONS: ReviewSection[] = ['inbox', 'projects', 'areas', 'connections', 'orphans', 'distillation']
-
-function loadLastReviewed(): string | null {
-  return localStorage.getItem(STORAGE_KEY)
-}
-
-function saveLastReviewed(): void {
-  localStorage.setItem(STORAGE_KEY, new Date().toISOString())
-}
 
 export function useReview() {
   const toast = useToastStore((s) => s.toast)
@@ -32,10 +22,8 @@ export function useReview() {
       if (cancelled) return
       setData(result)
       setIsLoading(false)
-      if (result.inbox_count === 0) setCompletion((c) => ({ ...c, inbox: true }))
-      if (result.connections.length === 0) setCompletion((c) => ({ ...c, connections: true }))
-      if (result.orphans.length === 0) setCompletion((c) => ({ ...c, orphans: true }))
-      if (result.nudges.length === 0) setCompletion((c) => ({ ...c, distillation: true }))
+      const initial = computeInitialCompletion(result)
+      setCompletion((c) => ({ ...c, ...initial }))
     })
     return () => { cancelled = true }
   }, [])

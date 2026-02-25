@@ -36,6 +36,14 @@ export function deleteBucket(bucketId: string): Promise<void> {
   return apiClient.delete(`/para/buckets/${bucketId}`)
 }
 
+export function archiveBucket(bucketId: string): Promise<void> {
+  return apiClient.patch(`/para/buckets/${bucketId}`, { type: 'archive' })
+}
+
+export function restoreBucket(bucketId: string): Promise<void> {
+  return apiClient.patch(`/para/buckets/${bucketId}`, { type: 'project' })
+}
+
 export function getParaTree(): Promise<{ tree: ParaTreeNode[] }> {
   return apiClient.get<{ tree: ParaTreeNode[] }>('/para/tree')
 }

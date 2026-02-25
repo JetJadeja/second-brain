@@ -1,5 +1,5 @@
-import { createHash } from 'crypto'
 import { getServiceClient } from '../client.js'
+import { computeContentHash } from '@second-brain/shared'
 import type { Note } from '@second-brain/shared'
 
 export async function findExistingNoteByUrl(
@@ -38,13 +38,9 @@ export async function findExistingNoteByContentHash(
   if (error || !data) return null
 
   for (const note of data) {
-    const hash = hashContent(note.original_content ?? '')
+    const hash = computeContentHash(note.original_content ?? '')
     if (hash === contentHash) return note as Note
   }
 
   return null
-}
-
-function hashContent(content: string): string {
-  return createHash('sha256').update(content.slice(0, 500)).digest('hex')
 }

@@ -59,6 +59,9 @@ export async function runAgent(
       if (name === 'move_note' && savedNoteIds.has(String(input['note_id'] ?? ''))) {
         return JSON.stringify({ error: 'New notes go to inbox for user review. Cannot move a note that was just saved.' })
       }
+      if (name === 'create_bucket' && savedNoteIds.size > 0) {
+        return JSON.stringify({ error: 'Cannot create folders while processing content. The note has been saved to inbox.' })
+      }
       const output = await executeTool(name, input, { userId, preExtracted: options?.preExtracted })
       if (name === 'save_note') {
         try {

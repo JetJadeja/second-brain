@@ -64,3 +64,20 @@ export type PaletteCommand = {
   description: string
   shortcut?: string
 }
+
+export type CommandPaletteSearchState = {
+  query: string
+  mode: SearchMode
+  filters: SearchFilters
+  results: SearchResult[]
+  totalFound: number
+  askResponse: AskResponse | null
+  isSearching: boolean
+  error: string | null
+  setQuery: (q: string) => void
+  setMode: (m: SearchMode) => void
+  setFilter: <K extends keyof SearchFilters>(key: K, value: SearchFilters[K]) => void
+  clearFilters: () => void
+  loadMore: () => void
+  reset: () => void
+}

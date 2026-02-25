@@ -1,9 +1,8 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { commandPaletteService } from '../services/command-palette.service'
-import type { SearchMode, SearchFilters, SearchResult, AskResponse } from '../types/command-palette.types'
+import type { SearchMode, SearchFilters, SearchResult, AskResponse, CommandPaletteSearchState } from '../types/command-palette.types'
 
 const DEBOUNCE_MS = 150
-
 const QUESTION_PREFIXES = ['what ', 'how ', 'why ', 'when ', 'who ', 'where ', 'summarize ', 'explain ']
 
 function detectMode(query: string): SearchMode {
@@ -11,23 +10,6 @@ function detectMode(query: string): SearchMode {
   if (QUESTION_PREFIXES.some((p) => lower.startsWith(p))) return 'ask'
   if (lower.endsWith('?')) return 'ask'
   return 'notes'
-}
-
-export type CommandPaletteSearchState = {
-  query: string
-  mode: SearchMode
-  filters: SearchFilters
-  results: SearchResult[]
-  totalFound: number
-  askResponse: AskResponse | null
-  isSearching: boolean
-  error: string | null
-  setQuery: (q: string) => void
-  setMode: (m: SearchMode) => void
-  setFilter: <K extends keyof SearchFilters>(key: K, value: SearchFilters[K]) => void
-  clearFilters: () => void
-  loadMore: () => void
-  reset: () => void
 }
 
 export function useCommandPaletteSearch(scopedBucketId?: string | null): CommandPaletteSearchState {
@@ -48,14 +30,11 @@ export function useCommandPaletteSearch(scopedBucketId?: string | null): Command
     async (q: string, m: SearchMode, f: SearchFilters, append: boolean) => {
       const trimmed = q.trim()
       if (!trimmed) return
-
       setIsSearching(true)
       setError(null)
-
       try {
         if (m === 'notes') {
-          const limit = 20
-          const res = await commandPaletteService.searchNotes(trimmed, f, append ? limit : limit)
+          const res = await commandPaletteService.searchNotes(trimmed, f, 20)
           setResults((prev) => (append ? [...prev, ...res.results] : res.results))
           setTotalFound(res.total_found)
         } else {
@@ -79,15 +58,9 @@ export function useCommandPaletteSearch(scopedBucketId?: string | null): Command
       pageRef.current = 1
       setResults([])
       setAskResponse(null)
-
       if (timerRef.current) clearTimeout(timerRef.current)
-      if (!q.trim()) {
-        setIsSearching(false)
-        return
-      }
-      timerRef.current = setTimeout(() => {
-        executeSearch(q, detected, filters, false)
-      }, DEBOUNCE_MS)
+      if (!q.trim()) { setIsSearching(false); return }
+      timerRef.current = setTimeout(() => executeSearch(q, detected, filters, false), DEBOUNCE_MS)
     },
     [filters, executeSearch],
   )
@@ -98,9 +71,7 @@ export function useCommandPaletteSearch(scopedBucketId?: string | null): Command
       setResults([])
       setAskResponse(null)
       pageRef.current = 1
-      if (query.trim()) {
-        executeSearch(query, m, filters, false)
-      }
+      if (query.trim()) executeSearch(query, m, filters, false)
     },
     [query, filters, executeSearch],
   )
@@ -141,11 +112,7 @@ export function useCommandPaletteSearch(scopedBucketId?: string | null): Command
     pageRef.current = 1
   }, [scopedBucketId])
 
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current)
-    }
-  }, [])
+  useEffect(() => () => { if (timerRef.current) clearTimeout(timerRef.current) }, [])
 
   return {
     query, mode, filters, results, totalFound, askResponse,

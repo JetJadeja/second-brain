@@ -33,6 +33,7 @@ export type DashboardData = {
   inbox: { count: number; recent: DashboardInboxItem[] }
   recent_and_relevant: DashboardContentItem[]
   areas: DashboardArea[]
+  unannotated_count: number
 }
 
 export type FeedItem =

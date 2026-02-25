@@ -17,6 +17,18 @@ export async function countNotesByBucket(
   return counts
 }
 
+export async function countUnannotatedNotes(userId: string): Promise<number> {
+  const { count, error } = await getServiceClient()
+    .from('notes')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', userId)
+    .eq('distillation_status', 'raw')
+    .not('bucket_id', 'is', null)
+
+  if (error) throw new Error(`countUnannotatedNotes: ${error.message}`)
+  return count ?? 0
+}
+
 export async function getSampleNoteTitles(
   userId: string,
   perBucket: number = 3,

@@ -7,6 +7,7 @@ export interface DashboardResponse {
   }
   recent_and_relevant: DashboardNote[]
   areas: DashboardArea[]
+  unannotated_count: number
 }
 
 export interface DashboardInboxItem {

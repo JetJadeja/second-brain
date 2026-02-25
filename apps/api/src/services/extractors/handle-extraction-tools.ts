@@ -1,4 +1,5 @@
 import type { ExtractedContent, ImageSource } from '@second-brain/shared'
+import { extractUrlsFromText } from '@second-brain/shared'
 import { extractArticle } from './extract-article.js'
 import { extractTweet } from './extract-tweet.js'
 import { extractYoutube } from './extract-youtube.js'
@@ -46,8 +47,37 @@ async function handleFetchUrl(url: string): Promise<ExtractionToolResult> {
 async function handleFetchTweet(url: string): Promise<ExtractionToolResult> {
   const result = await extractTweet(url)
   const { content } = result
-  const text = formatForLlm(content, result.warning)
+  let text = formatForLlm(content, result.warning)
+
+  const embeddedUrls = findEmbeddedUrls(content.content, url)
+  if (embeddedUrls.length > 0) {
+    text += '\n\nEmbedded URLs found in tweet:\n' + embeddedUrls.map((u) => `- ${u}`).join('\n')
+  }
+
   return { text, extracted: content, warning: result.warning }
+}
+
+const TWITTER_MEDIA_HOSTS = new Set(['pic.twitter.com', 'pbs.twimg.com', 't.co'])
+
+function findEmbeddedUrls(tweetText: string, originalUrl: string): string[] {
+  const urls = extractUrlsFromText(tweetText)
+  const originalHost = safeHostname(originalUrl)
+
+  return urls.filter((u) => {
+    const host = safeHostname(u)
+    if (!host) return false
+    if (TWITTER_MEDIA_HOSTS.has(host)) return false
+    if (host === originalHost) return false
+    return true
+  })
+}
+
+function safeHostname(url: string): string | null {
+  try {
+    return new URL(url).hostname.replace(/^www\./, '')
+  } catch {
+    return null
+  }
 }
 
 async function handleFetchVideo(url: string): Promise<ExtractionToolResult> {

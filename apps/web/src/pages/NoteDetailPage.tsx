@@ -45,7 +45,7 @@ export function NoteDetailPage() {
         <div className="mx-auto max-w-[720px] space-y-4">
           <NoteTitle title={note.title} sourceUrl={sourceUrl} />
           <NoteMetadata note={note} />
-          <NoteActions noteId={note.id} onArchive={archive} onDelete={deleteNote} onCopyLink={copyLink} />
+          <NoteActions onArchive={archive} onDelete={deleteNote} onCopyLink={copyLink} />
 
           <AnnotationField
             noteId={note.id}

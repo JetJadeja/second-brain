@@ -106,6 +106,7 @@ export function InboxPage() {
               onClassify={() => {
                 if (item.ai_suggested_bucket) inbox.classifyNote(item.id, item.ai_suggested_bucket)
               }}
+              onSkip={() => inbox.archiveNote(item.id)}
             />
           ) : (
             <InboxSuggestionRow

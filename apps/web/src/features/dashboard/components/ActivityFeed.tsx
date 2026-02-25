@@ -8,9 +8,10 @@ type ActivityFeedProps = {
   inboxItems: DashboardInboxItem[]
   recentItems: DashboardContentItem[]
   onClassify: (noteId: string, bucketId: string) => void
+  onSkip: (noteId: string) => void
 }
 
-export function ActivityFeed({ inboxItems, recentItems, onClassify }: ActivityFeedProps) {
+export function ActivityFeed({ inboxItems, recentItems, onClassify, onSkip }: ActivityFeedProps) {
   const feedItems = useMemo<FeedItem[]>(() => {
     const captures: FeedItem[] = inboxItems.map((item) => ({ type: 'capture', item }))
     const recents: FeedItem[] = recentItems.map((item) => ({ type: 'recent', item }))
@@ -32,6 +33,7 @@ export function ActivityFeed({ inboxItems, recentItems, onClassify }: ActivityFe
               key={key}
               item={feedItem}
               onClassify={feedItem.type === 'capture' ? onClassify : undefined}
+              onSkip={feedItem.type === 'capture' ? onSkip : undefined}
             />
           )
         })}

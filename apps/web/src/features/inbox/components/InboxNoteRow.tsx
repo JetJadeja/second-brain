@@ -1,4 +1,4 @@
-import { Check } from 'lucide-react'
+import { Check, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { SourceIcon } from '@/components/shared/SourceIcon'
 import { formatRelativeTime } from '@/lib/format-relative-time'
@@ -14,10 +14,11 @@ type InboxNoteRowProps = {
   onToggleSelect: () => void
   onToggleExpand: () => void
   onClassify: () => void
+  onSkip: () => void
 }
 
 export function InboxNoteRow({
-  item, selected, focused, expanded, onToggleSelect, onToggleExpand, onClassify,
+  item, selected, focused, expanded, onToggleSelect, onToggleExpand, onClassify, onSkip,
 }: InboxNoteRowProps) {
   const canConfirm = item.ai_suggested_bucket !== null
 
@@ -79,8 +80,17 @@ export function InboxNoteRow({
           {formatRelativeTime(item.captured_at)}
         </div>
 
-        {/* Confirm action */}
-        <div className="flex w-20 shrink-0 items-center justify-center">
+        {/* Actions */}
+        <div className="flex w-24 shrink-0 items-center justify-center gap-1.5">
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); onSkip() }}
+            className="flex size-7 items-center justify-center rounded-full border border-surface-200 transition-colors hover:bg-surface-200"
+            aria-label="Skip"
+            title="Skip"
+          >
+            <X size={14} className="text-surface-400" />
+          </button>
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); if (canConfirm) onClassify() }}
@@ -89,7 +99,8 @@ export function InboxNoteRow({
               'flex size-7 items-center justify-center rounded-full border border-surface-200 transition-colors',
               canConfirm ? 'hover:border-ember-500 hover:bg-ember-500 hover:text-white' : 'opacity-30',
             )}
-            aria-label="Confirm classification"
+            aria-label="Accept suggestion"
+            title={item.ai_suggested_bucket_path ? `File to ${item.ai_suggested_bucket_path}` : 'Accept'}
           >
             <Check size={14} className={canConfirm ? 'text-surface-300' : 'text-surface-300'} />
           </button>

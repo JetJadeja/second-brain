@@ -7,6 +7,7 @@ export type DashboardInboxItem = {
   captured_at: string
   ai_summary: string | null
   ai_suggested_bucket: string | null
+  ai_suggested_bucket_path: string | null
 }
 
 export type DashboardContentItem = {

@@ -8,3 +8,7 @@ export function getDashboard(): Promise<DashboardData> {
 export function classifyNote(noteId: string, bucketId: string): Promise<void> {
   return apiClient.post(`/inbox/${noteId}/classify`, { bucket_id: bucketId })
 }
+
+export function archiveNote(noteId: string): Promise<void> {
+  return apiClient.post(`/inbox/${noteId}/archive`)
+}

@@ -12,7 +12,7 @@ import { DashboardSkeleton } from '@/features/dashboard/components/DashboardSkel
 const SUGGESTION_CHIPS = ['Recent captures', 'Unclassified notes', 'Knowledge gaps']
 
 export function DashboardPage() {
-  const { data, isLoading, error, classifyNote } = useDashboard()
+  const { data, isLoading, error, classifyNote, skipNote } = useDashboard()
 
   const isEmpty = data && data.inbox.count === 0 && data.recent_and_relevant.length === 0
   const hasActivity = data && (data.inbox.recent.length > 0 || data.recent_and_relevant.length > 0)
@@ -45,6 +45,7 @@ export function DashboardPage() {
                   inboxItems={data.inbox.recent}
                   recentItems={data.recent_and_relevant}
                   onClassify={classifyNote}
+                  onSkip={skipNote}
                 />
               )}
             </div>

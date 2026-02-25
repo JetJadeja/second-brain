@@ -10,6 +10,7 @@ type UseDashboardReturn = {
   isLoading: boolean
   error: string | null
   classifyNote: (noteId: string, bucketId: string) => Promise<void>
+  skipNote: (noteId: string) => Promise<void>
 }
 
 export function useDashboard(): UseDashboardReturn {
@@ -54,23 +55,37 @@ export function useDashboard(): UseDashboardReturn {
   }, [userId])
 
   const classifyNote = useCallback(async (noteId: string, bucketId: string) => {
+    removeInboxItem(noteId)
     try {
       await dashboardService.classifyNote(noteId, bucketId)
-      setData((prev) => {
-        if (!prev) return prev
-        return {
-          ...prev,
-          inbox: {
-            count: Math.max(0, prev.inbox.count - 1),
-            recent: prev.inbox.recent.filter((item) => item.id !== noteId),
-          },
-        }
-      })
       toast({ type: 'success', message: 'Note classified' })
     } catch {
       toast({ type: 'error', message: 'Failed to classify note' })
     }
-  }, [toast])
+  }, [removeInboxItem, toast])
 
-  return { data, isLoading, error, classifyNote }
+  const removeInboxItem = useCallback((noteId: string) => {
+    setData((prev) => {
+      if (!prev) return prev
+      return {
+        ...prev,
+        inbox: {
+          count: Math.max(0, prev.inbox.count - 1),
+          recent: prev.inbox.recent.filter((item) => item.id !== noteId),
+        },
+      }
+    })
+  }, [])
+
+  const skipNote = useCallback(async (noteId: string) => {
+    removeInboxItem(noteId)
+    try {
+      await dashboardService.archiveNote(noteId)
+      toast({ type: 'success', message: 'Note skipped' })
+    } catch {
+      toast({ type: 'error', message: 'Failed to skip note' })
+    }
+  }, [removeInboxItem, toast])
+
+  return { data, isLoading, error, classifyNote, skipNote }
 }

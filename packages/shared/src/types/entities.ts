@@ -14,6 +14,8 @@ export interface ParaBucket {
   type: ParaType
   parent_id: string | null
   description: string | null
+  overview: string | null
+  notes_at_last_overview: number
   is_active: boolean
   sort_order: number
   created_at: string

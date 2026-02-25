@@ -1,6 +1,6 @@
 import { getAllBuckets, updateBucket } from '@second-brain/db'
 import type { ParaBucket } from '@second-brain/shared'
-import { getBucketPath } from '../../handlers/resolve-bucket-path.js'
+import { getBucketPath } from '../para/para-cache.js'
 
 export interface RenameBucketResult {
   oldName: string

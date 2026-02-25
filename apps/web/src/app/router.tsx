@@ -3,6 +3,7 @@ import { AppLayout } from '@/components/layout/AppLayout'
 import { AuthGuard } from '@/features/auth'
 import { LandingPage } from '@/pages/LandingPage'
 import { AuthPage } from '@/pages/AuthPage'
+import { DashboardPage } from '@/pages/DashboardPage'
 import { PlaceholderPage } from '@/pages/PlaceholderPage'
 
 export function AppRouter() {
@@ -15,7 +16,7 @@ export function AppRouter() {
       {/* Authenticated routes (with sidebar layout) */}
       <Route element={<AuthGuard />}>
         <Route element={<AppLayout />}>
-          <Route path="/home" element={<PlaceholderPage title="Dashboard" />} />
+          <Route path="/home" element={<DashboardPage />} />
           <Route path="/inbox" element={<PlaceholderPage title="Inbox" />} />
           <Route path="/buckets/:bucketId" element={<PlaceholderPage title="Bucket" />} />
           <Route path="/notes/:noteId" element={<PlaceholderPage title="Note Detail" />} />

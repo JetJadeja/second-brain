@@ -1,4 +1,5 @@
 import type { NoteSource } from '@second-brain/shared'
+import { normalizeUrl } from '@second-brain/shared'
 import type { BotContext } from '../context.js'
 
 export interface DetectedMessage {
@@ -13,9 +14,11 @@ export interface DetectedMessage {
   } | null
 }
 
+export type DetectionResult = DetectedMessage | DetectedMessage[]
+
 const URL_REGEX = /https?:\/\/[^\s]+/g
 
-export function detectMessageType(ctx: BotContext): DetectedMessage {
+export function detectMessageType(ctx: BotContext): DetectionResult {
   const msg = ctx.message
 
   // 1. Check attachments (priority order)
@@ -67,14 +70,14 @@ export function detectMessageType(ctx: BotContext): DetectedMessage {
   const urls = text.match(URL_REGEX)
 
   if (urls && urls.length > 0) {
-    const url = urls[0]!
     const userNote = text.replace(URL_REGEX, '').trim() || null
-    return {
-      sourceType: 'article', // extraction agent determines real type on the API side
-      url,
+    const messages = urls.map((url): DetectedMessage => ({
+      sourceType: 'article',
+      url: normalizeUrl(url),
       userNote,
       attachment: null,
-    }
+    }))
+    return messages.length === 1 ? messages[0]! : messages
   }
 
   // 3. Plain text — original thought

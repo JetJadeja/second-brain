@@ -7,33 +7,13 @@ export interface BucketFields {
   is_classified: boolean
 }
 
+// Agent owns ai_suggested_bucket via save_note's suggested_bucket param.
+// Classifier still provides confidence metadata but no longer sets the suggestion.
 export function resolveBucketFields(classification: ClassifyResult | null): BucketFields {
-  if (!classification || !classification.bucket_id) {
-    return {
-      bucket_id: null,
-      ai_suggested_bucket: null,
-      ai_confidence: classification?.confidence ?? null,
-      is_classified: false,
-    }
-  }
-
-  const { bucket_id, confidence } = classification
-
-  // Low confidence — don't suggest
-  if (confidence < 0.4) {
-    return {
-      bucket_id: null,
-      ai_suggested_bucket: null,
-      ai_confidence: confidence,
-      is_classified: false,
-    }
-  }
-
-  // Medium/high confidence — suggest but never auto-assign
   return {
     bucket_id: null,
-    ai_suggested_bucket: bucket_id,
-    ai_confidence: confidence,
+    ai_suggested_bucket: null,
+    ai_confidence: classification?.confidence ?? null,
     is_classified: false,
   }
 }

@@ -7,7 +7,6 @@ import { DashboardPage } from '@/pages/DashboardPage'
 import { InboxPage } from '@/pages/InboxPage'
 import { BucketPage } from '@/pages/BucketPage'
 import { NoteDetailPage } from '@/pages/NoteDetailPage'
-import { DistillationPage } from '@/pages/DistillationPage'
 import { GraphPage } from '@/pages/GraphPage'
 import { ReviewPage } from '@/pages/ReviewPage'
 import { SettingsPage } from '@/pages/SettingsPage'
@@ -26,7 +25,6 @@ export function AppRouter() {
           <Route path="/inbox" element={<InboxPage />} />
           <Route path="/buckets/:bucketId" element={<BucketPage />} />
           <Route path="/notes/:noteId" element={<NoteDetailPage />} />
-          <Route path="/notes/:noteId/distill" element={<DistillationPage />} />
           <Route path="/graph" element={<GraphPage />} />
           <Route path="/review" element={<ReviewPage />} />
           <Route path="/settings" element={<SettingsPage />} />

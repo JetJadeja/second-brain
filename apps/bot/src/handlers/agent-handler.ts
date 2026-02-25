@@ -3,6 +3,7 @@ import type { ChatResponse } from '@second-brain/shared'
 import { sendChatMessage } from '../api-client.js'
 import { buildChatRequest } from '../telegram/build-chat-request.js'
 import { detectMessageType, type DetectedMessage } from '../telegram/detect-message-type.js'
+import { formatMultiLinkResults } from '../telegram/format-multi-link-result.js'
 import { storeReceipt } from './receipt-store.js'
 import { needsAsyncProcessing, getAckMessage } from './needs-async.js'
 import { processInBackground } from './process-in-background.js'
@@ -83,13 +84,4 @@ async function handleMultiLink(
 
   const confirmation = formatMultiLinkResults(results)
   await ctx.api.sendMessage(chatId, confirmation)
-}
-
-function formatMultiLinkResults(results: MultiLinkResult[]): string {
-  const lines = results.map((r) => {
-    if (r.error) return `→ ${r.url} — couldn't process`
-    return `→ ${r.response?.text ?? 'captured'}`
-  })
-
-  return `captured ${results.filter((r) => !r.error).length} links:\n${lines.join('\n')}`
 }

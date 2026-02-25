@@ -333,6 +333,37 @@
 }
 
 /* ============================================
+   Landing & Auth Animations
+   ============================================ */
+
+@keyframes cta-glow {
+  0%, 100% { box-shadow: 0 0 24px rgba(238, 69, 64, 0.1); }
+  50% { box-shadow: 0 0 24px rgba(238, 69, 64, 0.2); }
+}
+
+@keyframes input-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  50% { transform: translateX(4px); }
+  75% { transform: translateX(-4px); }
+}
+
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-\[cta-glow_3s_linear_infinite\] { animation: none; }
+  .animate-\[input-shake_300ms_ease-out\] { animation: none; }
+}
+
+/* ============================================
    Focus Ring Utility
    ============================================ */
 

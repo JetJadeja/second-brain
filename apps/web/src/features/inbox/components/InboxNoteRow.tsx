@@ -71,7 +71,7 @@ export function InboxNoteRow({
 
         {/* Suggested bucket */}
         <div className="flex w-40 shrink-0 items-center px-2">
-          <SuggestedBucketChip bucketName={item.ai_suggested_bucket} confidence={item.ai_confidence} />
+          <SuggestedBucketChip bucketName={item.ai_suggested_bucket_path} confidence={item.ai_confidence} />
         </div>
 
         {/* Date */}

@@ -30,10 +30,10 @@ export function DistillationSection({ nudges }: DistillationSectionProps) {
           </div>
           <button
             type="button"
-            onClick={() => navigate(`/notes/${nudge.id}/distill`)}
+            onClick={() => navigate(`/notes/${nudge.id}`)}
             className="shrink-0 rounded-md px-3 py-1 text-xs font-medium text-[var(--ember-500)] hover:bg-[var(--ember-500)]/10 transition-colors"
           >
-            Distill now
+            Annotate
           </button>
         </div>
       ))}

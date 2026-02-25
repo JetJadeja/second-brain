@@ -234,3 +234,14 @@
   letter-spacing: 0;
   line-height: 1.7;
 }
+
+/* ============================================
+   Theme Transition
+   Applied to <html> during theme switches for smooth crossfade.
+   Removed after 300ms to avoid performance overhead.
+   ============================================ */
+
+.theme-transitioning,
+.theme-transitioning * {
+  transition: background-color 300ms ease, color 300ms ease, border-color 300ms ease !important;
+}

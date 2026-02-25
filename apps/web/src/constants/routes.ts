@@ -1,11 +1,19 @@
 export const ROUTES = {
-  HOME: '/',
+  LANDING: '/',
+  LOGIN: '/login',
+  HOME: '/home',
   INBOX: '/inbox',
-  BUCKETS: '/buckets/:bucketId',
+  BUCKET: '/buckets/:bucketId',
   NOTE: '/notes/:noteId',
   GRAPH: '/graph',
   REVIEW: '/review',
   SETTINGS: '/settings',
-  AUTH: '/auth',
-  LANDING: '/landing',
 } as const
+
+export function bucketRoute(bucketId: string): string {
+  return `/buckets/${bucketId}`
+}
+
+export function noteRoute(noteId: string): string {
+  return `/notes/${noteId}`
+}

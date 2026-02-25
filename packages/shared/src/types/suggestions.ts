@@ -27,8 +27,40 @@ export interface CreateSubBucketPayload {
   note_ids: string[]
 }
 
+export interface CreateBucketPayload {
+  note_id: string
+  note_title: string
+  bucket_name: string
+  parent_type: 'project' | 'area' | 'resource'
+}
+
+export interface MergeBucketsPayload {
+  source_bucket_id: string
+  source_name: string
+  target_bucket_id: string
+  target_name: string
+  reason: string
+}
+
+export interface RenameBucketPayload {
+  bucket_id: string
+  old_name: string
+  new_name: string
+  reason: string
+}
+
+export interface DeleteBucketPayload {
+  bucket_id: string
+  bucket_name: string
+  reason: string
+}
+
 export type SuggestionPayload =
   | SplitBucketPayload
   | ReclassifyNotePayload
   | ArchiveProjectPayload
   | CreateSubBucketPayload
+  | CreateBucketPayload
+  | MergeBucketsPayload
+  | RenameBucketPayload
+  | DeleteBucketPayload

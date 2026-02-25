@@ -1,16 +1,15 @@
 import { Router } from 'express'
 import { z } from 'zod'
 import {
-  getInboxNotes,
   classifyNote,
   batchClassify,
   archiveNote,
   deleteNote,
-  findSimilarNotes,
+  getBucketById,
 } from '@second-brain/db'
-import { getBucketById } from '@second-brain/db'
-import { getBucketPath, getAllBuckets } from '../services/para-tree.js'
-import type { InboxResponse, InboxItem } from '@second-brain/shared'
+import { getAllBuckets } from '../services/para/para-cache.js'
+import { buildUnifiedFeed } from '../services/inbox/build-unified-feed.js'
+import type { InboxResponse } from '@second-brain/shared'
 
 export const inboxRouter = Router()
 
@@ -27,44 +26,7 @@ inboxRouter.get('/', async (req, res) => {
   const page = Number(req.query['page']) || 1
   const limit = Number(req.query['limit']) || 20
 
-  const { data: notes, total } = await getInboxNotes(userId, { page, limit })
-
-  const items: InboxItem[] = await Promise.all(
-    notes.map(async (n) => {
-      let relatedNotes: InboxItem['related_notes'] = []
-      if (n.embedding) {
-        try {
-          let emb: number[]
-          if (typeof n.embedding === 'string') {
-            emb = JSON.parse(n.embedding) as number[]
-          } else if (Array.isArray(n.embedding)) {
-            emb = n.embedding as number[]
-          } else {
-            emb = []
-          }
-          if (emb.length > 0) {
-            relatedNotes = (await findSimilarNotes(userId, emb, n.id, 3))
-              .filter((r) => r.similarity > 0.3)
-          }
-        } catch { /* skip related if parsing fails */ }
-      }
-
-      return {
-        id: n.id,
-        title: n.title,
-        original_content: n.original_content,
-        ai_summary: n.ai_summary,
-        source_type: n.source_type,
-        source: n.source,
-        ai_suggested_bucket: n.ai_suggested_bucket,
-        ai_suggested_bucket_path: await getBucketPath(userId, n.ai_suggested_bucket),
-        tags: n.tags,
-        user_note: n.user_note,
-        captured_at: n.captured_at,
-        related_notes: relatedNotes,
-      }
-    }),
-  )
+  const { items, total } = await buildUnifiedFeed(userId, page, limit)
 
   const response: InboxResponse = { items, total, page, limit }
   res.json(response)

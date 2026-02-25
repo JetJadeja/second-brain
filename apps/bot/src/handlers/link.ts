@@ -6,11 +6,46 @@ import {
 } from '@second-brain/db'
 import type { BotContext } from '../context.js'
 import { cacheUserId } from '../middleware/user-cache.js'
-import { startOnboarding } from '../onboarding/start-onboarding.js'
-import { runAgent } from '../agent/run-agent.js'
-import { recordBotResponse } from '../conversation/record-exchange.js'
+import { sendChatMessage } from '../api-client.js'
 
-const WEB_APP_URL = process.env['WEB_APP_URL'] || 'http://localhost:5173'
+class LinkError extends Error {}
+
+async function validateAndLink(
+  telegramId: number,
+  rawCode: string,
+  username?: string,
+): Promise<string> {
+  const existingUserId = await lookupUserByTelegramId(telegramId)
+  if (existingUserId) {
+    throw new LinkError('this account is already connected')
+  }
+
+  const code = rawCode.toUpperCase().replace(/[^A-Z0-9]/g, '')
+  const linkCode = await findLinkCodeByCode(code)
+
+  if (!linkCode) {
+    throw new LinkError(
+      "that code doesn't match — check the code in your settings page and try again",
+    )
+  }
+
+  if (linkCode.used) {
+    throw new LinkError(
+      'that code was already used — generate a new one from settings',
+    )
+  }
+
+  if (new Date(linkCode.expires_at) < new Date()) {
+    throw new LinkError(
+      'that code expired — generate a new one from settings',
+    )
+  }
+
+  await createTelegramLink(linkCode.user_id, telegramId, username)
+  await markLinkCodeUsed(linkCode.id)
+
+  return linkCode.user_id
+}
 
 export async function handleLink(ctx: BotContext): Promise<void> {
   const telegramId = ctx.from?.id
@@ -18,52 +53,42 @@ export async function handleLink(ctx: BotContext): Promise<void> {
 
   const code = (ctx.match as string)?.trim()
   if (!code) {
-    await ctx.reply('Please include your link code. Example: /link A7K2M9')
+    await ctx.reply('send the code after /link, like: /link A7K2M9')
     return
   }
 
-  // Check if already linked
-  const existingUserId = await lookupUserByTelegramId(telegramId)
-  if (existingUserId) {
-    await ctx.reply('This Telegram account is already linked to a Second Brain.')
+  // Phase 1: Validate and create link
+  let userId: string
+  try {
+    userId = await validateAndLink(telegramId, code, ctx.from?.username)
+  } catch (error) {
+    if (error instanceof LinkError) {
+      await ctx.reply(error.message)
+    } else {
+      console.error('[link] unexpected error:', error)
+      await ctx.reply(
+        'something went wrong connecting your account — try again in a moment',
+      )
+    }
     return
   }
 
-  // Look up the code
-  const linkCode = await findLinkCodeByCode(code.toUpperCase())
+  // Phase 2: Confirm to user
+  cacheUserId(telegramId, userId)
+  ctx.userId = userId
+  console.log(`[link] linked telegram=${telegramId} to user=${userId}`)
+  await ctx.reply("linked — let's set up your second brain.")
 
-  if (!linkCode) {
-    await ctx.reply(
-      `Invalid code. Please generate a new one from ${WEB_APP_URL}/settings`,
-    )
-    return
+  // Phase 3: Start onboarding via API — failures are non-fatal
+  try {
+    const response = await sendChatMessage({
+      userId,
+      message: '/start',
+      startOnboarding: true,
+      platform: 'Telegram',
+    })
+    await ctx.reply(response.text)
+  } catch (error) {
+    console.error('[link] onboarding failed after successful link:', error)
   }
-
-  if (linkCode.used) {
-    await ctx.reply(
-      `Invalid code. Please generate a new one from ${WEB_APP_URL}/settings`,
-    )
-    return
-  }
-
-  if (new Date(linkCode.expires_at) < new Date()) {
-    await ctx.reply(
-      `This code has expired. Please generate a new one from ${WEB_APP_URL}/settings`,
-    )
-    return
-  }
-
-  // All valid — create the link
-  const username = ctx.from?.username
-  await createTelegramLink(linkCode.user_id, telegramId, username)
-  await markLinkCodeUsed(linkCode.id)
-  cacheUserId(telegramId, linkCode.user_id)
-  ctx.userId = linkCode.user_id
-
-  await startOnboarding(linkCode.user_id)
-
-  // Let the agent send the first onboarding message
-  const result = await runAgent(ctx)
-  await ctx.reply(result.text)
-  recordBotResponse(linkCode.user_id, result.text)
 }

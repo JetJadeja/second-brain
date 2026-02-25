@@ -10,6 +10,7 @@ interface InboxActionsProps {
   noteId: string
   suggestedBucketId: string | null
   suggestedBucketPath: string | null
+  confidence: number | null
   onActionComplete: () => void
 }
 
@@ -17,12 +18,14 @@ export function InboxActions({
   noteId,
   suggestedBucketId,
   suggestedBucketPath,
+  confidence,
   onActionComplete,
 }: InboxActionsProps) {
   const queryClient = useQueryClient()
   const addToast = useToastStore((s) => s.addToast)
   const [showPicker, setShowPicker] = useState(false)
   const [loading, setLoading] = useState(false)
+  const isLowConfidence = confidence !== null && confidence < 0.7
 
   const invalidateAll = async () => {
     await Promise.all([
@@ -38,9 +41,10 @@ export function InboxActions({
     try {
       await apiPost(`/api/inbox/${noteId}/classify`, { bucket_id: suggestedBucketId })
       await invalidateAll()
+      addToast(`Note classified to ${suggestedBucketPath ?? 'suggested bucket'}`)
       onActionComplete()
     } catch {
-      addToast('Failed to classify note')
+      addToast('Failed to classify note', { label: 'Retry', onClick: handleConfirm })
     } finally {
       setLoading(false)
     }
@@ -52,6 +56,7 @@ export function InboxActions({
     try {
       await apiPost(`/api/inbox/${noteId}/classify`, { bucket_id: bucketId })
       await invalidateAll()
+      addToast('Note classified')
       onActionComplete()
     } catch {
       addToast('Failed to classify note')
@@ -65,9 +70,10 @@ export function InboxActions({
     try {
       await apiPost(`/api/inbox/${noteId}/archive`)
       await invalidateAll()
+      addToast('Note archived')
       onActionComplete()
     } catch {
-      addToast('Failed to archive note')
+      addToast('Failed to archive note', { label: 'Retry', onClick: handleArchive })
     } finally {
       setLoading(false)
     }
@@ -78,9 +84,10 @@ export function InboxActions({
     try {
       await apiDelete(`/api/inbox/${noteId}`)
       await invalidateAll()
+      addToast('Note deleted')
       onActionComplete()
     } catch {
-      addToast('Failed to delete note')
+      addToast('Failed to delete note', { label: 'Retry', onClick: handleDelete })
     } finally {
       setLoading(false)
     }
@@ -91,12 +98,13 @@ export function InboxActions({
       {suggestedBucketId && (
         <Button
           variant="primary"
-          className="text-sm px-4 py-2 inline-flex items-center gap-2"
+          className={`text-sm px-4 py-2 inline-flex items-center gap-2 ${isLowConfidence ? 'opacity-80 border-dashed' : ''}`}
           onClick={handleConfirm}
           disabled={loading}
         >
           <Check size={14} />
           Confirm: {suggestedBucketPath ?? 'Suggested'}
+          {isLowConfidence && <span className="text-xs opacity-70">(uncertain)</span>}
         </Button>
       )}
       <div className="relative">

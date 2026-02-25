@@ -19,13 +19,15 @@ const sourceIcons: Record<NoteSource, { icon: LucideIcon; label: string }> = {
 interface SourceIconProps {
   source: NoteSource
   className?: string
+  showLabel?: boolean
 }
 
-export function SourceIcon({ source, className = '' }: SourceIconProps) {
+export function SourceIcon({ source, className = '', showLabel = true }: SourceIconProps) {
   const { icon: Icon, label } = sourceIcons[source]
   return (
-    <span className={`inline-flex items-center text-text-tertiary ${className}`} title={label}>
+    <span className={`inline-flex items-center gap-1.5 text-text-tertiary ${className}`} title={label}>
       <Icon size={14} />
+      {showLabel && <span className="text-xs">{label}</span>}
     </span>
   )
 }

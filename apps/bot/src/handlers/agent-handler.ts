@@ -1,27 +1,31 @@
 import type { BotContext } from '../context.js'
-import { runAgent } from '../agent/run-agent.js'
+import { sendChatMessage } from '../api-client.js'
+import { buildChatRequest } from '../telegram/build-chat-request.js'
 import { storeReceipt } from './receipt-store.js'
-import { recordUserMessage, recordBotResponse } from '../conversation/record-exchange.js'
+import { needsAsyncProcessing, getAckMessage } from './needs-async.js'
+import { processInBackground } from './process-in-background.js'
 
 export async function runAgentHandler(ctx: BotContext): Promise<void> {
   const userId = ctx.userId
   if (!userId) return
 
-  const text = ctx.message?.text ?? ctx.message?.caption ?? ''
+  const chatId = ctx.chat?.id
+  if (!chatId) return
+
+  if (needsAsyncProcessing(ctx)) {
+    await ctx.reply(getAckMessage())
+    processInBackground({ ctx, chatId })
+    return
+  }
 
   await ctx.replyWithChatAction('typing')
 
-  const result = await runAgent(ctx)
-  const sentMessage = await ctx.reply(result.text)
+  const request = await buildChatRequest(ctx)
+  const response = await sendChatMessage(request)
 
-  // Store receipts so replies can reference the note
-  const chatId = ctx.chat?.id
-  if (chatId && result.noteIds.length > 0) {
-    storeReceipt(chatId, sentMessage.message_id, result.noteIds[0]!)
-  }
+  const sentMessage = await ctx.reply(response.text)
 
-  if (text.trim()) {
-    recordUserMessage(userId, text)
+  if (response.noteIds.length > 0) {
+    storeReceipt(chatId, sentMessage.message_id, response.noteIds[0]!)
   }
-  recordBotResponse(userId, result.text, result.noteIds)
 }

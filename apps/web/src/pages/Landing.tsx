@@ -3,7 +3,7 @@ import { TypeAnimation } from 'react-type-animation'
 import { Button } from '../components/ui/Button'
 import { useForceLightMode } from '../hooks/use-force-light-mode'
 
-export default function Landing() {
+export function Landing() {
   const navigate = useNavigate()
   useForceLightMode()
 

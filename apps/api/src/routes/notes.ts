@@ -2,16 +2,14 @@ import { Router } from 'express'
 import { z } from 'zod'
 import {
   getNoteById,
-  updateNote,
   deleteNote,
   incrementViewCount,
   getConnectionsForNote,
-  createConnection,
-  getBucketById,
+  insertNoteView,
 } from '@second-brain/db'
-import { insertNoteView } from '@second-brain/db'
-import { insertDistillationHistory } from '@second-brain/db'
-import { getBucketPath } from '../services/para-tree.js'
+import { getBucketPath } from '../services/para/para-cache.js'
+import { buildNoteRelations } from '../services/notes/build-note-relations.js'
+import { updateNoteWithHistory, BucketNotFoundError } from '../services/notes/update-note-fields.js'
 import type { NoteDetailResponse } from '@second-brain/shared'
 
 export const notesRouter = Router()
@@ -27,10 +25,6 @@ const updateNoteSchema = z.object({
   key_points: z.array(z.string()).optional(),
 })
 
-const connectSchema = z.object({
-  target_note_id: z.string().uuid(),
-})
-
 notesRouter.get('/:noteId', async (req, res) => {
   const userId = req.userId!
   const noteId = req.params['noteId']!
@@ -42,40 +36,19 @@ notesRouter.get('/:noteId', async (req, res) => {
   }
 
   // Fire view tracking asynchronously
-  incrementViewCount(userId, noteId).catch(() => {})
-  insertNoteView(userId, noteId).catch(() => {})
+  incrementViewCount(userId, noteId).catch((err) =>
+    console.error('[notes] view count increment failed:', err),
+  )
+  insertNoteView(userId, noteId).catch((err) =>
+    console.error('[notes] view insert failed:', err),
+  )
 
-  const connections = await getConnectionsForNote(userId, noteId)
-  const bucketPath = await getBucketPath(userId, note.bucket_id)
+  const [connections, bucketPath] = await Promise.all([
+    getConnectionsForNote(userId, noteId),
+    getBucketPath(userId, note.bucket_id),
+  ])
 
-  // Build related notes from connections
-  const relatedNotes: NoteDetailResponse['related_notes'] = []
-  const backlinks: NoteDetailResponse['backlinks'] = []
-
-  for (const conn of connections) {
-    const otherId = conn.source_id === noteId ? conn.target_id : conn.source_id
-    const otherNote = await getNoteById(userId, otherId)
-    if (!otherNote) continue
-
-    const otherPath = await getBucketPath(userId, otherNote.bucket_id)
-
-    if (conn.target_id === noteId) {
-      backlinks.push({
-        id: otherNote.id,
-        title: otherNote.title,
-        bucket_path: otherPath,
-      })
-    }
-
-    relatedNotes.push({
-      id: otherNote.id,
-      title: otherNote.title,
-      ai_summary: otherNote.ai_summary,
-      similarity: conn.similarity ?? 0,
-      bucket_path: otherPath,
-      connection_type: conn.type,
-    })
-  }
+  const { relatedNotes, backlinks } = await buildNoteRelations(userId, noteId, connections)
 
   const response: NoteDetailResponse = {
     note: {
@@ -119,61 +92,20 @@ notesRouter.patch('/:noteId', async (req, res) => {
     return
   }
 
-  // Archive distillation history if distillation is changing
-  const fields = parsed.data
-  if (
-    (fields.distillation !== undefined || fields.distillation_status !== undefined) &&
-    existing.distillation
-  ) {
-    await insertDistillationHistory(
-      userId,
-      noteId,
-      existing.distillation,
-      existing.distillation_status,
-    )
-  }
-
-  // If setting bucket_id, also mark classified
-  const updateFields: Record<string, unknown> = { ...fields }
-  if (fields.bucket_id) {
-    const bucket = await getBucketById(userId, fields.bucket_id)
-    if (!bucket) {
+  try {
+    const updated = await updateNoteWithHistory(userId, noteId, parsed.data, existing)
+    res.json(updated)
+  } catch (err) {
+    if (err instanceof BucketNotFoundError) {
       res.status(404).json({ error: 'Target bucket not found' })
       return
     }
-    updateFields['is_classified'] = true
+    throw err
   }
-
-  const updated = await updateNote(userId, noteId, updateFields)
-  res.json(updated)
 })
 
 notesRouter.delete('/:noteId', async (req, res) => {
   const userId = req.userId!
   await deleteNote(userId, req.params['noteId']!)
   res.json({ success: true })
-})
-
-notesRouter.post('/:noteId/connect', async (req, res) => {
-  const userId = req.userId!
-  const noteId = req.params['noteId']!
-  const parsed = connectSchema.safeParse(req.body)
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.flatten() })
-    return
-  }
-
-  // Verify both notes exist and belong to user
-  const [source, target] = await Promise.all([
-    getNoteById(userId, noteId),
-    getNoteById(userId, parsed.data.target_note_id),
-  ])
-
-  if (!source || !target) {
-    res.status(404).json({ error: 'Note not found' })
-    return
-  }
-
-  const conn = await createConnection(userId, noteId, parsed.data.target_note_id, 'explicit')
-  res.status(201).json(conn)
 })

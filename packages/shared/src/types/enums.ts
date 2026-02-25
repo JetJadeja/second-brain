@@ -16,6 +16,7 @@ export type ConnectionType = (typeof CONNECTION_TYPES)[number]
 export const SUGGESTION_TYPES = [
   'split_bucket', 'merge_notes', 'archive_project',
   'reclassify_note', 'create_sub_bucket', 'link_notes',
+  'create_bucket', 'merge_buckets', 'rename_bucket', 'delete_bucket',
 ] as const
 export type SuggestionType = (typeof SUGGESTION_TYPES)[number]
 

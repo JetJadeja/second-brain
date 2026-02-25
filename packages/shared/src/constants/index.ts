@@ -1,1 +1,2 @@
 export { DEFAULT_PARA_BUCKETS } from './para.js'
+export { SIMILARITY_THRESHOLD_CONNECTION, SIMILARITY_THRESHOLD_RELATED } from './similarity.js'

@@ -9,16 +9,13 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@mozilla/readability": "^0.6.0",
     "@second-brain/ai": "workspace:*",
     "@second-brain/db": "workspace:*",
     "@second-brain/shared": "workspace:*",
     "grammy": "^1",
-    "jsdom": "^28.1.0",
     "pdf-parse": "^2.4.5"
   },
   "devDependencies": {
-    "@types/jsdom": "^27.0.0",
     "@types/pdf-parse": "^1.1.5",
     "tsx": "^4",
     "typescript": "^5"

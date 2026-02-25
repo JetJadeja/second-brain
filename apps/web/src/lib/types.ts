@@ -13,6 +13,8 @@ export type {
   DashboardNote,
   DashboardArea,
   InboxResponse,
+  UnifiedInboxItem,
+  SuggestionItem,
   InboxItem,
   ClassifyRequest,
   BatchClassifyRequest,

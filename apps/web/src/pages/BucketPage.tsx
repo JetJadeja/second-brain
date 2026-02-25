@@ -5,7 +5,7 @@ import { BucketHeader } from '../components/bucket/BucketHeader'
 import { BucketNoteCard } from '../components/bucket/BucketNoteCard'
 import { EmptyState } from '../components/ui/EmptyState'
 
-export default function BucketPage() {
+export function BucketPage() {
   const { bucketId } = useParams<{ bucketId: string }>()
   const { data, isLoading, error } = useBucket(bucketId)
 

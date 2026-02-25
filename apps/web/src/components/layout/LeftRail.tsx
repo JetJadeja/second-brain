@@ -1,17 +1,28 @@
-import { useState } from 'react'
-import { LayoutDashboard, Inbox, Search, GitFork, RefreshCw, PanelLeftClose, PanelLeft, LogOut } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { LayoutDashboard, Inbox, Search, GitFork, RefreshCw, PanelLeftClose, PanelLeft, LogOut, Settings } from 'lucide-react'
+import { Link, useLocation } from 'react-router-dom'
 import { NavItem } from '../nav/NavItem'
 import { ParaSection } from '../nav/ParaSection'
-import { ParaBucketItem } from '../nav/ParaBucketItem'
+import { SidebarTreeItem } from '../nav/SidebarTreeItem'
 import { Badge } from '../ui/Badge'
 import { ThemeToggle } from '../ui/ThemeToggle'
 import { useAuthStore } from '../../stores/auth-store'
 import { useParaTree } from '../../hooks/use-para-tree'
 import { useDashboard } from '../../hooks/use-dashboard'
+import { useExpandedBuckets } from '../../stores/expanded-buckets-store'
 import type { ParaTreeNode } from '../../lib/types'
 
 function findTopLevelByType(tree: ParaTreeNode[], type: string): ParaTreeNode | undefined {
   return tree.find((node) => node.type === type)
+}
+
+function findAncestorIds(nodes: ParaTreeNode[], targetId: string, path: string[] = []): string[] | null {
+  for (const node of nodes) {
+    if (node.id === targetId) return path
+    const found = findAncestorIds(node.children, targetId, [...path, node.id])
+    if (found) return found
+  }
+  return null
 }
 
 export function LeftRail() {
@@ -19,9 +30,18 @@ export function LeftRail() {
   const [collapsed, setCollapsed] = useState(false)
   const { data: paraData } = useParaTree()
   const { data: dashData } = useDashboard()
+  const { pathname } = useLocation()
+  const expandAll = useExpandedBuckets((s) => s.expandAll)
 
   const tree = paraData?.tree ?? []
   const inboxCount = dashData?.inbox.count ?? 0
+
+  useEffect(() => {
+    const match = pathname.match(/^\/para\/(.+)$/)
+    if (!match || tree.length === 0) return
+    const ancestors = findAncestorIds(tree, match[1]!, [])
+    if (ancestors && ancestors.length > 0) expandAll(ancestors)
+  }, [pathname, tree, expandAll])
 
   const projectsRoot = findTopLevelByType(tree, 'project')
   const areasRoot = findTopLevelByType(tree, 'area')
@@ -43,7 +63,7 @@ export function LeftRail() {
   }
 
   return (
-    <aside className="w-60 h-screen flex-shrink-0 border-r border-border bg-surface flex flex-col">
+    <aside className="w-64 h-screen flex-shrink-0 border-r border-border bg-surface flex flex-col">
       <div className="flex items-center justify-between p-4 border-b border-border">
         <span className="text-sm font-semibold text-text-primary">Second Brain</span>
         <button
@@ -65,25 +85,25 @@ export function LeftRail() {
 
         <ParaSection label="Projects" defaultOpen>
           {projectsRoot?.children.map((b) => (
-            <ParaBucketItem key={b.id} name={b.name} href={`/para/${b.id}`} />
+            <SidebarTreeItem key={b.id} node={b} depth={0} />
           ))}
         </ParaSection>
 
         <ParaSection label="Areas" defaultOpen>
           {areasRoot?.children.map((b) => (
-            <ParaBucketItem key={b.id} name={b.name} href={`/para/${b.id}`} />
+            <SidebarTreeItem key={b.id} node={b} depth={0} />
           ))}
         </ParaSection>
 
         <ParaSection label="Resources">
           {resourcesRoot?.children.map((b) => (
-            <ParaBucketItem key={b.id} name={b.name} href={`/para/${b.id}`} />
+            <SidebarTreeItem key={b.id} node={b} depth={0} />
           ))}
         </ParaSection>
 
         <ParaSection label="Archive">
           {archiveRoot?.children.map((b) => (
-            <ParaBucketItem key={b.id} name={b.name} href={`/para/${b.id}`} />
+            <SidebarTreeItem key={b.id} node={b} depth={0} />
           ))}
         </ParaSection>
 
@@ -94,8 +114,16 @@ export function LeftRail() {
         <NavItem label="Review" href="/review" icon={RefreshCw} />
       </nav>
 
-      <div className="border-t border-border p-2 flex items-center justify-between">
+      <div className="border-t border-border p-2 flex items-center gap-1">
         <ThemeToggle />
+        <Link
+          to="/settings"
+          className="p-1.5 rounded text-text-tertiary hover:text-text-primary hover:bg-hover transition-colors"
+          title="Settings"
+        >
+          <Settings size={14} />
+        </Link>
+        <div className="flex-1" />
         <button
           type="button"
           onClick={() => { signOut() }}

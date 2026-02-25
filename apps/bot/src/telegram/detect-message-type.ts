@@ -56,7 +56,7 @@ export function detectMessageType(ctx: BotContext): DetectionResult {
 
   if (msg?.video) {
     return {
-      sourceType: 'youtube', // placeholder — Phase E handles video properly
+      sourceType: 'video',
       url: null,
       userNote: msg.caption ?? null,
       attachment: { type: 'video', fileId: msg.video.file_id },

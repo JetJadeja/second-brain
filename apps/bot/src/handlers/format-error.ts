@@ -11,6 +11,7 @@ const CONTENT_NAMES: Record<string, string> = {
   pdf: 'PDF',
   voice_memo: 'voice memo',
   youtube: 'video',
+  video: 'video',
   document: 'document',
   thought: 'message',
 }

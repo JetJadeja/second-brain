@@ -3,7 +3,7 @@ export type ParaType = (typeof PARA_TYPES)[number]
 
 export const NOTE_SOURCES = [
   'article', 'tweet', 'thread', 'reel', 'image',
-  'pdf', 'voice_memo', 'thought', 'youtube', 'document', 'other',
+  'pdf', 'voice_memo', 'thought', 'youtube', 'video', 'document', 'other',
 ] as const
 export type NoteSource = (typeof NOTE_SOURCES)[number]
 

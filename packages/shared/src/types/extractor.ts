@@ -52,6 +52,11 @@ export interface ImageSource {
   media_description?: string
 }
 
+export interface VideoSource {
+  storage_path: string
+  duration_seconds?: number
+}
+
 export interface ThoughtSource {
   [key: string]: never
 }
@@ -69,6 +74,7 @@ export type ContentSource =
   | PdfSource
   | VoiceMemoSource
   | ImageSource
+  | VideoSource
   | ThoughtSource
   | DocumentSource
 

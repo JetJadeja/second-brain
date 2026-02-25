@@ -154,11 +154,19 @@ export function useInbox() {
     [optimisticAction],
   )
 
-  const acceptSuggestion = useCallback(
-    (id: string) =>
-      optimisticAction(id, () => inboxService.acceptSuggestion(id), 'Suggestion accepted', 'Failed to accept — restored', 'ai'),
-    [optimisticAction],
-  )
+  const acceptSuggestion = useCallback(async (id: string) => {
+    const idx = itemsRef.current.findIndex((i) => i.id === id)
+    const snapshot = idx !== -1 ? itemsRef.current[idx] : null
+    removeItem(id)
+    try {
+      const { affected_note_ids } = await inboxService.acceptSuggestion(id)
+      for (const noteId of affected_note_ids) removeItem(noteId)
+      toast({ type: 'ai', message: 'Suggestion accepted' })
+    } catch {
+      if (snapshot) restoreItem(snapshot, idx)
+      toast({ type: 'error', message: 'Failed to accept — restored' })
+    }
+  }, [removeItem, restoreItem, toast])
 
   const dismissSuggestion = useCallback(
     (id: string) =>

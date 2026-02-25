@@ -21,8 +21,10 @@ export function deleteNote(noteId: string): Promise<void> {
   return apiClient.delete(`/inbox/${noteId}`)
 }
 
-export function acceptSuggestion(id: string): Promise<void> {
-  return apiClient.post(`/suggestions/${id}/accept`)
+export type AcceptSuggestionResponse = { affected_note_ids: string[] }
+
+export function acceptSuggestion(id: string): Promise<AcceptSuggestionResponse> {
+  return apiClient.post<AcceptSuggestionResponse>(`/suggestions/${id}/accept`)
 }
 
 export function dismissSuggestion(id: string): Promise<void> {

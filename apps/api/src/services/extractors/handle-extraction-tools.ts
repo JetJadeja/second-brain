@@ -5,6 +5,7 @@ import { extractTweet } from './extract-tweet.js'
 import { extractYoutube } from './extract-youtube.js'
 import { extractReel } from './extract-reel.js'
 import { describeImages } from './describe-images.js'
+import { formatForLlm } from './format-for-llm.js'
 
 export interface ExtractionToolResult {
   text: string
@@ -120,24 +121,3 @@ async function handleDescribeImages(
   return { text, extracted }
 }
 
-function formatForLlm(content: ExtractedContent, warning?: string): string {
-  const parts: string[] = []
-
-  parts.push(`Title: ${content.title}`)
-  parts.push(`Source type: ${content.sourceType}`)
-
-  if (content.content) {
-    const preview = content.content.length > 4000
-      ? content.content.slice(0, 4000) + '\n...[truncated]'
-      : content.content
-    parts.push(`Content (${content.content.length} chars):\n${preview}`)
-  } else {
-    parts.push('Content: [empty — extraction returned no text]')
-  }
-
-  if (warning) {
-    parts.push(`Warning: ${warning}`)
-  }
-
-  return parts.join('\n\n')
-}

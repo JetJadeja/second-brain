@@ -5,6 +5,7 @@ import { LandingPage } from '@/pages/LandingPage'
 import { AuthPage } from '@/pages/AuthPage'
 import { DashboardPage } from '@/pages/DashboardPage'
 import { InboxPage } from '@/pages/InboxPage'
+import { BucketPage } from '@/pages/BucketPage'
 import { PlaceholderPage } from '@/pages/PlaceholderPage'
 
 export function AppRouter() {
@@ -19,7 +20,7 @@ export function AppRouter() {
         <Route element={<AppLayout />}>
           <Route path="/home" element={<DashboardPage />} />
           <Route path="/inbox" element={<InboxPage />} />
-          <Route path="/buckets/:bucketId" element={<PlaceholderPage title="Bucket" />} />
+          <Route path="/buckets/:bucketId" element={<BucketPage />} />
           <Route path="/notes/:noteId" element={<PlaceholderPage title="Note Detail" />} />
           <Route path="/graph" element={<PlaceholderPage title="Graph" />} />
           <Route path="/review" element={<PlaceholderPage title="Review" />} />

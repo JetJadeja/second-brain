@@ -1,8 +1,7 @@
 import { getAllBuckets, createBucket, countNotesByBucket } from '@second-brain/db'
 import { collectDescendantIds } from '@second-brain/shared'
 import type { ParaBucket } from '@second-brain/shared'
-import { getBucketPath } from '../para/para-cache.js'
-import { invalidateParaCache } from '../para/para-cache.js'
+import { getBucketPath, invalidateParaCache } from '../para/para-cache.js'
 import { reevaluateInbox } from '../processors/reevaluate-inbox.js'
 
 const MIN_NOTES_FOR_SUB_BUCKET = 15

@@ -51,4 +51,22 @@ export const EXTRACTION_TOOLS: AnthropicTool[] = [
       required: ['url'],
     },
   },
+  {
+    name: 'describe_images',
+    description:
+      'Describe one or more images using AI vision. ' +
+      'Pass an array of image URLs. Returns a text description for each image. ' +
+      'Use this when extracted content includes media or image URLs that need visual description.',
+    input_schema: {
+      type: 'object' as const,
+      properties: {
+        urls: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Array of image URLs to describe',
+        },
+      },
+      required: ['urls'],
+    },
+  },
 ]

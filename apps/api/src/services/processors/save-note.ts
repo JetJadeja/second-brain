@@ -30,7 +30,7 @@ export async function saveNote(params: SaveNoteParams): Promise<SaveNoteResult> 
   const bucketFields = resolveBucketFields(classification)
   const isThought = extracted.sourceType === 'thought' || extracted.sourceType === 'voice_memo'
 
-  const note = await createNote({
+  const { note, alreadyExisted } = await createNote({
     user_id: userId,
     title: title ?? extracted.title,
     original_content: extracted.content || null,
@@ -44,6 +44,10 @@ export async function saveNote(params: SaveNoteParams): Promise<SaveNoteResult> 
     is_original_thought: isThought || (classification?.is_original_thought ?? false),
     ...bucketFields,
   })
+
+  if (alreadyExisted) {
+    return { note, createdBucketName: null, deduplicated: true }
+  }
 
   await maybeCreateBucketSuggestion(userId, note, classification)
 

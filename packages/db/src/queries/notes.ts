@@ -35,15 +35,43 @@ export interface CreateNoteInput {
   embedding?: number[] | null
 }
 
-export async function createNote(input: CreateNoteInput): Promise<Note> {
+export interface CreateNoteResult {
+  note: Note
+  alreadyExisted: boolean
+}
+
+export async function createNote(input: CreateNoteInput): Promise<CreateNoteResult> {
   const { data, error } = await getServiceClient()
     .from('notes')
     .insert(input)
     .select()
     .single()
 
-  if (error) throw new Error(`createNote: ${error.message}`)
-  return data as Note
+  if (error) {
+    if (isUniqueViolation(error) && input.source_url) {
+      const existing = await findBySourceUrl(input.user_id, input.source_url)
+      if (existing) return { note: existing, alreadyExisted: true }
+    }
+    throw new Error(`createNote: ${error.message}`)
+  }
+
+  return { note: data as Note, alreadyExisted: false }
+}
+
+function isUniqueViolation(error: { code?: string; message?: string }): boolean {
+  return error.code === '23505' || (error.message?.includes('unique') ?? false)
+}
+
+async function findBySourceUrl(userId: string, sourceUrl: string): Promise<Note | null> {
+  const { data } = await getServiceClient()
+    .from('notes')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('source_url', sourceUrl)
+    .limit(1)
+    .single()
+
+  return (data as Note) ?? null
 }
 
 export async function updateNote(

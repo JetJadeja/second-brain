@@ -9,6 +9,7 @@ import {
 } from '@second-brain/db'
 import { getAllBuckets } from '../services/para/para-cache.js'
 import { buildUnifiedFeed } from '../services/inbox/build-unified-feed.js'
+import { maybeTriggerOverview } from '../services/overview/trigger-overview.js'
 import type { InboxResponse } from '@second-brain/shared'
 
 export const inboxRouter = Router()
@@ -48,6 +49,7 @@ inboxRouter.post('/:noteId/classify', async (req, res) => {
   }
 
   await classifyNote(userId, noteId!, parsed.data.bucket_id)
+  void maybeTriggerOverview(userId, parsed.data.bucket_id)
   res.json({ success: true })
 })
 
@@ -60,6 +62,8 @@ inboxRouter.post('/batch-classify', async (req, res) => {
   }
 
   const count = await batchClassify(userId, parsed.data.classifications)
+  const uniqueBucketIds = [...new Set(parsed.data.classifications.map((c) => c.bucket_id))]
+  for (const bid of uniqueBucketIds) void maybeTriggerOverview(userId, bid)
   res.json({ success: true, classified: count })
 })
 

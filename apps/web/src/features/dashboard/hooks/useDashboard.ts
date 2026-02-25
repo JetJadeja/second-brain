@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth.store'
 import { useToastStore } from '@/stores/toast.store'
@@ -19,6 +19,9 @@ export function useDashboard(): UseDashboardReturn {
   const [error, setError] = useState<string | null>(null)
   const userId = useAuthStore((s) => s.user?.id)
   const toast = useToastStore((s) => s.toast)
+
+  const dataRef = useRef(data)
+  dataRef.current = data
 
   useEffect(() => {
     dashboardService.getDashboard()
@@ -68,22 +71,26 @@ export function useDashboard(): UseDashboardReturn {
   }, [])
 
   const classifyNote = useCallback(async (noteId: string, bucketId: string) => {
+    const snapshot = dataRef.current
     removeInboxItem(noteId)
     try {
       await dashboardService.classifyNote(noteId, bucketId)
       toast({ type: 'success', message: 'Note classified' })
     } catch {
-      toast({ type: 'error', message: 'Failed to classify note' })
+      setData(snapshot)
+      toast({ type: 'error', message: 'Failed to classify — note restored' })
     }
   }, [removeInboxItem, toast])
 
   const skipNote = useCallback(async (noteId: string) => {
+    const snapshot = dataRef.current
     removeInboxItem(noteId)
     try {
       await dashboardService.archiveNote(noteId)
       toast({ type: 'success', message: 'Note skipped' })
     } catch {
-      toast({ type: 'error', message: 'Failed to skip note' })
+      setData(snapshot)
+      toast({ type: 'error', message: 'Failed to skip — note restored' })
     }
   }, [removeInboxItem, toast])
 

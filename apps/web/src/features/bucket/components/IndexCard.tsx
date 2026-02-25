@@ -24,9 +24,13 @@ export function IndexCard({ overview, description, noteCount, isLoading }: Index
         <p className="text-[17px] leading-[1.8] text-surface-500">{overview}</p>
       ) : description ? (
         <p className="text-[17px] leading-[1.8] text-surface-500">{description}</p>
-      ) : noteCount > 0 ? (
+      ) : noteCount > 0 && noteCount < FIRST_THRESHOLD ? (
         <p className="italic text-body text-surface-400">
           Overview generates at {FIRST_THRESHOLD} notes ({noteCount}/{FIRST_THRESHOLD} so far).
+        </p>
+      ) : noteCount > 0 ? (
+        <p className="italic text-body text-surface-400">
+          AI overview will appear here shortly.
         </p>
       ) : (
         <p className="italic text-body text-surface-400">

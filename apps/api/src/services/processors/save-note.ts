@@ -61,7 +61,7 @@ async function maybeCreateBucketSuggestion(
   classification: ClassifyResult | null,
 ): Promise<void> {
   if (!classification?.suggest_new_bucket) return
-  if (classification.confidence < 0.4) return
+  if (classification.confidence < 0.7) return
 
   const { name, parent_type } = classification.suggest_new_bucket
   try {

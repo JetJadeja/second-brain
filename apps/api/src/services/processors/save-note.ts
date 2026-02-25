@@ -1,4 +1,5 @@
-import { createNote, createSuggestion } from '@second-brain/db'
+import { createNote, createSuggestion, findExistingNoteByUrl, findExistingNoteByContentHash } from '@second-brain/db'
+import { normalizeUrl, computeContentHash } from '@second-brain/shared'
 import type { Note, ExtractedContent, ClassifyResult } from '@second-brain/shared'
 
 interface SaveNoteParams {
@@ -14,10 +15,17 @@ interface SaveNoteParams {
 export interface SaveNoteResult {
   note: Note
   createdBucketName: string | null
+  deduplicated: boolean
 }
 
 export async function saveNote(params: SaveNoteParams): Promise<SaveNoteResult> {
   const { userId, extracted, title, userNote, summary, embedding, classification } = params
+
+  const sourceUrl = extractSourceUrl(extracted)
+  const existingNote = await checkForDuplicate(userId, extracted, sourceUrl)
+  if (existingNote) {
+    return { note: existingNote, createdBucketName: null, deduplicated: true }
+  }
 
   const bucketFields = resolveBucketFields(classification)
   const isThought = extracted.sourceType === 'thought' || extracted.sourceType === 'voice_memo'
@@ -29,6 +37,7 @@ export async function saveNote(params: SaveNoteParams): Promise<SaveNoteResult> 
     ai_summary: summary,
     source_type: extracted.sourceType,
     source: extracted.source as Record<string, unknown>,
+    source_url: sourceUrl,
     user_note: userNote,
     embedding,
     tags: classification?.tags ?? [],
@@ -38,7 +47,7 @@ export async function saveNote(params: SaveNoteParams): Promise<SaveNoteResult> 
 
   await maybeCreateBucketSuggestion(userId, note, classification)
 
-  return { note, createdBucketName: null }
+  return { note, createdBucketName: null, deduplicated: false }
 }
 
 async function maybeCreateBucketSuggestion(
@@ -61,6 +70,33 @@ async function maybeCreateBucketSuggestion(
     const msg = err instanceof Error ? err.message : String(err)
     console.error('[save-note] Failed to create bucket suggestion:', msg)
   }
+}
+
+function extractSourceUrl(extracted: ExtractedContent): string | null {
+  const source = extracted.source as Record<string, unknown>
+  if (typeof source.url === 'string' && source.url) {
+    return normalizeUrl(source.url)
+  }
+  return null
+}
+
+const CONTENT_HASH_WINDOW_MINUTES = 5
+
+async function checkForDuplicate(
+  userId: string,
+  extracted: ExtractedContent,
+  sourceUrl: string | null,
+): Promise<Note | null> {
+  if (sourceUrl) {
+    return findExistingNoteByUrl(userId, sourceUrl)
+  }
+
+  if (extracted.content) {
+    const hash = computeContentHash(extracted.content)
+    return findExistingNoteByContentHash(userId, hash, CONTENT_HASH_WINDOW_MINUTES)
+  }
+
+  return null
 }
 
 interface BucketFields {

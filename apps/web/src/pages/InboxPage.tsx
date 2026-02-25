@@ -53,9 +53,9 @@ export function InboxPage() {
 
   const allSelected = inbox.noteItems.length > 0 && inbox.selectedIds.size === inbox.noteItems.length
   const someSelected = inbox.selectedIds.size > 0
-  const hasAllSuggestions = inbox.noteItems
-    .filter((n) => inbox.selectedIds.has(n.id))
-    .some((n) => !n.ai_suggested_bucket)
+  const suggestedCount = inbox.noteItems
+    .filter((n) => inbox.selectedIds.has(n.id) && n.ai_suggested_bucket)
+    .length
 
   const handleConfirmSuggested = () => {
     const classifications = inbox.noteItems
@@ -138,7 +138,7 @@ export function InboxPage() {
 
       <BatchToolbar
         selectedCount={inbox.selectedIds.size}
-        hasAllSuggestions={hasAllSuggestions}
+        suggestedCount={suggestedCount}
         onConfirmSuggested={handleConfirmSuggested}
         onArchive={handleBatchArchive}
         onDelete={handleBatchDelete}

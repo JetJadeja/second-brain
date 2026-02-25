@@ -3,14 +3,14 @@ import { cn } from '@/lib/utils'
 
 type BatchToolbarProps = {
   selectedCount: number
-  hasAllSuggestions: boolean
+  suggestedCount: number
   onConfirmSuggested: () => void
   onArchive: () => void
   onDelete: () => void
 }
 
 export function BatchToolbar({
-  selectedCount, hasAllSuggestions, onConfirmSuggested, onArchive, onDelete,
+  selectedCount, suggestedCount, onConfirmSuggested, onArchive, onDelete,
 }: BatchToolbarProps) {
   const [deleteConfirm, setDeleteConfirm] = useState(false)
   const visible = selectedCount > 0
@@ -40,10 +40,10 @@ export function BatchToolbar({
         <button
           type="button"
           onClick={onConfirmSuggested}
-          disabled={hasAllSuggestions}
+          disabled={suggestedCount === 0}
           className="rounded-sm bg-ember-500 px-3 py-1.5 text-body-sm text-white transition-colors hover:bg-ember-600 disabled:opacity-40"
         >
-          Confirm as suggested
+          {suggestedCount > 0 ? `Confirm ${suggestedCount} suggested` : 'Confirm as suggested'}
         </button>
         <button
           type="button"

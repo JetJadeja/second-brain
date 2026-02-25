@@ -10,6 +10,7 @@ import { NoteDetailPage } from '@/pages/NoteDetailPage'
 import { PlaceholderPage } from '@/pages/PlaceholderPage'
 import { DistillationPage } from '@/pages/DistillationPage'
 import { GraphPage } from '@/pages/GraphPage'
+import { ReviewPage } from '@/pages/ReviewPage'
 
 export function AppRouter() {
   return (
@@ -27,7 +28,7 @@ export function AppRouter() {
           <Route path="/notes/:noteId" element={<NoteDetailPage />} />
           <Route path="/notes/:noteId/distill" element={<DistillationPage />} />
           <Route path="/graph" element={<GraphPage />} />
-          <Route path="/review" element={<PlaceholderPage title="Review" />} />
+          <Route path="/review" element={<ReviewPage />} />
           <Route path="/settings" element={<PlaceholderPage title="Settings" />} />
         </Route>
       </Route>

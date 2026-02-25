@@ -1,4 +1,4 @@
-import { Check, X } from 'lucide-react'
+import { Check, FolderInput, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { SourceIcon } from '@/components/shared/SourceIcon'
 import { formatRelativeTime } from '@/lib/format-relative-time'
@@ -14,13 +14,20 @@ type InboxNoteRowProps = {
   onToggleSelect: () => void
   onToggleExpand: () => void
   onClassify: () => void
+  onMoveTo: () => void
   onSkip: () => void
 }
 
 export function InboxNoteRow({
-  item, selected, focused, expanded, onToggleSelect, onToggleExpand, onClassify, onSkip,
+  item, selected, focused, expanded, onToggleSelect, onToggleExpand, onClassify, onMoveTo, onSkip,
 }: InboxNoteRowProps) {
-  const canConfirm = item.ai_suggested_bucket !== null
+  const hasSuggestion = item.ai_suggested_bucket !== null
+
+  function handleAccept(e: React.MouseEvent<HTMLButtonElement>): void {
+    e.stopPropagation()
+    if (hasSuggestion) onClassify()
+    else onMoveTo()
+  }
 
   return (
     <div>
@@ -93,16 +100,21 @@ export function InboxNoteRow({
           </button>
           <button
             type="button"
-            onClick={(e) => { e.stopPropagation(); if (canConfirm) onClassify() }}
-            disabled={!canConfirm}
+            onClick={handleAccept}
             className={cn(
               'flex size-7 items-center justify-center rounded-full border border-surface-200 transition-colors',
-              canConfirm ? 'hover:border-ember-500 hover:bg-ember-500 hover:text-white' : 'opacity-30',
+              hasSuggestion
+                ? 'hover:border-ember-500 hover:bg-ember-500 hover:text-white'
+                : 'hover:border-surface-400 hover:bg-surface-200',
             )}
-            aria-label="Accept suggestion"
-            title={item.ai_suggested_bucket_path ? `File to ${item.ai_suggested_bucket_path}` : 'Accept'}
+            aria-label={hasSuggestion ? 'Accept suggestion' : 'Move to bucket'}
+            title={hasSuggestion ? `File to ${item.ai_suggested_bucket_path}` : 'Choose a bucket'}
           >
-            <Check size={14} className={canConfirm ? 'text-surface-300' : 'text-surface-300'} />
+            {hasSuggestion ? (
+              <Check size={14} className="text-surface-300" />
+            ) : (
+              <FolderInput size={14} className="text-surface-400" />
+            )}
           </button>
         </div>
       </div>

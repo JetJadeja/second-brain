@@ -1,5 +1,6 @@
 import { apiClient } from '@/services/api-client'
 import type { BucketPageResponse, SortOption } from '../types/bucket.types'
+import type { ParaType } from '@/types/enums'
 
 type ParaTreeNode = {
   id: string
@@ -10,6 +11,13 @@ type ParaTreeNode = {
   sort_order: number
   note_count: number
   children: ParaTreeNode[]
+}
+
+type CreatedBucket = {
+  id: string
+  name: string
+  type: ParaType
+  parent_id: string
 }
 
 export function getBucket(
@@ -30,4 +38,12 @@ export function deleteBucket(bucketId: string): Promise<void> {
 
 export function getParaTree(): Promise<{ tree: ParaTreeNode[] }> {
   return apiClient.get<{ tree: ParaTreeNode[] }>('/para/tree')
+}
+
+export function createBucket(
+  name: string, type: ParaType, parentId: string, description?: string,
+): Promise<CreatedBucket> {
+  return apiClient.post<CreatedBucket>('/para/buckets', {
+    name, type, parent_id: parentId, description,
+  })
 }

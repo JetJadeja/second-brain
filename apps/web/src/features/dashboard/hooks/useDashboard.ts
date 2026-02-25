@@ -54,16 +54,6 @@ export function useDashboard(): UseDashboardReturn {
     return () => { supabase.removeChannel(channel) }
   }, [userId])
 
-  const classifyNote = useCallback(async (noteId: string, bucketId: string) => {
-    removeInboxItem(noteId)
-    try {
-      await dashboardService.classifyNote(noteId, bucketId)
-      toast({ type: 'success', message: 'Note classified' })
-    } catch {
-      toast({ type: 'error', message: 'Failed to classify note' })
-    }
-  }, [removeInboxItem, toast])
-
   const removeInboxItem = useCallback((noteId: string) => {
     setData((prev) => {
       if (!prev) return prev
@@ -76,6 +66,16 @@ export function useDashboard(): UseDashboardReturn {
       }
     })
   }, [])
+
+  const classifyNote = useCallback(async (noteId: string, bucketId: string) => {
+    removeInboxItem(noteId)
+    try {
+      await dashboardService.classifyNote(noteId, bucketId)
+      toast({ type: 'success', message: 'Note classified' })
+    } catch {
+      toast({ type: 'error', message: 'Failed to classify note' })
+    }
+  }, [removeInboxItem, toast])
 
   const skipNote = useCallback(async (noteId: string) => {
     removeInboxItem(noteId)

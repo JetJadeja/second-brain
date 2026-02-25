@@ -1,4 +1,6 @@
 export { InboxHeader } from './components/InboxHeader'
 export { InboxNoteRow } from './components/InboxNoteRow'
 export { InboxSuggestionRow } from './components/InboxSuggestionRow'
+export { MoveToModal } from './components/MoveToModal'
 export { useInbox } from './hooks/useInbox'
+export { useBucketPicker } from './hooks/useBucketPicker'

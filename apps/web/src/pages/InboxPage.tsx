@@ -1,3 +1,4 @@
+import { useState, useCallback } from 'react'
 import { useInbox } from '@/features/inbox/hooks/useInbox'
 import { useInboxKeyboard } from '@/features/inbox/hooks/useInboxKeyboard'
 import { InboxHeader } from '@/features/inbox/components/InboxHeader'
@@ -6,11 +7,16 @@ import { InboxColumnHeaders } from '@/features/inbox/components/InboxColumnHeade
 import { InboxNoteRow } from '@/features/inbox/components/InboxNoteRow'
 import { InboxSuggestionRow } from '@/features/inbox/components/InboxSuggestionRow'
 import { BatchToolbar } from '@/features/inbox/components/BatchToolbar'
+import { MoveToModal } from '@/features/inbox/components/MoveToModal'
 import { InboxEmptyState } from '@/features/inbox/components/InboxEmptyState'
 import { InboxSkeleton } from '@/features/inbox/components/InboxSkeleton'
+import type { InboxNoteItem } from '@/features/inbox/types/inbox.types'
+
+type MoveTarget = { noteId: string; title: string }
 
 export function InboxPage() {
   const inbox = useInbox()
+  const [moveTarget, setMoveTarget] = useState<MoveTarget | null>(null)
 
   useInboxKeyboard({
     items: inbox.items,
@@ -25,6 +31,16 @@ export function InboxPage() {
     archiveNote: inbox.archiveNote,
     deleteNote: inbox.deleteNote,
   })
+
+  const openMoveModal = useCallback((item: InboxNoteItem) => {
+    setMoveTarget({ noteId: item.id, title: item.title })
+  }, [])
+
+  const handleMoveConfirm = useCallback((bucketId: string) => {
+    if (!moveTarget) return
+    void inbox.classifyNote(moveTarget.noteId, bucketId)
+    setMoveTarget(null)
+  }, [moveTarget, inbox])
 
   const handleBatchConfirm = () => {
     if (!inbox.cluster) return
@@ -106,6 +122,7 @@ export function InboxPage() {
               onClassify={() => {
                 if (item.ai_suggested_bucket) inbox.classifyNote(item.id, item.ai_suggested_bucket)
               }}
+              onMoveTo={() => openMoveModal(item)}
               onSkip={() => inbox.archiveNote(item.id)}
             />
           ) : (
@@ -125,6 +142,13 @@ export function InboxPage() {
         onConfirmSuggested={handleConfirmSuggested}
         onArchive={handleBatchArchive}
         onDelete={handleBatchDelete}
+      />
+
+      <MoveToModal
+        open={moveTarget !== null}
+        noteTitle={moveTarget?.title ?? ''}
+        onMove={handleMoveConfirm}
+        onClose={() => setMoveTarget(null)}
       />
     </div>
   )

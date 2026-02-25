@@ -11,16 +11,18 @@ type ActivityFeedProps = {
   onSkip: (noteId: string) => void
 }
 
+const MAX_FEED_ITEMS = 5
+
 export function ActivityFeed({ inboxItems, recentItems, onClassify, onSkip }: ActivityFeedProps) {
   const feedItems = useMemo<FeedItem[]>(() => {
-    const captures: FeedItem[] = inboxItems.map((item) => ({ type: 'capture', item }))
-    const recents: FeedItem[] = recentItems.map((item) => ({ type: 'recent', item }))
+    const byDate = (a: { captured_at: string }, b: { captured_at: string }) =>
+      new Date(b.captured_at).getTime() - new Date(a.captured_at).getTime()
 
-    return [...captures, ...recents].sort((a, b) => {
-      const dateA = a.type === 'suggestion' ? '' : a.item.captured_at
-      const dateB = b.type === 'suggestion' ? '' : b.item.captured_at
-      return new Date(dateB).getTime() - new Date(dateA).getTime()
-    })
+    const captures: FeedItem[] = [...inboxItems].sort(byDate).map((item) => ({ type: 'capture', item }))
+    const remaining = MAX_FEED_ITEMS - captures.length
+    const recents: FeedItem[] = [...recentItems].sort(byDate).slice(0, Math.max(0, remaining)).map((item) => ({ type: 'recent', item }))
+
+    return [...captures, ...recents].slice(0, MAX_FEED_ITEMS)
   }, [inboxItems, recentItems])
 
   return (

@@ -34,7 +34,7 @@ async function handleMessage(ctx: BotContext, chatId: number, userId: string): P
 
   if (needsAsyncProcessing(ctx)) {
     await ctx.reply(getAckMessage())
-    processInBackground({ ctx, chatId })
+    processInBackground({ ctx, chatId, sourceType: detected.sourceType })
     return
   }
 

@@ -1,6 +1,7 @@
 import type { BotContext } from '../context.js'
 import { buildChatRequest } from '../telegram/build-chat-request.js'
 import { sendChatMessage } from '../api-client.js'
+import { classifyError, formatUserError } from './format-error.js'
 import { storeReceipt } from './receipt-store.js'
 
 const TYPING_INTERVAL_MS = 4_000
@@ -8,11 +9,12 @@ const TYPING_INTERVAL_MS = 4_000
 interface BackgroundParams {
   ctx: BotContext
   chatId: number
+  sourceType?: string
   buildRequestOptions?: { noteContext?: string }
 }
 
 export function processInBackground(params: BackgroundParams): void {
-  const { ctx, chatId, buildRequestOptions } = params
+  const { ctx, chatId, sourceType, buildRequestOptions } = params
 
   const typingInterval = startTypingLoop(ctx, chatId)
 
@@ -34,8 +36,11 @@ export function processInBackground(params: BackgroundParams): void {
       const msg = error instanceof Error ? error.message : String(error)
       console.error('[background] processing failed:', msg)
 
+      const stage = classifyError(error)
+      const userMessage = formatUserError(sourceType ?? 'thought', stage)
+
       try {
-        await ctx.api.sendMessage(chatId, "couldn't process that one — try sending it again")
+        await ctx.api.sendMessage(chatId, userMessage)
       } catch {
         console.error('[background] failed to send error message to chat')
       }

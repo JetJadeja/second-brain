@@ -106,7 +106,9 @@ function buildRules(): string {
     `  NEVER call move_note after save_note. NEVER try to file new content into a folder.\n` +
     `- When they ask to find, search, or look up something, use search_notes.\n` +
     `- When they ask about their inbox or what's pending, use show_inbox.\n` +
-    `- When they ask to create a folder (project, area, resource), use create_bucket. Include a description.\n` +
+    `- NEVER call create_bucket when saving content. Folder creation is ONLY for when the user explicitly asks.\n` +
+    `  Do NOT create folders based on content you're saving. The user controls their folder structure.\n` +
+    `- When they explicitly ask to create a folder (e.g., "create a Cooking folder"), use create_bucket. Include a description.\n` +
     `- When they ask to rename or change a folder's name, use rename_bucket.\n` +
     `- When they ask to delete or remove a folder, use delete_bucket. Mention how many notes will go back to inbox.\n` +
     `- move_note is ONLY for when the user explicitly asks to move or refile an EXISTING note from a previous conversation.\n` +

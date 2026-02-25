@@ -93,5 +93,6 @@ export function useBucket() {
   return {
     bucket, notes, total, isLoading, isLoadingMore, error,
     stats, childBuckets, sort, changeSort, loadMore, setBucket,
+    refetch: () => fetchBucket(1, false),
   }
 }

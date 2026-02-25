@@ -37,6 +37,28 @@ export function BucketPage() {
     }
   }, [bucket.bucket, navigate, toast])
 
+  const handleArchive = useCallback(async () => {
+    if (!bucket.bucket) return
+    try {
+      await bucketService.archiveBucket(bucket.bucket.id)
+      toast({ type: 'success', message: 'Bucket archived' })
+      navigate('/home')
+    } catch {
+      toast({ type: 'error', message: 'Failed to archive bucket' })
+    }
+  }, [bucket.bucket, navigate, toast])
+
+  const handleRestore = useCallback(async () => {
+    if (!bucket.bucket) return
+    try {
+      await bucketService.restoreBucket(bucket.bucket.id)
+      toast({ type: 'success', message: 'Bucket restored' })
+      bucket.refetch()
+    } catch {
+      toast({ type: 'error', message: 'Failed to restore bucket' })
+    }
+  }, [bucket, toast])
+
   if (bucket.isLoading) return <BucketSkeleton />
 
   if (bucket.error || !bucket.bucket) {
@@ -65,6 +87,8 @@ export function BucketPage() {
         onCancelRename={rename.cancelRename}
         onSubmitRename={rename.submitRename}
         onDelete={() => setDeleteOpen(true)}
+        onArchive={bucket.bucket.type !== 'archive' ? handleArchive : undefined}
+        onRestore={bucket.bucket.type === 'archive' ? handleRestore : undefined}
       />
 
       <BucketStats

@@ -245,3 +245,46 @@
 .theme-transitioning * {
   transition: background-color 300ms ease, color 300ms ease, border-color 300ms ease !important;
 }
+
+/* ============================================
+   Skeleton Animations
+   ============================================ */
+
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes skeleton-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@utility animate-skeleton-pulse {
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+@utility animate-skeleton-shimmer {
+  animation: skeleton-shimmer 1.5s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-skeleton-pulse {
+    animation: none;
+    opacity: 0.8;
+  }
+  .animate-skeleton-shimmer {
+    animation: none;
+  }
+}
+
+/* ============================================
+   Focus Ring Utility
+   ============================================ */
+
+@utility focus-ring {
+  &:focus-visible {
+    outline: 2px solid rgba(238, 69, 64, 0.5);
+    outline-offset: 2px;
+  }
+}

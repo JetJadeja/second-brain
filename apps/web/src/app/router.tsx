@@ -7,10 +7,10 @@ import { DashboardPage } from '@/pages/DashboardPage'
 import { InboxPage } from '@/pages/InboxPage'
 import { BucketPage } from '@/pages/BucketPage'
 import { NoteDetailPage } from '@/pages/NoteDetailPage'
-import { PlaceholderPage } from '@/pages/PlaceholderPage'
 import { DistillationPage } from '@/pages/DistillationPage'
 import { GraphPage } from '@/pages/GraphPage'
 import { ReviewPage } from '@/pages/ReviewPage'
+import { SettingsPage } from '@/pages/SettingsPage'
 
 export function AppRouter() {
   return (
@@ -29,7 +29,7 @@ export function AppRouter() {
           <Route path="/notes/:noteId/distill" element={<DistillationPage />} />
           <Route path="/graph" element={<GraphPage />} />
           <Route path="/review" element={<ReviewPage />} />
-          <Route path="/settings" element={<PlaceholderPage title="Settings" />} />
+          <Route path="/settings" element={<SettingsPage />} />
         </Route>
       </Route>
 

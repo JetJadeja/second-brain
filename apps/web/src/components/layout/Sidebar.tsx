@@ -1,19 +1,18 @@
 import { CalendarCheck, Home, Inbox, Network } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useSidebarStore } from '@/stores/sidebar.store'
+import { useParaTree } from '@/hooks/useParaTree'
 import { LAYOUT } from '@/constants/layout'
 import { SidebarLogo } from './SidebarLogo'
 import { SidebarSearch } from './SidebarSearch'
 import { SidebarNavItem } from './SidebarNavItem'
 import { SidebarParaSection } from './SidebarParaSection'
 import { SidebarFooter } from './SidebarFooter'
-import type { BucketTreeItem } from './types'
-
-const MOCK_BUCKETS: BucketTreeItem[] = []
 
 export function Sidebar() {
   const isCollapsed = useSidebarStore((s) => s.isCollapsed)
   const toggleCollapse = useSidebarStore((s) => s.toggleCollapse)
+  const { buckets } = useParaTree()
 
   const width = isCollapsed ? LAYOUT.SIDEBAR_COLLAPSED_WIDTH : LAYOUT.SIDEBAR_EXPANDED_WIDTH
 
@@ -38,7 +37,7 @@ export function Sidebar() {
 
       <div className="mx-4 my-3 h-px bg-surface-200" />
 
-      <SidebarParaSection buckets={MOCK_BUCKETS} collapsed={isCollapsed} />
+      <SidebarParaSection buckets={buckets} collapsed={isCollapsed} />
 
       <div className="mx-4 my-3 h-px bg-surface-200" />
 

@@ -11,6 +11,7 @@ export interface YtDlpMetadata {
   thumbnail?: string
   duration?: number
   subtitles?: Record<string, Array<{ url: string; ext: string }>>
+  thumbnails?: Array<{ url: string; id?: string; width?: number; height?: number }>
 }
 
 export async function fetchYtDlpMetadata(url: string): Promise<YtDlpMetadata | null> {

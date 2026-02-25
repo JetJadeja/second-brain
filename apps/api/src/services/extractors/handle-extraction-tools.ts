@@ -86,7 +86,12 @@ async function handleFetchVideo(url: string): Promise<ExtractionToolResult> {
     ? await extractReel(url)
     : await extractYoutube(url)
   const { content } = result
-  const text = formatForLlm(content, result.warning)
+  let text = formatForLlm(content, result.warning)
+
+  if (content.mediaUrls && content.mediaUrls.length > 0) {
+    text += '\n\nMedia image URLs:\n' + content.mediaUrls.map((u) => `- ${u}`).join('\n')
+  }
+
   return { text, extracted: content, warning: result.warning }
 }
 

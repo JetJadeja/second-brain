@@ -25,7 +25,9 @@ export type BucketNote = {
 export type BucketPageResponse = {
   bucket: BucketDetail
   notes: BucketNote[]
-  pagination: { page: number; limit: number; total: number }
+  total: number
+  page: number
+  limit: number
 }
 
 export type ChildBucket = {

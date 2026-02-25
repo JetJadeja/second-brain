@@ -10,12 +10,12 @@ import { useBucketPicker } from '../hooks/useBucketPicker'
 
 type MoveToModalProps = {
   open: boolean
-  noteTitle: string
+  label: string
   onMove: (bucketId: string) => void
   onClose: () => void
 }
 
-export function MoveToModal({ open, noteTitle, onMove, onClose }: MoveToModalProps) {
+export function MoveToModal({ open, label, onMove, onClose }: MoveToModalProps) {
   const picker = useBucketPicker()
 
   useEffect(() => {
@@ -33,7 +33,7 @@ export function MoveToModal({ open, noteTitle, onMove, onClose }: MoveToModalPro
       <DialogContent className="flex max-h-[70vh] flex-col gap-0 bg-surface-50 p-0 sm:max-w-md">
         <DialogHeader className="border-b border-surface-200 px-4 py-3">
           <DialogTitle className="text-title-sm text-surface-700">
-            Move &ldquo;{noteTitle}&rdquo;
+            Move {label}
           </DialogTitle>
         </DialogHeader>
 

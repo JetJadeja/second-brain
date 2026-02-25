@@ -29,7 +29,7 @@ export function useBucket() {
       .then((res) => {
         setBucket(res.bucket)
         setNotes((prev) => append ? [...prev, ...res.notes] : res.notes)
-        setTotal(res.pagination.total)
+        setTotal(res.total)
         setPage(pageNum)
         loading(false)
       })

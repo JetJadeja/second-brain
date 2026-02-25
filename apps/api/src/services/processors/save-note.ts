@@ -102,11 +102,11 @@ function resolveBucketFields(classification: ClassifyResult | null): BucketField
     }
   }
 
-  // High confidence — set bucket and suggest
+  // High confidence — suggest but never auto-assign. User always confirms via inbox.
   return {
-    bucket_id: bucket_id,
+    bucket_id: null,
     ai_suggested_bucket: bucket_id,
     ai_confidence: confidence,
-    is_classified: false, // user still confirms
+    is_classified: false,
   }
 }

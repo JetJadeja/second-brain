@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Check, X, Sparkles, ArrowRight } from 'lucide-react'
+import { Check, X, FolderInput, Sparkles, ArrowRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { SourceIcon } from '@/components/shared/SourceIcon'
 import { formatRelativeTime } from '@/lib/format-relative-time'
@@ -9,11 +9,16 @@ import type { FeedItem, DashboardInboxItem } from '../types/dashboard.types'
 
 type ActivityFeedItemProps = {
   item: FeedItem
+  selected?: boolean
+  onToggleSelect?: () => void
   onClassify?: (noteId: string, bucketId: string) => void
   onSkip?: (noteId: string) => void
+  onMoveTo?: (noteId: string) => void
 }
 
-export function ActivityFeedItem({ item, onClassify, onSkip }: ActivityFeedItemProps) {
+export function ActivityFeedItem({
+  item, selected, onToggleSelect, onClassify, onSkip, onMoveTo,
+}: ActivityFeedItemProps) {
   const navigate = useNavigate()
   const [dismissed, setDismissed] = useState(false)
 
@@ -21,7 +26,7 @@ export function ActivityFeedItem({ item, onClassify, onSkip }: ActivityFeedItemP
 
   if (item.type === 'suggestion') {
     return (
-      <div className="flex items-center gap-3 h-16 px-4 border-b border-surface-200 border-l-[3px] border-l-ember-500">
+      <div className="flex items-center gap-3 h-16 px-4 border-l-[3px] border-l-ember-500">
         <Sparkles size={16} className="text-ember-500 shrink-0" />
         <p className="flex-1 font-body text-surface-500 truncate">{item.text}</p>
         <div className="flex items-center gap-3 shrink-0">
@@ -34,21 +39,36 @@ export function ActivityFeedItem({ item, onClassify, onSkip }: ActivityFeedItemP
 
   const isCapture = item.type === 'capture'
   const note = item.item
-  const handleClick = () => { if (!isCapture) navigate(noteRoute(note.id)) }
-
   const inboxNote = isCapture ? (note as DashboardInboxItem) : null
   const suggestedPath = inboxNote?.ai_suggested_bucket_path
   const suggestedId = inboxNote?.ai_suggested_bucket
 
   return (
     <div
-      onClick={handleClick}
+      onClick={() => { if (!isCapture) navigate(noteRoute(note.id)) }}
       className={cn(
-        'flex items-center gap-3 h-16 px-4 border-b border-surface-200',
+        'flex items-center gap-3 h-16 px-4',
         isCapture && 'border-l-[3px] border-l-ember-500',
+        isCapture && selected && 'bg-ember-900/20',
         !isCapture && 'cursor-pointer hover:bg-surface-100/50',
       )}
     >
+      {isCapture && onToggleSelect && (
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onToggleSelect() }}
+          className="shrink-0"
+          aria-label={selected ? 'Deselect' : 'Select'}
+        >
+          <span className={cn(
+            'flex size-4 items-center justify-center rounded-sm border-[1.5px] transition-colors',
+            selected ? 'border-ember-500 bg-ember-500' : 'border-surface-200 bg-transparent',
+          )}>
+            {selected && <Check size={10} className="text-white" />}
+          </span>
+        </button>
+      )}
+
       <SourceIcon sourceType={note.source_type} size={16} className="shrink-0" />
 
       <div className="flex-1 min-w-0">
@@ -75,6 +95,16 @@ export function ActivityFeedItem({ item, onClassify, onSkip }: ActivityFeedItemP
                 title="Skip"
               >
                 <X size={14} className="text-surface-400" />
+              </button>
+            )}
+            {onMoveTo && (
+              <button
+                onClick={(e) => { e.stopPropagation(); onMoveTo(note.id) }}
+                className="w-7 h-7 rounded-full bg-surface-150 flex items-center justify-center transition-colors duration-[120ms] hover:bg-surface-200"
+                aria-label="Move to bucket"
+                title="Choose a bucket"
+              >
+                <FolderInput size={14} className="text-surface-400" />
               </button>
             )}
             {onClassify && suggestedId && (

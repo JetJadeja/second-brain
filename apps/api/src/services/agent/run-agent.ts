@@ -1,5 +1,5 @@
 import { runAgentLoop, type ToolCallRecord } from '@second-brain/ai'
-import { getAllBuckets } from '@second-brain/db'
+import { getAllBuckets, updateNote } from '@second-brain/db'
 import { buildParaTree } from '@second-brain/shared'
 import type { ExtractedContent } from '@second-brain/shared'
 import { loadHistory } from '../conversation/load-history.js'
@@ -47,15 +47,44 @@ export async function runAgent(
     options?.attachmentDescription,
   )
 
+  const savedNoteIds = new Set<string>()
+
   const result = await runAgentLoop({
     system,
     messages,
     tools: AGENT_TOOLS,
-    toolExecutor: (name, input) =>
-      executeTool(name, input, { userId, preExtracted: options?.preExtracted }),
+    toolExecutor: async (name, input) => {
+      if (name === 'move_note' && savedNoteIds.has(String(input['note_id'] ?? ''))) {
+        return JSON.stringify({ error: 'New notes go to inbox for user review. Cannot move a note that was just saved.' })
+      }
+      const output = await executeTool(name, input, { userId, preExtracted: options?.preExtracted })
+      if (name === 'save_note') {
+        try {
+          const parsed = JSON.parse(output) as Record<string, unknown>
+          const noteId = parsed['noteId']
+          if (typeof noteId === 'string') {
+            savedNoteIds.add(noteId)
+            await forceInboxState(userId, noteId)
+          }
+        } catch { /* result not parseable */ }
+      }
+      return output
+    },
   })
 
   return { text: result.text, noteIds: collectNoteIds(result.toolCalls) }
+}
+
+/**
+ * Hard guarantee: any note saved through the agent always lands in inbox.
+ * Overwrites bucket_id and is_classified regardless of what the pipeline set.
+ */
+async function forceInboxState(userId: string, noteId: string): Promise<void> {
+  try {
+    await updateNote(userId, noteId, { bucket_id: null, is_classified: false })
+  } catch (err: unknown) {
+    console.error('[run-agent] forceInboxState failed:', err instanceof Error ? err.message : err)
+  }
 }
 
 function collectNoteIds(toolCalls: ToolCallRecord[]): string[] {

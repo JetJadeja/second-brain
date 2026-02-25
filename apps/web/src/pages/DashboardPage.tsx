@@ -1,3 +1,4 @@
+import { useState, useCallback } from 'react'
 import { Clock, FolderOpen } from 'lucide-react'
 import { TelegramOnboardingModal } from '@/features/telegram'
 import { useDashboard } from '@/features/dashboard/hooks/useDashboard'
@@ -8,11 +9,30 @@ import { ActivityFeed } from '@/features/dashboard/components/ActivityFeed'
 import { DashboardEmptyState } from '@/features/dashboard/components/DashboardEmptyState'
 import { SpaceCardGrid } from '@/features/dashboard/components/SpaceCardGrid'
 import { DashboardSkeleton } from '@/features/dashboard/components/DashboardSkeleton'
+import { MoveToModal } from '@/features/inbox/components/MoveToModal'
 
 const SUGGESTION_CHIPS = ['Recent captures', 'Unclassified notes', 'Knowledge gaps']
 
+type MoveTarget = { noteIds: string[]; label: string }
+
 export function DashboardPage() {
   const { data, isLoading, error, classifyNote, skipNote } = useDashboard()
+  const [moveTarget, setMoveTarget] = useState<MoveTarget | null>(null)
+
+  const handleMoveTo = useCallback((noteId: string) => {
+    const note = data?.inbox.recent.find((n) => n.id === noteId)
+    setMoveTarget({ noteIds: [noteId], label: note ? `\u201c${note.title}\u201d` : '1 note' })
+  }, [data])
+
+  const handleBatchMove = useCallback((noteIds: string[]) => {
+    setMoveTarget({ noteIds, label: `${noteIds.length} ${noteIds.length === 1 ? 'note' : 'notes'}` })
+  }, [])
+
+  const handleMoveConfirm = useCallback((bucketId: string) => {
+    if (!moveTarget) return
+    for (const id of moveTarget.noteIds) void classifyNote(id, bucketId)
+    setMoveTarget(null)
+  }, [moveTarget, classifyNote])
 
   const isEmpty = data && data.inbox.count === 0 && data.recent_and_relevant.length === 0
   const hasActivity = data && (data.inbox.recent.length > 0 || data.recent_and_relevant.length > 0)
@@ -46,6 +66,8 @@ export function DashboardPage() {
                   recentItems={data.recent_and_relevant}
                   onClassify={classifyNote}
                   onSkip={skipNote}
+                  onMoveTo={handleMoveTo}
+                  onBatchMove={handleBatchMove}
                 />
               )}
             </div>
@@ -60,6 +82,13 @@ export function DashboardPage() {
           </>
         )}
       </div>
+
+      <MoveToModal
+        open={moveTarget !== null}
+        label={moveTarget?.label ?? ''}
+        onMove={handleMoveConfirm}
+        onClose={() => setMoveTarget(null)}
+      />
 
       <TelegramOnboardingModal />
     </>

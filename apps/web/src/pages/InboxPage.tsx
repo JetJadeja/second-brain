@@ -146,7 +146,7 @@ export function InboxPage() {
 
       <MoveToModal
         open={moveTarget !== null}
-        noteTitle={moveTarget?.title ?? ''}
+        label={moveTarget ? `\u201c${moveTarget.title}\u201d` : ''}
         onMove={handleMoveConfirm}
         onClose={() => setMoveTarget(null)}
       />

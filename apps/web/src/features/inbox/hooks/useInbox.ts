@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth.store'
 import { useToastStore } from '@/stores/toast.store'
@@ -15,6 +15,9 @@ export function useInbox() {
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const userId = useAuthStore((s) => s.user?.id)
   const toast = useToastStore((s) => s.toast)
+
+  const itemsRef = useRef(items)
+  itemsRef.current = items
 
   const fetchInbox = useCallback(() => {
     inboxService.getInbox()
@@ -94,41 +97,74 @@ export function useInbox() {
     setSelectedIds((prev) => { const next = new Set(prev); next.delete(id); return next })
   }, [])
 
-  const classifyNote = useCallback(async (noteId: string, bucketId: string) => {
-    removeItem(noteId)
-    try { await inboxService.classifyNote(noteId, bucketId); toast({ type: 'success', message: 'Note classified' }) }
-    catch { toast({ type: 'error', message: 'Failed to classify' }) }
-  }, [removeItem, toast])
+  const restoreItem = useCallback((item: InboxItem, index: number) => {
+    setItems((prev) => {
+      const next = [...prev]
+      next.splice(Math.min(index, next.length), 0, item)
+      return next
+    })
+    setTotalCount((prev) => prev + 1)
+  }, [])
+
+  const optimisticAction = useCallback(
+    (id: string, apiCall: () => Promise<void>, successMsg: string, errorMsg: string, successType: 'success' | 'ai' = 'success') => {
+      const idx = itemsRef.current.findIndex((i) => i.id === id)
+      const snapshot = idx !== -1 ? itemsRef.current[idx] : null
+      removeItem(id)
+      return apiCall()
+        .then(() => toast({ type: successType, message: successMsg }))
+        .catch(() => {
+          if (snapshot) restoreItem(snapshot, idx)
+          toast({ type: 'error', message: errorMsg })
+        })
+    },
+    [removeItem, restoreItem, toast],
+  )
+
+  const classifyNote = useCallback(
+    (noteId: string, bucketId: string) =>
+      optimisticAction(noteId, () => inboxService.classifyNote(noteId, bucketId), 'Note classified', 'Failed to classify — note restored'),
+    [optimisticAction],
+  )
 
   const batchClassify = useCallback(async (classifications: Array<{ note_id: string; bucket_id: string }>) => {
+    const ids = new Set(classifications.map((c) => c.note_id))
+    const snapshots = itemsRef.current
+      .map((item, index) => ({ item, index }))
+      .filter((s) => ids.has(s.item.id))
     for (const c of classifications) removeItem(c.note_id)
-    try { await inboxService.batchClassify(classifications); toast({ type: 'success', message: `${classifications.length} notes classified` }) }
-    catch { toast({ type: 'error', message: 'Batch classify failed' }) }
-  }, [removeItem, toast])
+    try {
+      await inboxService.batchClassify(classifications)
+      toast({ type: 'success', message: `${classifications.length} notes classified` })
+    } catch {
+      for (const s of snapshots.reverse()) restoreItem(s.item, s.index)
+      toast({ type: 'error', message: 'Batch classify failed — notes restored' })
+    }
+  }, [removeItem, restoreItem, toast])
 
-  const archiveNote = useCallback(async (noteId: string) => {
-    removeItem(noteId)
-    try { await inboxService.archiveNote(noteId); toast({ type: 'success', message: 'Note archived' }) }
-    catch { toast({ type: 'error', message: 'Failed to archive' }) }
-  }, [removeItem, toast])
+  const archiveNote = useCallback(
+    (noteId: string) =>
+      optimisticAction(noteId, () => inboxService.archiveNote(noteId), 'Note archived', 'Failed to archive — note restored'),
+    [optimisticAction],
+  )
 
-  const deleteNote = useCallback(async (noteId: string) => {
-    removeItem(noteId)
-    try { await inboxService.deleteNote(noteId); toast({ type: 'success', message: 'Note deleted' }) }
-    catch { toast({ type: 'error', message: 'Failed to delete' }) }
-  }, [removeItem, toast])
+  const deleteNote = useCallback(
+    (noteId: string) =>
+      optimisticAction(noteId, () => inboxService.deleteNote(noteId), 'Note deleted', 'Failed to delete — note restored'),
+    [optimisticAction],
+  )
 
-  const acceptSuggestion = useCallback(async (id: string) => {
-    removeItem(id)
-    try { await inboxService.acceptSuggestion(id); toast({ type: 'ai', message: 'Suggestion accepted' }) }
-    catch { toast({ type: 'error', message: 'Failed to accept' }) }
-  }, [removeItem, toast])
+  const acceptSuggestion = useCallback(
+    (id: string) =>
+      optimisticAction(id, () => inboxService.acceptSuggestion(id), 'Suggestion accepted', 'Failed to accept — restored', 'ai'),
+    [optimisticAction],
+  )
 
-  const dismissSuggestion = useCallback(async (id: string) => {
-    removeItem(id)
-    try { await inboxService.dismissSuggestion(id); toast({ type: 'success', message: 'Suggestion dismissed' }) }
-    catch { toast({ type: 'error', message: 'Failed to dismiss' }) }
-  }, [removeItem, toast])
+  const dismissSuggestion = useCallback(
+    (id: string) =>
+      optimisticAction(id, () => inboxService.dismissSuggestion(id), 'Suggestion dismissed', 'Failed to dismiss — restored'),
+    [optimisticAction],
+  )
 
   return {
     items, totalCount, isLoading, error,

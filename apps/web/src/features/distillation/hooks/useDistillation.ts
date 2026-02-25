@@ -3,21 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useToastStore } from '@/stores/toast.store'
 import { getNote, updateNote } from '@/features/note-detail/services/note-detail.service'
 import { distillationService } from '../services/distillation.service'
+import { computeTarget, parseBullets } from '../lib/distillation-helpers'
 import type { NoteDetail } from '@/features/note-detail/types/note-detail.types'
-import type { Highlight, DistillAction, DistillTarget } from '../types/distillation.types'
-import type { DistillationStatus } from '@/types/enums'
-
-function computeTarget(status: DistillationStatus): DistillTarget {
-  if (status === 'raw' || status === 'key_points') return 'key_points'
-  if (status === 'distilled') return 'distilled'
-  return 'evergreen'
-}
-
-function parseBullets(note: NoteDetail): string[] {
-  if (note.key_points.length > 0) return [...note.key_points]
-  if (note.distillation) return note.distillation.split('\n').filter(Boolean)
-  return []
-}
+import type { Highlight, DistillAction } from '../types/distillation.types'
 
 export function useDistillation() {
   const { noteId } = useParams<{ noteId: string }>()

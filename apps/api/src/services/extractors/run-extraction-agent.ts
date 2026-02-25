@@ -15,6 +15,8 @@ export interface ExtractionAgentResult {
   summary: string | null
 }
 
+const PRIMARY_TOOLS = new Set(['fetch_url', 'fetch_tweet', 'fetch_video_metadata'])
+
 export async function runExtractionAgent(url: string): Promise<ExtractionAgentResult> {
   let lastToolData: ExtractionToolResult | null = null
 
@@ -27,7 +29,9 @@ export async function runExtractionAgent(url: string): Promise<ExtractionAgentRe
     maxTurns: 3,
     toolExecutor: async (name, input) => {
       const toolData = await executeExtractionTool(name, input)
-      lastToolData = toolData
+      if (PRIMARY_TOOLS.has(name)) {
+        lastToolData = toolData
+      }
       return toolData.text
     },
   })

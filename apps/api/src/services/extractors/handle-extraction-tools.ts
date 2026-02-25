@@ -1,8 +1,9 @@
-import type { ExtractedContent } from '@second-brain/shared'
+import type { ExtractedContent, ImageSource } from '@second-brain/shared'
 import { extractArticle } from './extract-article.js'
 import { extractTweet } from './extract-tweet.js'
 import { extractYoutube } from './extract-youtube.js'
 import { extractReel } from './extract-reel.js'
+import { describeImages } from './describe-images.js'
 
 export interface ExtractionToolResult {
   text: string
@@ -14,6 +15,10 @@ export async function executeExtractionTool(
   toolName: string,
   input: Record<string, unknown>,
 ): Promise<ExtractionToolResult> {
+  if (toolName === 'describe_images') {
+    return handleDescribeImages(input)
+  }
+
   const url = String(input['url'] ?? '')
   if (!url) {
     throw new Error('Missing url parameter')
@@ -53,6 +58,31 @@ async function handleFetchVideo(url: string): Promise<ExtractionToolResult> {
   const { content } = result
   const text = formatForLlm(content, result.warning)
   return { text, extracted: content, warning: result.warning }
+}
+
+async function handleDescribeImages(
+  input: Record<string, unknown>,
+): Promise<ExtractionToolResult> {
+  const raw = input['urls']
+  const urls = Array.isArray(raw) ? raw.filter((u): u is string => typeof u === 'string') : []
+
+  if (urls.length === 0) {
+    throw new Error('Missing or empty urls parameter')
+  }
+
+  const descriptions = await describeImages(urls)
+  const text = descriptions
+    .map((desc, i) => `Image ${i + 1}: ${desc}`)
+    .join('\n\n')
+
+  const extracted: ExtractedContent = {
+    title: 'Image descriptions',
+    content: text,
+    sourceType: 'image',
+    source: {} as ImageSource,
+  }
+
+  return { text, extracted }
 }
 
 function formatForLlm(content: ExtractedContent, warning?: string): string {

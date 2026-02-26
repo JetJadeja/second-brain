@@ -18,7 +18,7 @@ export interface ExtractionAgentResult {
 const PRIMARY_TOOLS = new Set(['fetch_url', 'fetch_tweet', 'fetch_video_metadata'])
 
 export async function runExtractionAgent(url: string): Promise<ExtractionAgentResult> {
-  let lastToolData: ExtractionToolResult | null = null
+  let primaryToolData: ExtractionToolResult | null = null
 
   const result = await runAgentLoop({
     system: buildExtractionAgentSystem(),
@@ -29,18 +29,18 @@ export async function runExtractionAgent(url: string): Promise<ExtractionAgentRe
     maxTurns: 7,
     toolExecutor: async (name, input) => {
       const toolData = await executeExtractionTool(name, input)
-      if (PRIMARY_TOOLS.has(name)) {
-        lastToolData = toolData
+      if (PRIMARY_TOOLS.has(name) && !primaryToolData) {
+        primaryToolData = toolData
       }
       return toolData.text
     },
   })
 
-  if (!lastToolData) {
+  if (!primaryToolData) {
     throw new Error('Extraction agent did not call any tools')
   }
 
-  return assembleResult(result.text, lastToolData)
+  return assembleResult(result.text, primaryToolData)
 }
 
 function assembleResult(

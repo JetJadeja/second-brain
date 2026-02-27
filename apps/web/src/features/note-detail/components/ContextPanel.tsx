@@ -24,7 +24,7 @@ export function ContextPanel({ collapsed, onToggle, children }: ContextPanelProp
       {/* Panel content */}
       <div
         className={cn(
-          'relative w-[300px] shrink-0 overflow-y-auto border-l border-surface-200 bg-surface-100 p-4 transition-all duration-200',
+          'relative w-[300px] shrink-0 overflow-y-auto border-l border-surface-200 bg-surface-100 p-4 transition-all duration-200 max-lg:hidden',
           collapsed && 'w-0 overflow-hidden border-l-0 p-0',
         )}
       >

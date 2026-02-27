@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { noteRoute } from '@/constants/routes'
 import { useCommandPaletteStore } from '@/stores/command-palette.store'
+import { useToastStore } from '@/stores/toast.store'
 import { commandPaletteService } from '../services/command-palette.service'
 import { AskLoadingSteps } from './AskLoadingSteps'
 import { AskAnswer } from './AskAnswer'
@@ -20,6 +21,7 @@ type ConversationEntry = { question: string; response: AskResponse }
 export function AskContent({ query, filters, askResponse, isSearching }: AskContentProps) {
   const navigate = useNavigate()
   const closePalette = useCommandPaletteStore((s) => s.closePalette)
+  const toast = useToastStore((s) => s.toast)
   const [conversation, setConversation] = useState<ConversationEntry[]>([])
   const [followUp, setFollowUp] = useState('')
   const [followUpLoading, setFollowUpLoading] = useState(false)
@@ -55,7 +57,7 @@ export function AskContent({ query, filters, askResponse, isSearching }: AskCont
       const res = await commandPaletteService.askQuestion(q, filters)
       setConversation((prev) => [...prev, { question: q, response: res }])
     } catch {
-      // Silently handle — user can retry
+      toast({ type: 'error', message: 'Follow-up failed. Try again.' })
     } finally {
       setFollowUpLoading(false)
     }

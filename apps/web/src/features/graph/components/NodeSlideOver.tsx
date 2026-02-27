@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { X } from 'lucide-react'
 import { SourceIcon } from '@/components/shared/SourceIcon'
 import { ParaDot } from '@/components/shared/ParaDot'
 import type { GraphNode } from '../types/graph.types'
@@ -19,10 +20,12 @@ export function NodeSlideOver({ node, onClose }: NodeSlideOverProps) {
     <div className="absolute right-0 top-0 z-20 flex h-full w-[300px] flex-col border-l border-surface-200 bg-surface-100 p-4 animate-in slide-in-from-right duration-200">
       {/* Close */}
       <button
+        type="button"
         onClick={onClose}
-        className="absolute right-3 top-3 text-[20px] leading-none text-surface-300 transition-colors hover:text-surface-400"
+        className="absolute right-3 top-3 text-surface-300 transition-colors hover:text-surface-400"
+        aria-label="Close panel"
       >
-        ×
+        <X size={16} />
       </button>
 
       {/* Title */}

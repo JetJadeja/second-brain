@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom'
 import { SourceIcon } from '@/components/shared/SourceIcon'
-import { ParaDot } from '@/components/shared/ParaDot'
 import { formatRelativeTime } from '@/lib/format-relative-time'
 import { SOURCE_LABELS } from '@/types/enums'
 import type { NoteDetail } from '../types/note-detail.types'
@@ -36,7 +35,6 @@ export function NoteMetadata({ note }: NoteMetadataProps) {
           onClick={() => navigate(`/buckets/${note.bucket_id}`)}
           className="flex items-center gap-1 rounded-sm bg-surface-150 px-1.5 py-0.5 text-caption text-surface-400 transition-colors hover:bg-surface-200"
         >
-          <ParaDot type="area" size={6} />
           {note.bucket_path ?? 'Bucket'}
         </button>
       ) : (

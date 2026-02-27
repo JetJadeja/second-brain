@@ -24,20 +24,15 @@ export function NoteDetailSkeleton() {
         </div>
         <div className="mt-6 space-y-3">
           {Array.from({ length: 6 }, (_, i) => (
-            <SkeletonText
-              key={i}
-              width={`${100 - i * 5}%`}
-              height={16}
-              className="opacity-0 animate-in fade-in fill-mode-forwards"
-              // @ts-expect-error -- style prop for animation delay
-              style={{ animationDelay: `${i * 30}ms` }}
-            />
+            <div key={i} className="animate-in fade-in fill-mode-forwards" style={{ animationDelay: `${i * 30}ms`, opacity: 0 }}>
+              <SkeletonText width={`${100 - i * 5}%`} height={16} />
+            </div>
           ))}
         </div>
       </div>
 
       {/* Context panel */}
-      <div className="w-[300px] shrink-0 border-l border-surface-200 bg-surface-100 p-4">
+      <div className="w-[300px] shrink-0 border-l border-surface-200 bg-surface-100 p-4 max-lg:hidden">
         <div className="space-y-6">
           <div className="space-y-3">
             <SkeletonText width={60} height={10} />

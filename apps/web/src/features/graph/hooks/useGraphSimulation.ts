@@ -33,19 +33,20 @@ export function useGraphSimulation(
 
     simulationRef.current = sim
 
-    function tick() {
-      if (sim.alpha() >= sim.alphaMin()) {
-        setSimNodes([...simData])
-        frameRef.current = requestAnimationFrame(tick)
-      }
+    let frameScheduled = false
+
+    function flush() {
+      frameScheduled = false
+      setSimNodes([...simData])
     }
 
     sim.on('tick', () => {
-      if (sim.alpha() >= sim.alphaMin()) {
-        frameRef.current = requestAnimationFrame(tick)
+      if (!frameScheduled && sim.alpha() >= sim.alphaMin()) {
+        frameScheduled = true
+        frameRef.current = requestAnimationFrame(flush)
       }
     })
-    tick()
+    sim.on('end', flush)
 
     return () => {
       sim.stop()

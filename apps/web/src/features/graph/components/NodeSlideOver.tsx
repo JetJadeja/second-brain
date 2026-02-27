@@ -26,7 +26,7 @@ export function NodeSlideOver({ node, onClose }: NodeSlideOverProps) {
       </button>
 
       {/* Title */}
-      <h3 className="pr-6 text-title-sm text-surface-700">{node.title}</h3>
+      <h3 className="pr-6 font-title-sm text-surface-700">{node.title}</h3>
 
       {/* Source type */}
       <div className="mt-2 flex items-center gap-1.5">

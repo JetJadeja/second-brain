@@ -10,7 +10,7 @@ export function NoteTitle({ title, sourceUrl }: NoteTitleProps) {
         href={sourceUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-[24px] font-semibold leading-tight text-surface-800 hover:text-ember-500 hover:underline"
+        className="font-title-lg text-surface-800 hover:text-ember-500 hover:underline"
       >
         {title}
       </a>
@@ -18,6 +18,6 @@ export function NoteTitle({ title, sourceUrl }: NoteTitleProps) {
   }
 
   return (
-    <h1 className="text-[24px] font-semibold leading-tight text-surface-800">{title}</h1>
+    <h1 className="font-title-lg text-surface-800">{title}</h1>
   )
 }

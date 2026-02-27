@@ -32,7 +32,7 @@ export function MoveToModal({ open, label, onMove, onClose }: MoveToModalProps) 
     <Dialog open={open} onOpenChange={(v) => { if (!v) onClose() }}>
       <DialogContent className="flex max-h-[70vh] flex-col gap-0 bg-surface-50 p-0 sm:max-w-md">
         <DialogHeader className="border-b border-surface-200 px-4 py-3">
-          <DialogTitle className="text-title-sm text-surface-700">
+          <DialogTitle className="font-title-sm text-surface-700">
             Move {label}
           </DialogTitle>
         </DialogHeader>

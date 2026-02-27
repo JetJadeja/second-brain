@@ -47,7 +47,7 @@ export function NoteActions({ onArchive, onDelete, onCopyLink }: NoteActionsProp
         <button
           type="button"
           onClick={() => { onDelete(); setConfirmDelete(false) }}
-          className="flex h-7 items-center gap-1.5 rounded-sm px-2 text-body-sm text-red-500 transition-colors hover:text-red-600"
+          className="flex h-7 items-center gap-1.5 rounded-sm px-2 text-body-sm text-danger transition-colors hover:text-danger"
         >
           <Trash2 size={14} />
           Confirm?

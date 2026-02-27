@@ -39,7 +39,7 @@ export function CreateBucketForm({ rootContainers, onSubmit, onCancel }: CreateB
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3 rounded-md border border-surface-200 p-3">
-      <span className="text-title-sm text-surface-600">New bucket</span>
+      <span className="font-title-sm text-surface-600">New bucket</span>
 
       <Input
         value={name}
@@ -67,7 +67,7 @@ export function CreateBucketForm({ rootContainers, onSubmit, onCancel }: CreateB
         ))}
       </div>
 
-      {error && <span className="text-caption text-red-500">{error}</span>}
+      {error && <span className="text-caption text-danger">{error}</span>}
 
       <div className="flex justify-end gap-2">
         <Button type="button" variant="ghost" size="sm" onClick={onCancel}>Cancel</Button>

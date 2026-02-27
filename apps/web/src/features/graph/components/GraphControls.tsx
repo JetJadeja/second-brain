@@ -13,8 +13,8 @@ type GraphControlsProps = {
 
 const FILTER_COLORS: Array<{ key: ParaFilter; color: string }> = [
   { key: 'project', color: 'bg-ember-500' },
-  { key: 'area', color: 'bg-green-500' },
-  { key: 'resource', color: 'bg-amber-500' },
+  { key: 'area', color: 'bg-success' },
+  { key: 'resource', color: 'bg-warning' },
   { key: 'archive', color: 'bg-surface-300' },
 ]
 

@@ -79,7 +79,7 @@ export function BucketHeader({
               <ArchiveRestore size={14} className="mr-2" /> Restore
             </DropdownMenuItem>
           )}
-          <DropdownMenuItem className="text-red-500" onClick={onDelete}>
+          <DropdownMenuItem className="text-danger" onClick={onDelete}>
             <Trash2 size={14} className="mr-2" /> Delete
           </DropdownMenuItem>
         </DropdownMenuContent>

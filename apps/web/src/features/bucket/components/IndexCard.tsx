@@ -21,9 +21,9 @@ export function IndexCard({ overview, description, noteCount, isLoading }: Index
           <SkeletonText width="40%" height={16} />
         </div>
       ) : hasGenerated ? (
-        <p className="text-[17px] leading-[1.8] text-surface-500">{overview}</p>
+        <p className="font-reading text-surface-500">{overview}</p>
       ) : description ? (
-        <p className="text-[17px] leading-[1.8] text-surface-500">{description}</p>
+        <p className="font-reading text-surface-500">{description}</p>
       ) : noteCount > 0 && noteCount < FIRST_THRESHOLD ? (
         <p className="italic text-body text-surface-400">
           Overview generates at {FIRST_THRESHOLD} notes ({noteCount}/{FIRST_THRESHOLD} so far).

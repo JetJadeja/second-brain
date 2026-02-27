@@ -46,7 +46,7 @@ export function NoteCard({ note }: NoteCardProps) {
       {/* Source + Title */}
       <div className="flex items-center gap-2">
         <SourceIcon sourceType={note.source_type} size={14} />
-        <span className="truncate text-title-sm text-surface-700 group-hover:text-surface-800">
+        <span className="truncate font-title-sm text-surface-700 group-hover:text-surface-800">
           {note.title}
         </span>
       </div>
@@ -59,11 +59,11 @@ export function NoteCard({ note }: NoteCardProps) {
       {/* Metadata row */}
       <div className="mt-auto flex items-center gap-3 pt-3">
         <StatusDot status={note.distillation_status} size={6} />
-        <span className="font-mono text-[13px] text-surface-300">
+        <span className="font-mono font-body-sm text-surface-300">
           {formatRelativeTime(note.captured_at)}
         </span>
         {note.connection_count > 0 && (
-          <span className="font-mono text-[13px] text-surface-300">
+          <span className="font-mono font-body-sm text-surface-300">
             {note.connection_count}↗
           </span>
         )}

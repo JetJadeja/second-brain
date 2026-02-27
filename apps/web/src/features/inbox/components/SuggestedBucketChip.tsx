@@ -12,7 +12,7 @@ export function SuggestedBucketChip({ bucketName, confidence }: SuggestedBucketC
   return (
     <span
       className={cn(
-        'inline-flex max-w-[200px] items-center gap-1.5 rounded-md px-2 py-0.5 text-[12px] text-surface-500',
+        'inline-flex max-w-[200px] items-center gap-1.5 rounded-md px-2 py-0.5 font-caption text-surface-500',
         isHigh ? 'bg-surface-150' : 'bg-surface-150/60',
         !hasName && 'opacity-40',
         hasName && !isHigh && 'opacity-60',

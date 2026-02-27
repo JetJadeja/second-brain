@@ -71,7 +71,7 @@ export function InboxNoteRow({
           onClick={onToggleExpand}
           className="flex min-w-0 flex-1 flex-col gap-0.5 text-left"
         >
-          <span className="truncate text-title-sm text-surface-700">
+          <span className="truncate font-title-sm text-surface-700">
             {item.title}
           </span>
           {item.ai_summary && (
@@ -84,7 +84,7 @@ export function InboxNoteRow({
               bucketName={item.ai_suggested_bucket_path}
               confidence={item.ai_confidence}
             />
-            <span className="font-mono text-[12px] text-surface-300">
+            <span className="font-mono font-caption text-surface-300">
               {formatRelativeTime(item.captured_at)}
             </span>
           </div>

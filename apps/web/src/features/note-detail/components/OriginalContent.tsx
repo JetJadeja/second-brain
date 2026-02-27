@@ -10,7 +10,7 @@ export function OriginalContent({ note }: OriginalContentProps) {
   // Thoughts: plain pre-wrapped text
   if (note.is_original_thought) {
     return (
-      <div className="whitespace-pre-wrap text-[17px] leading-[1.7] text-surface-600">
+      <div className="whitespace-pre-wrap font-reading text-surface-600">
         {note.original_content}
       </div>
     )
@@ -47,7 +47,7 @@ export function OriginalContent({ note }: OriginalContentProps) {
       )}
 
       {/* Content text */}
-      <div className="whitespace-pre-wrap text-[17px] leading-[1.7] text-surface-600">
+      <div className="whitespace-pre-wrap font-reading text-surface-600">
         {note.original_content}
       </div>
     </div>

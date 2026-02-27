@@ -64,16 +64,16 @@ export function BatchToolbar({
           <button
             type="button"
             onClick={() => { onDelete(); setDeleteConfirm(false) }}
-            className="relative overflow-hidden rounded-sm px-3 py-1.5 text-body-sm text-red-500 transition-colors hover:text-red-600"
+            className="relative overflow-hidden rounded-sm px-3 py-1.5 text-body-sm text-danger transition-colors hover:text-danger"
           >
             Confirm delete?
-            <span className="absolute inset-x-0 bottom-0 h-0.5 animate-[shrink_3s_linear] bg-red-500" />
+            <span className="absolute inset-x-0 bottom-0 h-0.5 animate-[shrink_3s_linear] bg-danger" />
           </button>
         ) : (
           <button
             type="button"
             onClick={() => setDeleteConfirm(true)}
-            className="rounded-sm px-3 py-1.5 text-body-sm text-red-500 transition-colors hover:text-red-600"
+            className="rounded-sm px-3 py-1.5 text-body-sm text-danger transition-colors hover:text-danger"
           >
             Delete
           </button>

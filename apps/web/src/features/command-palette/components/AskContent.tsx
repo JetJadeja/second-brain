@@ -79,8 +79,6 @@ export function AskContent({ query, filters, askResponse, isSearching }: AskCont
           key={i}
           answer={entry.response.answer}
           onCitationClick={handleCitationClick}
-          onSynthesize={() => {}}
-          onOpenSources={() => {}}
         />
       ))}
 

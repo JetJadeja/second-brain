@@ -66,7 +66,7 @@ export function BucketHeader({
           <DropdownMenuItem onClick={onStartRename}>
             <Pencil size={14} className="mr-2" /> Rename
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          <DropdownMenuItem disabled className="opacity-50 cursor-not-allowed">
             <ArrowRight size={14} className="mr-2" /> Move to…
           </DropdownMenuItem>
           {onArchive && (

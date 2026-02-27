@@ -1,4 +1,8 @@
+import { useNavigate } from 'react-router-dom'
+
 export function DashboardEmptyState() {
+  const navigate = useNavigate()
+
   return (
     <div className="flex flex-col items-center py-12">
       <svg width="120" height="80" viewBox="0 0 120 80" fill="none" className="opacity-60">
@@ -21,7 +25,11 @@ export function DashboardEmptyState() {
         Your brain is empty. Connect Telegram and start capturing.
       </p>
 
-      <button className="mt-4 h-9 px-4 border border-surface-200 rounded-md font-body-sm text-surface-500 transition-colors hover:border-surface-300 hover:text-surface-600">
+      <button
+        type="button"
+        onClick={() => navigate('/settings')}
+        className="mt-4 h-9 px-4 border border-surface-200 rounded-md font-body-sm text-surface-500 transition-colors hover:border-surface-300 hover:text-surface-600"
+      >
         Send your first capture →
       </button>
     </div>

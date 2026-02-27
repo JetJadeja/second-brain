@@ -29,9 +29,6 @@ export function AccountCard() {
         Sign out
       </button>
 
-      <p className="mt-8 text-[11px] text-[var(--surface-300)]">
-        Delete account
-      </p>
     </div>
   )
 }

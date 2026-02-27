@@ -9,12 +9,8 @@ const COMMANDS: PaletteCommand[] = [
   { id: 'inbox', label: '/inbox', description: 'Go to inbox', shortcut: '⌘2' },
   { id: 'graph', label: '/graph', description: 'Open graph view', shortcut: '⌘4' },
   { id: 'review', label: '/review', description: 'Start weekly review', shortcut: '⌘5' },
-  { id: 'new', label: '/new', description: 'Create a new note in a bucket' },
-  { id: 'theme-dark', label: '/theme dark', description: 'Switch to dark mode' },
-  { id: 'theme-light', label: '/theme light', description: 'Switch to light mode' },
   { id: 'collapse', label: '/collapse', description: 'Toggle sidebar', shortcut: '⌘\\' },
   { id: 'settings', label: '/settings', description: 'Open settings', shortcut: '⌘,' },
-  { id: 'help', label: '/help', description: 'Show all keyboard shortcuts', shortcut: '⌘/' },
 ]
 
 export type CommandListProps = {

@@ -68,8 +68,10 @@ function SectionHeader({ label, canCreate }: { label: string; canCreate: boolean
       {canCreate && (
         <button
           type="button"
-          className="ml-auto opacity-0 group-hover:opacity-100 text-surface-300 hover:text-surface-500 transition-opacity duration-[120ms]"
+          disabled
+          className="ml-auto opacity-0 group-hover:opacity-50 text-surface-300 cursor-not-allowed transition-opacity duration-[120ms]"
           aria-label={`Create new ${label.toLowerCase().slice(0, -1)}`}
+          title="Coming soon"
         >
           <Plus size={14} />
         </button>

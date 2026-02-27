@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { FolderInput, Archive, Trash2, Link } from 'lucide-react'
+import { Archive, Trash2, Link } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 type NoteActionsProps = {
@@ -11,7 +11,7 @@ type NoteActionsProps = {
 function ActionButton({
   icon: Icon, label, onClick, className,
 }: {
-  icon: typeof FolderInput
+  icon: typeof Archive
   label: string
   onClick: () => void
   className?: string
@@ -42,7 +42,6 @@ export function NoteActions({ onArchive, onDelete, onCopyLink }: NoteActionsProp
 
   return (
     <div className="flex items-center gap-1">
-      <ActionButton icon={FolderInput} label="Move" onClick={() => {}} />
       <ActionButton icon={Archive} label="Archive" onClick={onArchive} />
       {confirmDelete ? (
         <button

@@ -4,11 +4,9 @@ import type { AskAnswer as AskAnswerType, AskCitation } from '../types/command-p
 export type AskAnswerProps = {
   answer: AskAnswerType
   onCitationClick: (citation: AskCitation) => void
-  onSynthesize: () => void
-  onOpenSources: () => void
 }
 
-export function AskAnswer({ answer, onCitationClick, onSynthesize, onOpenSources }: AskAnswerProps) {
+export function AskAnswer({ answer, onCitationClick }: AskAnswerProps) {
   return (
     <div className="animate-[fade-in_200ms_ease-out]">
       <div className="bg-gradient-to-b from-surface-100 to-surface-150 border-l-[3px] border-l-ember-500 rounded-r-lg p-4">
@@ -26,22 +24,6 @@ export function AskAnswer({ answer, onCitationClick, onSynthesize, onOpenSources
         )}
       </div>
 
-      <div className="flex items-center gap-2 mt-3">
-        <button
-          type="button"
-          onClick={onSynthesize}
-          className="px-4 py-2 bg-gradient-to-r from-ember-500 to-ember-700 text-white font-body rounded-lg hover:shadow-lg transition-shadow"
-        >
-          Synthesize into document
-        </button>
-        <button
-          type="button"
-          onClick={onOpenSources}
-          className="px-4 py-2 bg-surface-200 text-surface-500 font-body-sm rounded-lg hover:bg-surface-250 transition-colors"
-        >
-          Open all sources
-        </button>
-      </div>
     </div>
   )
 }

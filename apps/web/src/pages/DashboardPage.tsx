@@ -62,7 +62,7 @@ export function DashboardPage() {
               <button
                 type="button"
                 onClick={() => navigate('/review')}
-                className="flex w-full items-center gap-2 rounded-lg border border-surface-200 bg-surface-50 px-4 py-2.5 text-left text-body-sm text-surface-500 transition-colors hover:border-ember-200 hover:bg-ember-900/[0.04]"
+                className="flex w-full items-center gap-2 rounded-lg border border-surface-200 bg-surface-50 px-4 py-2.5 text-left text-body-sm text-surface-500 transition-colors hover:border-ember-500 hover:bg-ember-900/[0.04]"
               >
                 <span className="text-ember-500">✦</span>
                 {data.unannotated_count} {data.unannotated_count === 1 ? 'note needs' : 'notes need'} your annotation

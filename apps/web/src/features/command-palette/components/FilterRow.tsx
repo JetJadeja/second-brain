@@ -76,7 +76,7 @@ function FilterChip({ label, active, options, selected, onSelect }: FilterChipPr
         onClick={() => setOpen((v) => !v)}
         className={cn(
           'flex items-center gap-1 px-2 py-1 rounded-md font-body-sm transition-colors duration-100',
-          active ? 'bg-ember-800 text-ember-500' : 'bg-surface-200 text-surface-400 hover:bg-surface-250',
+          active ? 'bg-ember-800 text-ember-500' : 'bg-surface-200 text-surface-400 hover:bg-surface-300',
         )}
       >
         {label}

@@ -24,25 +24,25 @@ export function ReviewSectionCard({ title, icon, count, isComplete, defaultOpen 
   }, [isComplete])
 
   return (
-    <div className="rounded-xl border border-[var(--surface-200)] bg-[var(--surface-100)]">
+    <div className="rounded-xl border border-surface-200 bg-surface-100">
       <button
         type="button"
         onClick={() => setIsOpen((o) => !o)}
         className="flex w-full items-center gap-3 p-5"
       >
-        <span className={`shrink-0 [&>svg]:size-4 ${isComplete ? 'text-[var(--success)]' : 'text-[var(--surface-400)]'}`}>
+        <span className={`shrink-0 [&>svg]:size-4 ${isComplete ? 'text-success' : 'text-surface-400'}`}>
           {isComplete ? <Check /> : icon}
         </span>
-        <span className={`text-sm font-semibold flex-1 text-left ${isComplete ? 'text-[var(--surface-400)] line-through' : 'text-[var(--surface-700)]'}`}>
+        <span className={`text-sm font-semibold flex-1 text-left ${isComplete ? 'text-surface-400 line-through' : 'text-surface-700'}`}>
           {title}
         </span>
         {!isComplete && count > 0 && (
-          <span className="rounded-full bg-[var(--surface-200)] px-2 py-0.5 text-xs font-medium text-[var(--surface-500)]">
+          <span className="rounded-full bg-surface-200 px-2 py-0.5 text-xs font-medium text-surface-500">
             {count}
           </span>
         )}
         <ChevronDown
-          className={`size-4 text-[var(--surface-300)] transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+          className={`size-4 text-surface-300 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
         />
       </button>
       <div

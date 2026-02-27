@@ -19,7 +19,7 @@ export function ProjectCheckSection({ projects, reviewedProjects, onConfirm, onA
   }
 
   if (projects.length === 0) {
-    return <p className="text-sm text-[var(--surface-400)]">No active projects</p>
+    return <p className="text-sm text-surface-400">No active projects</p>
   }
 
   return (
@@ -30,15 +30,15 @@ export function ProjectCheckSection({ projects, reviewedProjects, onConfirm, onA
         return (
           <div
             key={project.id}
-            className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors duration-300 ${flashingId === project.id ? 'bg-[var(--success)]/10' : ''}`}
+            className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors duration-300 ${flashingId === project.id ? 'bg-success/10' : ''}`}
           >
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-[var(--surface-700)] truncate">{project.name}</p>
-              <p className="text-xs text-[var(--surface-400)]">
+              <p className="text-sm font-semibold text-surface-700 truncate">{project.name}</p>
+              <p className="text-xs text-surface-400">
                 {project.note_count} notes &middot; {formatRelativeTime(project.last_captured_at)}
               </p>
               {project.is_stale && (
-                <p className="text-xs text-[var(--warning)]">
+                <p className="text-xs text-warning">
                   Inactive for {Math.floor((Date.now() - new Date(project.last_captured_at).getTime()) / (1000 * 60 * 60 * 24))} days
                 </p>
               )}
@@ -46,14 +46,14 @@ export function ProjectCheckSection({ projects, reviewedProjects, onConfirm, onA
             <button
               type="button"
               onClick={() => handleConfirm(project)}
-              className="shrink-0 rounded-md px-3 py-1 text-xs font-medium text-[var(--success)] hover:bg-[var(--success)]/10 transition-colors"
+              className="shrink-0 rounded-md px-3 py-1 text-xs font-medium text-success hover:bg-success/10 transition-colors"
             >
               Still active
             </button>
             <button
               type="button"
               onClick={() => onArchive(project)}
-              className="shrink-0 rounded-md px-3 py-1 text-xs font-medium text-[var(--surface-400)] hover:bg-[var(--surface-200)] transition-colors"
+              className="shrink-0 rounded-md px-3 py-1 text-xs font-medium text-surface-400 hover:bg-surface-200 transition-colors"
             >
               Archive
             </button>

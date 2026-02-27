@@ -72,6 +72,7 @@
   --color-status-evergreen: #4A90D9;
   --color-danger: #D94545;
   --color-success: #45A867;
+  --color-warning: var(--warning);
 
   /* shadcn compatibility tokens */
   --color-background: var(--surface-50);

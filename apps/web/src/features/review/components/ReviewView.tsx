@@ -12,7 +12,7 @@ function LoadingSkeleton() {
   return (
     <div className="space-y-4 animate-pulse">
       {Array.from({ length: 4 }, (_, i) => (
-        <div key={i} className="h-20 rounded-xl bg-[var(--surface-200)]" />
+        <div key={i} className="h-20 rounded-xl bg-surface-200" />
       ))}
     </div>
   )
@@ -41,8 +41,8 @@ export function ReviewView() {
       <div className="mt-8 space-y-4">
         <ReviewSectionCard title={`Inbox (${sectionCounts.inbox} items)`} icon={<Inbox />} count={sectionCounts.inbox} isComplete={completion.inbox}>
           {completion.inbox
-            ? <p className="text-sm text-[var(--success)]">Inbox clear</p>
-            : <p className="text-sm text-[var(--surface-400)]">Process your inbox items from the Inbox page</p>
+            ? <p className="text-sm text-success">Inbox clear</p>
+            : <p className="text-sm text-surface-400">Process your inbox items from the Inbox page</p>
           }
         </ReviewSectionCard>
 

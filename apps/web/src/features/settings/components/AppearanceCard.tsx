@@ -12,13 +12,13 @@ export function AppearanceCard() {
   const { theme, setTheme } = useTheme()
 
   return (
-    <div className="rounded-xl border border-[var(--surface-200)] bg-[var(--surface-100)] p-5">
+    <div className="rounded-xl border border-surface-200 bg-surface-100 p-5">
       <div className="flex items-center gap-2 mb-4">
-        <Paintbrush className="size-4 text-[var(--surface-400)]" />
-        <h2 className="text-[15px] font-semibold text-[var(--surface-700)]">Appearance</h2>
+        <Paintbrush className="size-4 text-surface-400" />
+        <h2 className="text-[15px] font-semibold text-surface-700">Appearance</h2>
       </div>
 
-      <div className="relative flex rounded-lg bg-[var(--surface-150)] p-1">
+      <div className="relative flex rounded-lg bg-surface-150 p-1">
         {THEME_OPTIONS.map((option) => {
           const Icon = option.icon
           const isActive = theme === option.value
@@ -29,8 +29,8 @@ export function AppearanceCard() {
               onClick={() => setTheme(option.value)}
               className={`relative z-10 flex flex-1 items-center justify-center gap-2 rounded-md px-3 py-2 text-[13px] font-medium transition-all duration-150 ${
                 isActive
-                  ? 'bg-[var(--surface-200)] text-[var(--surface-700)]'
-                  : 'text-[var(--surface-400)] hover:text-[var(--surface-500)]'
+                  ? 'bg-surface-200 text-surface-700'
+                  : 'text-surface-400 hover:text-surface-500'
               }`}
             >
               <Icon className="size-4" />

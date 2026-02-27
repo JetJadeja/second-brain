@@ -1,6 +1,7 @@
 import { saveConversationMessage, deleteOldConversationMessages } from '@second-brain/db'
 import type { ConversationRole } from '@second-brain/shared'
 import { addEntry, MAX_ENTRIES } from './conversation-store.js'
+import { fireAndRetry } from '../../middleware/retry-async.js'
 
 const CLEANUP_INTERVAL = 50
 const messageCounter = new Map<string, number>()
@@ -39,16 +40,16 @@ function recordEntry(
     timestamp: Date.now(),
   })
 
-  saveConversationMessage(userId, role, content, noteIds).catch((err) =>
-    console.error('[record-exchange] save failed:', err),
+  fireAndRetry('conversation-save', () =>
+    saveConversationMessage(userId, role, content, noteIds),
   )
 
   const count = (messageCounter.get(userId) ?? 0) + 1
   messageCounter.set(userId, count)
 
   if (count % CLEANUP_INTERVAL === 0) {
-    deleteOldConversationMessages(userId, MAX_ENTRIES).catch((err) =>
-      console.error('[record-exchange] cleanup failed:', err),
+    fireAndRetry('conversation-cleanup', () =>
+      deleteOldConversationMessages(userId, MAX_ENTRIES),
     )
   }
 }

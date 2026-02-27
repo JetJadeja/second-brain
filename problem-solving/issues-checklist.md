@@ -42,7 +42,7 @@
 - [x] Dashboard endpoint has 3 sequential waterfall stages that could be parallel (`apps/api/src/routes/dashboard.ts:13-28`)
 - [x] Conversation store uses `Array.shift()` for trimming (O(n) per insert) (`apps/api/src/services/conversation/conversation-store.ts:11-13`)
 - [x] `Math.random()` used for link code generation instead of `crypto.randomInt()` (`apps/api/src/routes/link.ts:17`)
-- [ ] Fire-and-forget DB writes (view counts, conversation messages, connections) have no retry mechanism (`apps/api/src/services/conversation/record-exchange.ts:41-42`)
+- [x] Fire-and-forget DB writes (view counts, conversation messages, connections) have no retry mechanism (`apps/api/src/services/conversation/record-exchange.ts:41-42`)
 - [ ] `express.json()` has no Content-Type validation — wrong Content-Type yields confusing Zod errors (`apps/api/src/server.ts:25`)
 
 ---

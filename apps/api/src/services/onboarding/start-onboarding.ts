@@ -1,6 +1,7 @@
 import { upsertOnboardingState } from '@second-brain/db'
 import { setOnboarding } from './onboarding-store.js'
 import { ensureRootBuckets } from './ensure-root-buckets.js'
+import { fireAndRetry } from '../../middleware/retry-async.js'
 
 /**
  * Starts the onboarding flow for a newly linked user.
@@ -11,7 +12,5 @@ export async function startOnboarding(userId: string): Promise<void> {
   await ensureRootBuckets(userId)
 
   setOnboarding(userId)
-  upsertOnboardingState(userId, 'projects').catch((err) =>
-    console.error('[start-onboarding] upsert failed:', err),
-  )
+  fireAndRetry('onboarding-upsert', () => upsertOnboardingState(userId, 'projects'))
 }

@@ -11,6 +11,7 @@ import { getBucketPath } from '../services/para/para-cache.js'
 import { buildNoteRelations } from '../services/notes/build-note-relations.js'
 import { updateNoteWithHistory, BucketNotFoundError } from '../services/notes/update-note-fields.js'
 import { catchAsync, param } from '../middleware/catch-async.js'
+import { fireAndRetry } from '../middleware/retry-async.js'
 import type { NoteDetailResponse } from '@second-brain/shared'
 
 export const notesRouter = Router()
@@ -36,12 +37,8 @@ notesRouter.get('/:noteId', catchAsync(async (req, res) => {
     return
   }
 
-  incrementViewCount(userId, noteId).catch((err) =>
-    console.error('[notes] view count increment failed:', err),
-  )
-  insertNoteView(userId, noteId).catch((err) =>
-    console.error('[notes] view insert failed:', err),
-  )
+  fireAndRetry('view-count', () => incrementViewCount(userId, noteId))
+  fireAndRetry('view-insert', () => insertNoteView(userId, noteId))
 
   const [connections, bucketPath] = await Promise.all([
     getConnectionsForNote(userId, noteId),

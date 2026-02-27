@@ -3,6 +3,7 @@ import type { ParaBucket } from '@second-brain/shared'
 import { createOnboardingBuckets } from '../onboarding/create-onboarding-buckets.js'
 import { clearOnboarding } from '../onboarding/onboarding-store.js'
 import { invalidateParaCache } from '../para/para-cache.js'
+import { fireAndRetry } from '../../middleware/retry-async.js'
 
 interface BucketSpec {
   name: string
@@ -25,9 +26,7 @@ export async function executeFinalizeOnboarding(
 
   // Mark onboarding complete in both DB and memory
   clearOnboarding(userId)
-  markOnboardingComplete(userId).catch((err) =>
-    console.error('[finalize-onboarding] mark complete failed:', err),
-  )
+  fireAndRetry('onboarding-complete', () => markOnboardingComplete(userId))
 
   // Build structure summary from final bucket state
   const allBuckets = await getAllBuckets(userId)

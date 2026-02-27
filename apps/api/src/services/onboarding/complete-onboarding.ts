@@ -1,6 +1,7 @@
 import { getAllBuckets, markOnboardingComplete } from '@second-brain/db'
 import type { ParaBucket } from '@second-brain/shared'
 import { clearOnboarding } from './onboarding-store.js'
+import { fireAndRetry } from '../../middleware/retry-async.js'
 
 /**
  * Completes the onboarding flow. Clears onboarding state and
@@ -9,9 +10,7 @@ import { clearOnboarding } from './onboarding-store.js'
 export async function completeOnboarding(userId: string): Promise<string> {
   // Clear onboarding state
   clearOnboarding(userId)
-  markOnboardingComplete(userId).catch((err) =>
-    console.error('[complete-onboarding] mark complete failed:', err),
-  )
+  fireAndRetry('onboarding-complete', () => markOnboardingComplete(userId))
 
   // Build summary
   const buckets = await getAllBuckets(userId)

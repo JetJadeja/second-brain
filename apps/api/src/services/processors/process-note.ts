@@ -6,6 +6,7 @@ import { detectConnections } from './detect-connections.js'
 import { saveNote } from './save-note.js'
 import { maybeTriggerReorganization } from '../reorganization/trigger-reorganization.js'
 import { maybeTriggerOverview } from '../overview/trigger-overview.js'
+import { fireAndRetry } from '../../middleware/retry-async.js'
 
 export interface ProcessedNote {
   note: Note
@@ -48,9 +49,7 @@ export async function processNote(
   // Step 5-6: Skip fire-and-forget steps for deduplicated notes
   if (!deduplicated) {
     if (embedding) {
-      detectConnections(userId, note.id, embedding).catch((err) =>
-        console.error('[process-note] connection detection failed:', err),
-      )
+      fireAndRetry('connections', () => detectConnections(userId, note.id, embedding))
     }
     maybeTriggerReorganization(userId)
     if (note.bucket_id) void maybeTriggerOverview(userId, note.bucket_id)

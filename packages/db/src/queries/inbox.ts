@@ -52,7 +52,6 @@ export async function batchClassify(
 ): Promise<number> {
   const sb = getServiceClient()
 
-  // Validate all notes belong to user before updating
   const noteIds = items.map((i) => i.note_id)
   const { data: notes, error: fetchError } = await sb
     .from('notes')
@@ -63,16 +62,23 @@ export async function batchClassify(
   if (fetchError) throw new Error(`batchClassify fetch: ${fetchError.message}`)
   const ownedIds = new Set((notes ?? []).map((n) => n.id))
 
-  let count = 0
+  const grouped = new Map<string, string[]>()
   for (const item of items) {
     if (!ownedIds.has(item.note_id)) continue
+    const ids = grouped.get(item.bucket_id) ?? []
+    ids.push(item.note_id)
+    grouped.set(item.bucket_id, ids)
+  }
+
+  let count = 0
+  for (const [bucketId, ids] of grouped) {
     const { error } = await sb
       .from('notes')
-      .update({ bucket_id: item.bucket_id, is_classified: true })
-      .eq('id', item.note_id)
+      .update({ bucket_id: bucketId, is_classified: true })
       .eq('user_id', userId)
+      .in('id', ids)
 
-    if (!error) count++
+    if (!error) count += ids.length
   }
 
   return count

@@ -16,11 +16,12 @@ export async function buildBucketDetail(
   bucket: ParaBucket,
   opts: BucketDetailOpts,
 ): Promise<BucketDetailResponse> {
-  const [path, allBuckets, noteCounts] = await Promise.all([
+  const [path, allBuckets, stats] = await Promise.all([
     getBucketPath(userId, bucket.id),
     getAllBuckets(userId),
     countNotesByBucket(userId),
   ])
+  const noteCounts = stats.counts
 
   const descendantIds = collectDescendantIds(bucket.id, allBuckets)
   const { data: notes, total } = await getNotesByBucket(userId, descendantIds, opts)

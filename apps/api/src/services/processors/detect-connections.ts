@@ -15,9 +15,11 @@ export async function detectConnections(
       userId, embedding, noteId, 5, SIMILARITY_THRESHOLD_CONNECTION,
     )
 
-    for (const match of similar) {
-      await createConnection(userId, noteId, match.id, 'ai_detected', match.similarity)
-    }
+    await Promise.all(
+      similar.map((match) =>
+        createConnection(userId, noteId, match.id, 'ai_detected', match.similarity),
+      ),
+    )
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : String(error)
     console.error(`[detectConnections] noteId=${noteId}:`, msg)

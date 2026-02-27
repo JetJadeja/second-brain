@@ -32,11 +32,11 @@ async function countAffectedNotes(
   buckets: ParaBucket[],
 ): Promise<number> {
   const descendantIds = collectDescendantIds(bucketId, buckets)
-  const counts = await countNotesByBucket(userId)
+  const stats = await countNotesByBucket(userId)
 
   let total = 0
   for (const id of descendantIds) {
-    total += counts.get(id) ?? 0
+    total += stats.counts.get(id) ?? 0
   }
   return total
 }

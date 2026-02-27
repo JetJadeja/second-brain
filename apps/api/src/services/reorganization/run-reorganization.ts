@@ -47,26 +47,23 @@ export async function runReorganization(userId: string): Promise<number> {
 }
 
 async function buildSnapshot(userId: string) {
-  const [buckets, noteCounts, sampleTitles] = await Promise.all([
+  const [buckets, noteStats, sampleTitles] = await Promise.all([
     getAllBuckets(userId),
     countNotesByBucket(userId),
     getSampleNoteTitles(userId),
   ])
 
-  const results = await Promise.all(
-    buckets.filter((b) => b.parent_id !== null).map(async (b) => {
-      const stats = await getBucketStats(userId, [b.id])
-      return {
-        id: b.id,
-        name: b.name,
-        type: b.type,
-        parent_id: b.parent_id,
-        note_count: noteCounts.get(b.id) ?? 0,
-        sample_titles: sampleTitles.get(b.id) ?? [],
-        last_capture_at: stats.lastCaptureAt,
-      }
-    }),
-  )
+  const results = buckets
+    .filter((b) => b.parent_id !== null)
+    .map((b) => ({
+      id: b.id,
+      name: b.name,
+      type: b.type,
+      parent_id: b.parent_id,
+      note_count: noteStats.counts.get(b.id) ?? 0,
+      sample_titles: sampleTitles.get(b.id) ?? [],
+      last_capture_at: noteStats.lastCapture.get(b.id) ?? null,
+    }))
 
   return results
 }

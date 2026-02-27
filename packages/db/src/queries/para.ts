@@ -65,20 +65,17 @@ export async function deleteBucket(
 ): Promise<void> {
   const sb = getServiceClient()
 
-  // Collect this bucket + all descendants
   const allBuckets = await getAllBuckets(userId)
   const toDelete = collectDescendantIds(bucketId, allBuckets)
 
-  // Unclassify notes in all affected buckets
-  for (const bid of toDelete) {
-    await sb
-      .from('notes')
-      .update({ bucket_id: null, is_classified: false })
-      .eq('user_id', userId)
-      .eq('bucket_id', bid)
-  }
+  const { error: unclassifyError } = await sb
+    .from('notes')
+    .update({ bucket_id: null, is_classified: false })
+    .eq('user_id', userId)
+    .in('bucket_id', toDelete)
 
-  // Delete the root bucket (cascade handles children)
+  if (unclassifyError) throw new Error(`deleteBucket unclassify: ${unclassifyError.message}`)
+
   const { error } = await sb
     .from('para_buckets')
     .delete()

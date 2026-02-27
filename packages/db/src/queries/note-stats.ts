@@ -1,22 +1,37 @@
 import { getServiceClient } from '../client.js'
 
+export interface BucketNoteStats {
+  counts: Map<string, number>
+  lastCapture: Map<string, string>
+}
+
 export async function countNotesByBucket(
   userId: string,
-): Promise<Map<string, number>> {
+): Promise<BucketNoteStats> {
   const { data, error } = await getServiceClient()
     .from('notes')
-    .select('bucket_id')
+    .select('bucket_id, captured_at')
     .eq('user_id', userId)
     .not('bucket_id', 'is', null)
 
   if (error) throw new Error(`countNotesByBucket: ${error.message}`)
 
   const counts = new Map<string, number>()
+  const lastCapture = new Map<string, string>()
+
   for (const row of data ?? []) {
     const bid = row.bucket_id as string
+    const capturedAt = row.captured_at as string
+
     counts.set(bid, (counts.get(bid) ?? 0) + 1)
+
+    const existing = lastCapture.get(bid)
+    if (!existing || capturedAt > existing) {
+      lastCapture.set(bid, capturedAt)
+    }
   }
-  return counts
+
+  return { counts, lastCapture }
 }
 
 export async function countUnannotatedNotes(userId: string): Promise<number> {

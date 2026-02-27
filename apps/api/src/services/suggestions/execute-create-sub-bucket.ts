@@ -13,12 +13,12 @@ export async function executeCreateSubBucket(
     throw new Error(`Parent bucket not found: ${payload.parent_bucket_id}`)
   }
 
-  const [buckets, noteCounts] = await Promise.all([
+  const [buckets, stats] = await Promise.all([
     getAllBuckets(userId),
     countNotesByBucket(userId),
   ])
   const totalNotes = collectDescendantIds(parent.id, buckets)
-    .reduce((sum, id) => sum + (noteCounts.get(id) ?? 0), 0)
+    .reduce((sum, id) => sum + (stats.counts.get(id) ?? 0), 0)
 
   if (totalNotes < MIN_NOTES_FOR_SUB_BUCKET) {
     throw new Error(

@@ -48,10 +48,10 @@ async function getBucketActivity(userId: string, bucketId: string): Promise<stri
 
 async function listEmptyBuckets(userId: string): Promise<string> {
   const buckets = await getAllBuckets(userId)
-  const noteCounts = await countNotesByBucket(userId)
+  const stats = await countNotesByBucket(userId)
 
   const empty = buckets
-    .filter((b) => b.parent_id !== null && (noteCounts.get(b.id) ?? 0) === 0)
+    .filter((b) => b.parent_id !== null && (stats.counts.get(b.id) ?? 0) === 0)
     .map((b) => ({
       id: b.id,
       name: b.name,

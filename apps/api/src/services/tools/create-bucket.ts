@@ -37,9 +37,9 @@ export async function executeCreateBucket(
 
   const parent = buckets.find((b) => b.id === parentId)
   if (parent && parent.parent_id !== null) {
-    const noteCounts = await countNotesByBucket(userId)
+    const stats = await countNotesByBucket(userId)
     const totalNotes = collectDescendantIds(parent.id, buckets)
-      .reduce((sum, id) => sum + (noteCounts.get(id) ?? 0), 0)
+      .reduce((sum, id) => sum + (stats.counts.get(id) ?? 0), 0)
     if (totalNotes < MIN_NOTES_FOR_SUB_BUCKET) {
       throw new Error(
         `Cannot create sub-bucket: "${parent.name}" needs at least ${MIN_NOTES_FOR_SUB_BUCKET} notes (currently has ${totalNotes})`,

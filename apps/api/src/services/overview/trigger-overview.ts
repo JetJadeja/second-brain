@@ -16,10 +16,10 @@ export async function maybeTriggerOverview(
     const bucket = allBuckets.find((b) => b.id === bucketId)
     if (!bucket || bucket.parent_id === null) return
 
-    const noteCounts = await countNotesByBucket(userId)
+    const stats = await countNotesByBucket(userId)
     const descendantIds = collectDescendantIds(bucket.id, allBuckets)
     const currentCount = descendantIds.reduce(
-      (sum, id) => sum + (noteCounts.get(id) ?? 0),
+      (sum, id) => sum + (stats.counts.get(id) ?? 0),
       0,
     )
 

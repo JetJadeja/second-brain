@@ -52,8 +52,8 @@ async function ensureCached(userId: string): Promise<CacheEntry> {
   if (error) throw new Error(`Failed to fetch buckets: ${error.message}`)
 
   const buckets = (data ?? []) as ParaBucket[]
-  const noteCounts = await countNotesByBucket(userId)
-  const tree = buildTree(buckets, noteCounts)
+  const stats = await countNotesByBucket(userId)
+  const tree = buildTree(buckets, stats.counts)
   const pathMap = buildPathMap(buckets)
 
   const entry: CacheEntry = { buckets, tree, pathMap, timestamp: Date.now() }

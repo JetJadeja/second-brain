@@ -1,4 +1,5 @@
-import { getBucketStats, countNotesByBucket } from '@second-brain/db'
+import { countNotesByBucket } from '@second-brain/db'
+import type { BucketNoteStats } from '@second-brain/db'
 import { collectDescendantIds } from '@second-brain/shared'
 import type { DashboardArea, ParaBucket } from '@second-brain/shared'
 
@@ -14,42 +15,51 @@ export async function buildDashboardAreas(
     (b) => !b.parent_id && (b.type === 'project' || b.type === 'area'),
   )
 
-  const noteCounts = await countNotesByBucket(userId)
+  const stats = await countNotesByBucket(userId)
   const areas: DashboardArea[] = []
 
   for (const container of topLevel) {
     const children = buckets.filter((b) => b.parent_id === container.id)
 
     for (const child of children) {
-      const area = await buildArea(userId, child, buckets, noteCounts)
-      areas.push(area)
+      areas.push(buildArea(child, buckets, stats))
     }
   }
 
   return areas
 }
 
-async function buildArea(
-  userId: string,
+function buildArea(
   bucket: ParaBucket,
   allBuckets: ParaBucket[],
-  noteCounts: Map<string, number>,
-): Promise<DashboardArea> {
+  stats: BucketNoteStats,
+): DashboardArea {
   const descendantIds = collectDescendantIds(bucket.id, allBuckets)
-  const stats = await getBucketStats(userId, descendantIds)
+
+  let noteCount = 0
+  let lastCaptureAt: string | null = null
+
+  for (const id of descendantIds) {
+    noteCount += stats.counts.get(id) ?? 0
+    const capture = stats.lastCapture.get(id)
+    if (capture && (!lastCaptureAt || capture > lastCaptureAt)) {
+      lastCaptureAt = capture
+    }
+  }
+
   const subBuckets = allBuckets.filter((b) => b.parent_id === bucket.id)
 
   return {
     id: bucket.id,
     name: bucket.name,
     type: bucket.type,
-    note_count: stats.noteCount,
-    last_capture_at: stats.lastCaptureAt,
-    health: computeHealth(stats.lastCaptureAt),
+    note_count: noteCount,
+    last_capture_at: lastCaptureAt,
+    health: computeHealth(lastCaptureAt),
     children: subBuckets.map((sb) => ({
       id: sb.id,
       name: sb.name,
-      note_count: noteCounts.get(sb.id) ?? 0,
+      note_count: stats.counts.get(sb.id) ?? 0,
     })),
   }
 }

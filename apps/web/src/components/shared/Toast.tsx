@@ -27,6 +27,8 @@ export function Toast({ toast, onDismiss }: ToastProps) {
   const [remaining, setRemaining] = useState(toast.duration)
   const [isPaused, setIsPaused] = useState(false)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const onDismissRef = useRef(onDismiss)
+  onDismissRef.current = onDismiss
 
   const progress = (remaining / toast.duration) * 100
   const Icon = ICON_MAP[toast.type]
@@ -37,7 +39,7 @@ export function Toast({ toast, onDismiss }: ToastProps) {
     intervalRef.current = setInterval(() => {
       setRemaining((prev) => {
         if (prev <= 50) {
-          onDismiss(toast.id)
+          onDismissRef.current(toast.id)
           return 0
         }
         return prev - 50
@@ -47,7 +49,7 @@ export function Toast({ toast, onDismiss }: ToastProps) {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current)
     }
-  }, [isPaused, toast.id, onDismiss])
+  }, [isPaused, toast.id])
 
   return (
     <div

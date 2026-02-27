@@ -3,7 +3,7 @@ import { SkeletonText } from '@/components/shared/SkeletonText'
 function SkeletonRow({ delay }: { delay: number }) {
   return (
     <div
-      className="flex items-center gap-3 px-2 py-3 opacity-0 animate-in fade-in fill-mode-forwards"
+      className="flex items-center gap-3 px-2 py-3 animate-skeleton-pulse"
       style={{ animationDelay: `${delay}ms` }}
     >
       <div className="flex shrink-0 items-center justify-center pl-1">

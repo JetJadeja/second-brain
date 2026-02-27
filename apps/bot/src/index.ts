@@ -42,9 +42,16 @@ bot.catch((err) => {
   ctx.reply(formatUserError('thought', stage)).catch(() => {})
 })
 
+const SHUTDOWN_TIMEOUT_MS = 10_000
+
 function shutdown(signal: string): void {
   console.log(`[bot] ${signal} received, shutting down`)
   bot.stop()
+  const forceExit = setTimeout(() => {
+    console.error('[bot] graceful shutdown timed out, forcing exit')
+    process.exit(1)
+  }, SHUTDOWN_TIMEOUT_MS)
+  forceExit.unref()
 }
 
 process.on('SIGTERM', () => shutdown('SIGTERM'))

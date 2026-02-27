@@ -29,10 +29,10 @@ async function validateAndLink(
     )
   }
 
-  // Mark used BEFORE creating the link — this is the atomic guard.
-  // If two requests race, only one will find `used = false` in findValidLinkCode.
-  await markLinkCodeUsed(linkCode.id)
+  // Create link first — UNIQUE(telegram_user_id) constraint prevents double-linking.
+  // Mark code used only after link succeeds so a transient failure doesn't burn the code.
   await createTelegramLink(linkCode.user_id, telegramId, username)
+  await markLinkCodeUsed(linkCode.id)
 
   return linkCode.user_id
 }

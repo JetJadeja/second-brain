@@ -1,6 +1,6 @@
 import type { ChatRequest, ExtractedContent } from '@second-brain/shared'
 import type { BotContext } from '../context.js'
-import { detectMessageType, type DetectedMessage } from './detect-message-type.js'
+import { detectMessageType, isUnsupported, type DetectedMessage } from './detect-message-type.js'
 import { downloadTelegramFile } from './download-file.js'
 import { extractPdf } from '../extractors/extract-pdf.js'
 import { extractVoice } from '../extractors/extract-voice.js'
@@ -25,7 +25,10 @@ export async function buildChatRequest(
 ): Promise<ChatRequest> {
   const userId = ctx.userId!
   const detectionResult = detectMessageType(ctx)
-  const detected = Array.isArray(detectionResult) ? detectionResult[0]! : detectionResult
+  if (isUnsupported(detectionResult)) {
+    throw new Error('buildChatRequest called with unsupported message type')
+  }
+  const detected: DetectedMessage = Array.isArray(detectionResult) ? detectionResult[0]! : detectionResult
   const message = buildMessageText(ctx)
 
   let preExtracted: ExtractedContent | undefined

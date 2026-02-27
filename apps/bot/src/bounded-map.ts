@@ -29,7 +29,7 @@ export class BoundedMap<T> {
   }
 
   set(key: string, value: T): void {
-    if (this.map.size >= this.maxSize) this.evictOldest()
+    if (!this.map.has(key) && this.map.size >= this.maxSize) this.evictOldest()
     this.map.set(key, { value, storedAt: Date.now() })
   }
 

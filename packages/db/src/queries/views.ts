@@ -4,9 +4,11 @@ export async function insertNoteView(
   userId: string,
   noteId: string,
 ): Promise<void> {
-  await getServiceClient()
+  const { error } = await getServiceClient()
     .from('note_views')
     .insert({ user_id: userId, note_id: noteId })
+
+  if (error) throw new Error(`insertNoteView: ${error.message}`)
 }
 
 export interface RecentView {
@@ -48,9 +50,11 @@ export async function incrementViewCount(
   if (!rpcError) return
 
   // Fallback: non-atomic update (acceptable for view counts)
-  await sb
+  const { error: fallbackError } = await sb
     .from('notes')
     .update({ last_viewed_at: new Date().toISOString() })
     .eq('id', noteId)
     .eq('user_id', userId)
+
+  if (fallbackError) throw new Error(`incrementViewCount fallback: ${fallbackError.message}`)
 }

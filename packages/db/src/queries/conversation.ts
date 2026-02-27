@@ -7,23 +7,16 @@ export async function saveConversationMessage(
   content: string,
   noteIds: string[] = [],
 ): Promise<void> {
-  try {
-    const { error } = await getServiceClient()
-      .from('conversation_messages')
-      .insert({
-        user_id: userId,
-        role,
-        content,
-        note_ids: noteIds,
-      })
+  const { error } = await getServiceClient()
+    .from('conversation_messages')
+    .insert({
+      user_id: userId,
+      role,
+      content,
+      note_ids: noteIds,
+    })
 
-    if (error) {
-      console.error('[saveConversationMessage] Insert failed:', error.message)
-    }
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err)
-    console.error('[saveConversationMessage] Failed:', msg)
-  }
+  if (error) throw new Error(`saveConversationMessage: ${error.message}`)
 }
 
 export async function getRecentConversation(

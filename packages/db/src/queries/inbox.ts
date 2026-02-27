@@ -62,12 +62,19 @@ export async function batchClassify(
   if (fetchError) throw new Error(`batchClassify fetch: ${fetchError.message}`)
   const ownedIds = new Set((notes ?? []).map((n) => n.id))
 
-  const grouped = new Map<string, string[]>()
+  // Deduplicate: last occurrence per note_id wins (preserves last-write-wins semantics)
+  const lastBucket = new Map<string, string>()
   for (const item of items) {
-    if (!ownedIds.has(item.note_id)) continue
-    const ids = grouped.get(item.bucket_id) ?? []
-    ids.push(item.note_id)
-    grouped.set(item.bucket_id, ids)
+    if (ownedIds.has(item.note_id)) {
+      lastBucket.set(item.note_id, item.bucket_id)
+    }
+  }
+
+  const grouped = new Map<string, string[]>()
+  for (const [noteId, bucketId] of lastBucket) {
+    const ids = grouped.get(bucketId) ?? []
+    ids.push(noteId)
+    grouped.set(bucketId, ids)
   }
 
   let count = 0

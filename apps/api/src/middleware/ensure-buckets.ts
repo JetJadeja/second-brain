@@ -4,6 +4,7 @@ import { DEFAULT_PARA_BUCKETS } from '@second-brain/shared'
 
 const MAX_CACHE_SIZE = 10_000
 const initialized = new Set<string>()
+const pending = new Map<string, Promise<void>>()
 
 export function ensureDefaultBuckets(
   req: Request,
@@ -16,7 +17,13 @@ export function ensureDefaultBuckets(
     return
   }
 
-  initBuckets(userId)
+  const inflight = pending.get(userId) ?? initBuckets(userId)
+  if (!pending.has(userId)) {
+    pending.set(userId, inflight)
+    inflight.finally(() => pending.delete(userId))
+  }
+
+  inflight
     .then(() => next())
     .catch((err: unknown) => next(err))
 }

@@ -54,8 +54,12 @@ export async function buildDashboardRecent(
 
   if (missingIds.length > 0) {
     const viewedNotes = await getNotesByIds(userId, missingIds)
-    for (const n of viewedNotes) {
-      if (seenIds.has(n.id) || !n.is_classified) continue
+    const viewedMap = new Map(viewedNotes.map((n) => [n.id, n]))
+
+    // Iterate in recency order from recentViews, not arbitrary DB order
+    for (const id of missingIds) {
+      const n = viewedMap.get(id)
+      if (!n || seenIds.has(n.id) || !n.is_classified) continue
       seenIds.add(n.id)
       merged.push({
         id: n.id,

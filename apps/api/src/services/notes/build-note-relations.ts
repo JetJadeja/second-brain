@@ -27,7 +27,13 @@ export async function buildNoteRelations(
     ),
   ]
 
-  const notes = await getNotesByIds(userId, otherIds)
+  let notes: Note[]
+  try {
+    notes = await getNotesByIds(userId, otherIds)
+  } catch (err) {
+    console.error(`[buildNoteRelations] batch fetch failed for user=${userId} note=${noteId}:`, err)
+    return { relatedNotes: [], backlinks: [] }
+  }
   const noteMap = new Map<string, Note>(notes.map((n) => [n.id, n]))
 
   const relatedMap = new Map<string, RelatedNote>()

@@ -42,5 +42,13 @@ bot.catch((err) => {
   ctx.reply(formatUserError('thought', stage)).catch(() => {})
 })
 
+function shutdown(signal: string): void {
+  console.log(`[bot] ${signal} received, shutting down`)
+  bot.stop()
+}
+
+process.on('SIGTERM', () => shutdown('SIGTERM'))
+process.on('SIGINT', () => shutdown('SIGINT'))
+
 bot.start()
 console.log('[bot] started')

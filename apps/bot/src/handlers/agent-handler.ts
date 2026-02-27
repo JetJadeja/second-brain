@@ -2,7 +2,7 @@ import type { BotContext } from '../context.js'
 import type { ChatResponse } from '@second-brain/shared'
 import { sendChatMessage } from '../api-client.js'
 import { buildChatRequest } from '../telegram/build-chat-request.js'
-import { detectMessageType, type DetectedMessage } from '../telegram/detect-message-type.js'
+import { detectMessageType, isUnsupported, type DetectedMessage } from '../telegram/detect-message-type.js'
 import { formatMultiLinkResults } from '../telegram/format-multi-link-result.js'
 import { classifyError, formatUserError } from './format-error.js'
 import { storeReceipt } from './receipt-store.js'
@@ -26,6 +26,13 @@ export async function runAgentHandler(ctx: BotContext): Promise<void> {
 
 async function handleMessage(ctx: BotContext, chatId: number, userId: string): Promise<void> {
   const detected = detectMessageType(ctx)
+
+  if (isUnsupported(detected)) {
+    await ctx.reply(
+      "I can't process that type of content yet. Try sending text, links, photos, documents, voice messages, or videos.",
+    )
+    return
+  }
 
   if (Array.isArray(detected)) {
     await handleMultiLink(ctx, chatId, userId, detected)

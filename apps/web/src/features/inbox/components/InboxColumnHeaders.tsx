@@ -11,12 +11,12 @@ export function InboxColumnHeaders({ allSelected, someSelected, onToggleAll }: I
   const isIndeterminate = someSelected && !allSelected
 
   return (
-    <div className="sticky top-0 z-10 flex h-8 items-center border-b border-surface-200 bg-surface-100">
+    <div className="sticky top-0 z-10 flex items-center gap-3 border-b border-surface-200 bg-surface-100 px-2 py-2">
       {/* Select all */}
       <button
         type="button"
         onClick={onToggleAll}
-        className="flex w-10 shrink-0 items-center justify-center"
+        className="flex shrink-0 items-center justify-center pl-1"
         aria-label={allSelected ? 'Deselect all' : 'Select all'}
       >
         <span
@@ -30,26 +30,9 @@ export function InboxColumnHeaders({ allSelected, someSelected, onToggleAll }: I
         </span>
       </button>
 
-      {/* Source spacer */}
-      <div className="w-8 shrink-0" />
-
-      {/* Content label */}
-      <div className="flex-1 text-caption font-semibold uppercase tracking-[0.05em] text-surface-400">
+      <span className="text-caption font-semibold uppercase tracking-[0.05em] text-surface-400">
         Content
-      </div>
-
-      {/* Suggested label */}
-      <div className="w-40 shrink-0 px-2 text-caption font-semibold uppercase tracking-[0.05em] text-surface-400">
-        Suggested
-      </div>
-
-      {/* Date label */}
-      <div className="w-20 shrink-0 text-right text-caption font-semibold uppercase tracking-[0.05em] text-surface-400">
-        Date
-      </div>
-
-      {/* Actions spacer */}
-      <div className="w-20 shrink-0" />
+      </span>
     </div>
   )
 }

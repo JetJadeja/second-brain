@@ -13,8 +13,7 @@ apps/web/dist/
 
 # Notes (local only)
 notes/
+problem-solving/
 
 # OS
 .DS_Store
-
-.claude

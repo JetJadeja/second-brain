@@ -1,6 +1,4 @@
 import type { Note, InboxItem } from '@second-brain/shared'
-import { SIMILARITY_THRESHOLD_RELATED } from '@second-brain/shared'
-import { findSimilarNotes } from '@second-brain/db'
 import { getBucketPath } from '../para/para-cache.js'
 
 export async function buildInboxItems(
@@ -11,8 +9,6 @@ export async function buildInboxItems(
 }
 
 async function buildItem(userId: string, n: Note): Promise<InboxItem> {
-  const relatedNotes = await findRelated(userId, n)
-
   return {
     id: n.id,
     title: n.title,
@@ -25,27 +21,6 @@ async function buildItem(userId: string, n: Note): Promise<InboxItem> {
     ai_confidence: n.ai_confidence,
     user_note: n.user_note,
     captured_at: n.captured_at,
-    related_notes: relatedNotes,
+    related_notes: [],
   }
-}
-
-async function findRelated(
-  userId: string,
-  note: Note,
-): Promise<InboxItem['related_notes']> {
-  if (!note.embedding) return []
-
-  try {
-    const emb = parseEmbedding(note.embedding)
-    if (emb.length === 0) return []
-    return findSimilarNotes(userId, emb, note.id, 3, SIMILARITY_THRESHOLD_RELATED)
-  } catch {
-    return []
-  }
-}
-
-function parseEmbedding(raw: unknown): number[] {
-  if (typeof raw === 'string') return JSON.parse(raw) as number[]
-  if (Array.isArray(raw)) return raw as number[]
-  return []
 }

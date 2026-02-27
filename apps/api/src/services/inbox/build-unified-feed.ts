@@ -14,34 +14,38 @@ export async function buildUnifiedFeed(
   limit: number,
 ): Promise<UnifiedFeedResult> {
   const [notesResult, suggestions] = await Promise.all([
-    getInboxNotes(userId, { page: 1, limit: 200 }),
+    getInboxNotes(userId, { page, limit }),
     getPendingSuggestions(userId),
   ])
 
   const noteItems = await buildInboxItems(userId, notesResult.data)
 
-  const unified: UnifiedInboxItem[] = [
-    ...noteItems.map((data): UnifiedInboxItem => ({ kind: 'note', data })),
-    ...suggestions.map((s): UnifiedInboxItem => ({
-      kind: 'suggestion',
-      data: toSuggestionItem(s),
-    })),
-  ]
+  const suggestionItems: UnifiedInboxItem[] = suggestions.map((s) => ({
+    kind: 'suggestion',
+    data: toSuggestionItem(s),
+  }))
 
-  unified.sort((a, b) => {
-    const dateA = a.kind === 'note' ? a.data.captured_at : a.data.created_at
-    const dateB = b.kind === 'note' ? b.data.captured_at : b.data.created_at
-    return new Date(dateB).getTime() - new Date(dateA).getTime()
-  })
+  const noteUnified: UnifiedInboxItem[] = noteItems.map((data) => ({
+    kind: 'note',
+    data,
+  }))
 
-  const total = unified.length
-  const offset = (page - 1) * limit
-  const paginated = unified.slice(offset, offset + limit)
+  // Suggestions pin to top of page 1, notes are already DB-paginated
+  const items = page === 1
+    ? [...suggestionItems, ...noteUnified]
+    : noteUnified
 
-  return { items: paginated, total }
+  const total = notesResult.total + suggestions.length
+
+  return { items, total }
 }
 
-function toSuggestionItem(s: { id: string; type: string; payload: Record<string, unknown>; created_at: string }): SuggestionItem {
+function toSuggestionItem(s: {
+  id: string
+  type: string
+  payload: Record<string, unknown>
+  created_at: string
+}): SuggestionItem {
   return {
     id: s.id,
     type: s.type as SuggestionItem['type'],

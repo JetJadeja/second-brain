@@ -4,7 +4,7 @@ import {
   buildExtractionAgentUser,
   parseLlmJson,
 } from '@second-brain/ai'
-import type { ExtractedContent, NoteSource } from '@second-brain/shared'
+import type { ExtractedContent } from '@second-brain/shared'
 import { EXTRACTION_TOOLS } from './extraction-tools.js'
 import { executeExtractionTool, type ExtractionToolResult } from './handle-extraction-tools.js'
 
@@ -49,10 +49,12 @@ function assembleResult(
 ): ExtractionAgentResult {
   const parsed = parseAgentJson(agentText)
 
+  // sourceType is authoritative from the primary tool (first extraction),
+  // not from the agent — prevents tweets-with-youtube-links becoming "youtube"
   const extracted: ExtractedContent = {
     ...toolData.extracted,
     title: parsed?.title ?? toolData.extracted.title,
-    sourceType: (parsed?.sourceType as NoteSource) ?? toolData.extracted.sourceType,
+    sourceType: toolData.extracted.sourceType,
   }
 
   return {

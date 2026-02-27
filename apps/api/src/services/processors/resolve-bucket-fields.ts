@@ -7,12 +7,13 @@ export interface BucketFields {
   is_classified: boolean
 }
 
-// Agent owns ai_suggested_bucket via save_note's suggested_bucket param.
-// Classifier still provides confidence metadata but no longer sets the suggestion.
+// Notes always land in inbox (bucket_id = null, is_classified = false).
+// Classifier provides a suggestion for the user to accept or reject.
 export function resolveBucketFields(classification: ClassifyResult | null): BucketFields {
+  const suggestion = classification?.bucket_id || null
   return {
     bucket_id: null,
-    ai_suggested_bucket: null,
+    ai_suggested_bucket: suggestion,
     ai_confidence: classification?.confidence ?? null,
     is_classified: false,
   }

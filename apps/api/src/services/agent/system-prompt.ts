@@ -107,6 +107,7 @@ function buildRules(): string {
   return (
     `RULES:\n` +
     `- When a user shares content (URL, thought, idea, plan, observation, voice memo, image), use save_note.\n` +
+    `- If the user sends a bare domain without a protocol, prepend "https://" before passing it to save_note.\n` +
     `- save_note ALWAYS sends content to the user's inbox. You do NOT decide where it goes.\n` +
     `  The system suggests a folder automatically — the user reviews and confirms in the web app.\n` +
     `  NEVER call move_note after save_note. NEVER try to file new content into a folder.\n` +

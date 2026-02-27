@@ -10,6 +10,7 @@ import {
 import { getBucketPath } from '../services/para/para-cache.js'
 import { buildNoteRelations } from '../services/notes/build-note-relations.js'
 import { updateNoteWithHistory, BucketNotFoundError } from '../services/notes/update-note-fields.js'
+import { catchAsync, param } from '../middleware/catch-async.js'
 import type { NoteDetailResponse } from '@second-brain/shared'
 
 export const notesRouter = Router()
@@ -25,9 +26,9 @@ const updateNoteSchema = z.object({
   key_points: z.array(z.string()).optional(),
 })
 
-notesRouter.get('/:noteId', async (req, res) => {
+notesRouter.get('/:noteId', catchAsync(async (req, res) => {
   const userId = req.userId!
-  const noteId = req.params['noteId']!
+  const noteId = param(req, 'noteId')
 
   const note = await getNoteById(userId, noteId)
   if (!note) {
@@ -35,7 +36,6 @@ notesRouter.get('/:noteId', async (req, res) => {
     return
   }
 
-  // Fire view tracking asynchronously
   incrementViewCount(userId, noteId).catch((err) =>
     console.error('[notes] view count increment failed:', err),
   )
@@ -75,11 +75,11 @@ notesRouter.get('/:noteId', async (req, res) => {
   }
 
   res.json(response)
-})
+}))
 
-notesRouter.patch('/:noteId', async (req, res) => {
+notesRouter.patch('/:noteId', catchAsync(async (req, res) => {
   const userId = req.userId!
-  const noteId = req.params['noteId']!
+  const noteId = param(req, 'noteId')
   const parsed = updateNoteSchema.safeParse(req.body)
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.flatten() })
@@ -102,10 +102,10 @@ notesRouter.patch('/:noteId', async (req, res) => {
     }
     throw err
   }
-})
+}))
 
-notesRouter.delete('/:noteId', async (req, res) => {
+notesRouter.delete('/:noteId', catchAsync(async (req, res) => {
   const userId = req.userId!
-  await deleteNote(userId, req.params['noteId']!)
+  await deleteNote(userId, param(req, 'noteId'))
   res.json({ success: true })
-})
+}))

@@ -4,6 +4,7 @@ import { getBucketById, createBucket, updateBucket, deleteBucket } from '@second
 import { invalidateParaCache, getAllBuckets } from '../services/para/para-cache.js'
 import { validateBucketType, TypeMismatchError } from '../services/para/validate-bucket-hierarchy.js'
 import { reevaluateInbox } from '../services/processors/reevaluate-inbox.js'
+import { catchAsync, param } from '../middleware/catch-async.js'
 
 export const paraBucketsRouter = Router()
 
@@ -22,7 +23,7 @@ const updateBucketSchema = z.object({
   description: z.string().optional(),
 })
 
-paraBucketsRouter.post('/buckets', async (req, res) => {
+paraBucketsRouter.post('/buckets', catchAsync(async (req, res) => {
   const userId = req.userId!
   const parsed = createBucketSchema.safeParse(req.body)
   if (!parsed.success) {
@@ -51,11 +52,11 @@ paraBucketsRouter.post('/buckets', async (req, res) => {
   invalidateParaCache(userId)
   void reevaluateInbox(userId, 'create')
   res.status(201).json(bucket)
-})
+}))
 
-paraBucketsRouter.patch('/buckets/:bucketId', async (req, res) => {
+paraBucketsRouter.patch('/buckets/:bucketId', catchAsync(async (req, res) => {
   const userId = req.userId!
-  const bucketId = req.params['bucketId']!
+  const bucketId = param(req, 'bucketId')
   const parsed = updateBucketSchema.safeParse(req.body)
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.flatten() })
@@ -71,11 +72,11 @@ paraBucketsRouter.patch('/buckets/:bucketId', async (req, res) => {
   const updated = await updateBucket(userId, bucketId, parsed.data)
   invalidateParaCache(userId)
   res.json(updated)
-})
+}))
 
-paraBucketsRouter.delete('/buckets/:bucketId', async (req, res) => {
+paraBucketsRouter.delete('/buckets/:bucketId', catchAsync(async (req, res) => {
   const userId = req.userId!
-  const bucketId = req.params['bucketId']!
+  const bucketId = param(req, 'bucketId')
 
   const existing = await getBucketById(userId, bucketId)
   if (!existing) {
@@ -87,4 +88,4 @@ paraBucketsRouter.delete('/buckets/:bucketId', async (req, res) => {
   invalidateParaCache(userId)
   void reevaluateInbox(userId, 'delete')
   res.json({ success: true })
-})
+}))

@@ -3,11 +3,12 @@ import { getInboxNotes, countInboxNotes, countUnannotatedNotes, getRecentNotes, 
 import { getAllBuckets } from '../services/para/para-cache.js'
 import { buildDashboardAreas } from '../services/dashboard/build-dashboard-areas.js'
 import { buildDashboardInbox, buildDashboardRecent } from '../services/dashboard/build-dashboard-content.js'
+import { catchAsync } from '../middleware/catch-async.js'
 import type { DashboardResponse } from '@second-brain/shared'
 
 export const dashboardRouter = Router()
 
-dashboardRouter.get('/', async (req, res) => {
+dashboardRouter.get('/', catchAsync(async (req, res) => {
   const userId = req.userId!
 
   const [noteCount, suggestions, inboxRecent, recentNotes, recentViews, buckets, unannotatedCount] =
@@ -23,9 +24,11 @@ dashboardRouter.get('/', async (req, res) => {
 
   const inboxCount = noteCount + suggestions.length
 
-  const recentInbox = await buildDashboardInbox(userId, inboxRecent.data)
-  const merged = await buildDashboardRecent(userId, recentNotes.data, recentViews)
-  const areas = await buildDashboardAreas(userId, buckets)
+  const [recentInbox, merged, areas] = await Promise.all([
+    buildDashboardInbox(userId, inboxRecent.data),
+    buildDashboardRecent(userId, recentNotes.data, recentViews),
+    buildDashboardAreas(userId, buckets),
+  ])
 
   const response: DashboardResponse = {
     inbox: { count: inboxCount, recent: recentInbox },
@@ -35,4 +38,4 @@ dashboardRouter.get('/', async (req, res) => {
   }
 
   res.json(response)
-})
+}))

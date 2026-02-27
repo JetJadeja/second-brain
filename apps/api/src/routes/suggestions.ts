@@ -6,10 +6,11 @@ import {
 } from '@second-brain/db'
 import type { SuggestionsResponse } from '@second-brain/shared'
 import { executeSuggestion } from '../services/suggestions/execute-suggestion.js'
+import { catchAsync, param } from '../middleware/catch-async.js'
 
 export const suggestionsRouter = Router()
 
-suggestionsRouter.get('/', async (req, res) => {
+suggestionsRouter.get('/', catchAsync(async (req, res) => {
   const userId = req.userId!
   const suggestions = await getPendingSuggestions(userId)
 
@@ -23,11 +24,11 @@ suggestionsRouter.get('/', async (req, res) => {
   }
 
   res.json(response)
-})
+}))
 
-suggestionsRouter.post('/:id/accept', async (req, res) => {
+suggestionsRouter.post('/:id/accept', catchAsync(async (req, res) => {
   const userId = req.userId!
-  const suggestionId = req.params['id']!
+  const suggestionId = param(req, 'id')
 
   const suggestion = await getSuggestionById(userId, suggestionId)
   if (!suggestion) {
@@ -44,12 +45,12 @@ suggestionsRouter.post('/:id/accept', async (req, res) => {
     console.error(`[suggestions/accept] id=${suggestionId}:`, msg)
     res.status(500).json({ error: 'Failed to execute suggestion' })
   }
-})
+}))
 
-suggestionsRouter.post('/:id/dismiss', async (req, res) => {
+suggestionsRouter.post('/:id/dismiss', catchAsync(async (req, res) => {
   const userId = req.userId!
-  const suggestionId = req.params['id']!
+  const suggestionId = param(req, 'id')
 
   await updateSuggestionStatus(userId, suggestionId, 'dismissed')
   res.json({ success: true })
-})
+}))

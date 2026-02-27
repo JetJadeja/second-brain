@@ -8,9 +8,14 @@ interface SummarizeParams {
   userNote?: string | null
 }
 
+interface SummarizeResult {
+  title: string
+  summary: string
+}
+
 const MIN_CONTENT_LENGTH = 100
 
-export async function summarizeContent(params: SummarizeParams): Promise<string | null> {
+export async function summarizeContent(params: SummarizeParams): Promise<SummarizeResult | null> {
   if (params.content.trim().length < MIN_CONTENT_LENGTH) return null
 
   try {

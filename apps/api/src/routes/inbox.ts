@@ -10,6 +10,7 @@ import {
 import { getAllBuckets } from '../services/para/para-cache.js'
 import { buildUnifiedFeed } from '../services/inbox/build-unified-feed.js'
 import { maybeTriggerOverview } from '../services/overview/trigger-overview.js'
+import { catchAsync, param } from '../middleware/catch-async.js'
 import type { InboxResponse } from '@second-brain/shared'
 
 export const inboxRouter = Router()
@@ -22,7 +23,7 @@ const batchClassifySchema = z.object({
   ),
 })
 
-inboxRouter.get('/', async (req, res) => {
+inboxRouter.get('/', catchAsync(async (req, res) => {
   const userId = req.userId!
   const page = Number(req.query['page']) || 1
   const limit = Number(req.query['limit']) || 20
@@ -31,11 +32,11 @@ inboxRouter.get('/', async (req, res) => {
 
   const response: InboxResponse = { items, total, page, limit }
   res.json(response)
-})
+}))
 
-inboxRouter.post('/:noteId/classify', async (req, res) => {
+inboxRouter.post('/:noteId/classify', catchAsync(async (req, res) => {
   const userId = req.userId!
-  const { noteId } = req.params
+  const noteId = param(req, 'noteId')
   const parsed = classifySchema.safeParse(req.body)
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.flatten() })
@@ -48,12 +49,12 @@ inboxRouter.post('/:noteId/classify', async (req, res) => {
     return
   }
 
-  await classifyNote(userId, noteId!, parsed.data.bucket_id)
+  await classifyNote(userId, noteId, parsed.data.bucket_id)
   void maybeTriggerOverview(userId, parsed.data.bucket_id)
   res.json({ success: true })
-})
+}))
 
-inboxRouter.post('/batch-classify', async (req, res) => {
+inboxRouter.post('/batch-classify', catchAsync(async (req, res) => {
   const userId = req.userId!
   const parsed = batchClassifySchema.safeParse(req.body)
   if (!parsed.success) {
@@ -65,15 +66,15 @@ inboxRouter.post('/batch-classify', async (req, res) => {
   const uniqueBucketIds = [...new Set(parsed.data.classifications.map((c) => c.bucket_id))]
   for (const bid of uniqueBucketIds) void maybeTriggerOverview(userId, bid)
   res.json({ success: true, classified: count })
-})
+}))
 
-inboxRouter.delete('/:noteId', async (req, res) => {
+inboxRouter.delete('/:noteId', catchAsync(async (req, res) => {
   const userId = req.userId!
-  await deleteNote(userId, req.params['noteId']!)
+  await deleteNote(userId, param(req, 'noteId'))
   res.json({ success: true })
-})
+}))
 
-inboxRouter.post('/:noteId/archive', async (req, res) => {
+inboxRouter.post('/:noteId/archive', catchAsync(async (req, res) => {
   const userId = req.userId!
   const buckets = await getAllBuckets(userId)
   const archive = buckets.find((b) => !b.parent_id && b.type === 'archive')
@@ -83,6 +84,6 @@ inboxRouter.post('/:noteId/archive', async (req, res) => {
     return
   }
 
-  await archiveNote(userId, req.params['noteId']!, archive.id)
+  await archiveNote(userId, param(req, 'noteId'), archive.id)
   res.json({ success: true })
-})
+}))

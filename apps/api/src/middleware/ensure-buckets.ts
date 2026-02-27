@@ -2,6 +2,7 @@ import type { Request, Response, NextFunction } from 'express'
 import { getServiceClient } from '@second-brain/db'
 import { DEFAULT_PARA_BUCKETS } from '@second-brain/shared'
 
+const MAX_CACHE_SIZE = 10_000
 const initialized = new Set<string>()
 
 export function ensureDefaultBuckets(
@@ -15,29 +16,45 @@ export function ensureDefaultBuckets(
     return
   }
 
+  initBuckets(userId)
+    .then(() => next())
+    .catch((err: unknown) => next(err))
+}
+
+async function initBuckets(userId: string): Promise<void> {
   const sb = getServiceClient()
 
-  sb.from('para_buckets')
+  const { count, error } = await sb
+    .from('para_buckets')
     .select('id', { count: 'exact', head: true })
     .eq('user_id', userId)
-    .then(({ count }) => {
-      if (count && count > 0) {
-        initialized.add(userId)
-        next()
-        return
-      }
 
-      const rows = DEFAULT_PARA_BUCKETS.map((b) => ({
-        user_id: userId,
-        name: b.name,
-        type: b.type,
-      }))
+  if (error) throw new Error(`ensureDefaultBuckets check: ${error.message}`)
 
-      sb.from('para_buckets')
-        .insert(rows)
-        .then(() => {
-          initialized.add(userId)
-          next()
-        })
-    })
+  if (count && count > 0) {
+    addToCache(userId)
+    return
+  }
+
+  const rows = DEFAULT_PARA_BUCKETS.map((b) => ({
+    user_id: userId,
+    name: b.name,
+    type: b.type,
+  }))
+
+  const { error: insertError } = await sb
+    .from('para_buckets')
+    .insert(rows)
+
+  if (insertError) throw new Error(`ensureDefaultBuckets insert: ${insertError.message}`)
+
+  addToCache(userId)
+}
+
+function addToCache(userId: string): void {
+  if (initialized.size >= MAX_CACHE_SIZE) {
+    const first = initialized.values().next().value
+    if (first) initialized.delete(first)
+  }
+  initialized.add(userId)
 }

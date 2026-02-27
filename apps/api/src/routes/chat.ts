@@ -5,6 +5,7 @@ import { NOTE_SOURCES } from '@second-brain/shared'
 import { runAgent } from '../services/agent/run-agent.js'
 import { recordUserMessage, recordBotResponse } from '../services/conversation/record-exchange.js'
 import { startOnboarding } from '../services/onboarding/start-onboarding.js'
+import { catchAsync } from '../middleware/catch-async.js'
 
 export const chatRouter = Router()
 
@@ -27,7 +28,7 @@ const chatRequestSchema = z.object({
   platform: z.string().optional(),
 })
 
-chatRouter.post('/', async (req, res) => {
+chatRouter.post('/', catchAsync(async (req, res) => {
   const parsed = chatRequestSchema.safeParse(req.body)
   if (!parsed.success) {
     res.status(400).json({ error: 'invalid request', details: parsed.error.issues })
@@ -37,15 +38,12 @@ chatRouter.post('/', async (req, res) => {
   const { userId, message, preExtracted, noteContext, platform, attachmentDescription } = parsed.data
 
   try {
-    // Initialize onboarding if requested
     if (parsed.data.startOnboarding) {
       await startOnboarding(userId)
     }
 
-    // Record user message
     recordUserMessage(userId, message)
 
-    // Run agent
     const result = await runAgent(userId, message, {
       preExtracted: preExtracted as ExtractedContent | undefined,
       noteContext,
@@ -53,7 +51,6 @@ chatRouter.post('/', async (req, res) => {
       platform,
     })
 
-    // Record bot response
     recordBotResponse(userId, result.text, result.noteIds)
 
     const response: ChatResponse = {
@@ -68,4 +65,4 @@ chatRouter.post('/', async (req, res) => {
     console.error('[chat] agent error:', msg)
     res.status(500).json({ error: 'agent failed' })
   }
-})
+}))

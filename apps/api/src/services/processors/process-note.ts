@@ -94,7 +94,7 @@ async function withFreshSummary(
   userNote: string | null,
   embeddingText: string,
 ): Promise<PipelineResult> {
-  const [embedding, summary] = await Promise.all([
+  const [embedding, summarizeResult] = await Promise.all([
     generateEmbedding(embeddingText),
     summarizeContent({
       title: extracted.title,
@@ -103,6 +103,8 @@ async function withFreshSummary(
       userNote,
     }),
   ])
+
+  const summary = summarizeResult?.summary ?? null
 
   const classification = await classifyContent({
     userId,

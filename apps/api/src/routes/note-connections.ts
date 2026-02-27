@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { z } from 'zod'
 import { getNoteById, createConnection } from '@second-brain/db'
+import { catchAsync, param } from '../middleware/catch-async.js'
 
 export const noteConnectionsRouter = Router()
 
@@ -8,9 +9,9 @@ const connectSchema = z.object({
   target_note_id: z.string().uuid(),
 })
 
-noteConnectionsRouter.post('/:noteId/connect', async (req, res) => {
+noteConnectionsRouter.post('/:noteId/connect', catchAsync(async (req, res) => {
   const userId = req.userId!
-  const noteId = req.params['noteId']!
+  const noteId = param(req, 'noteId')
   const parsed = connectSchema.safeParse(req.body)
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.flatten() })
@@ -29,4 +30,4 @@ noteConnectionsRouter.post('/:noteId/connect', async (req, res) => {
 
   const conn = await createConnection(userId, noteId, parsed.data.target_note_id, 'explicit')
   res.status(201).json(conn)
-})
+}))

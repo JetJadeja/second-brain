@@ -16,6 +16,22 @@ export async function getNoteById(
   return data as Note
 }
 
+export async function getNotesByIds(
+  userId: string,
+  noteIds: string[],
+): Promise<Note[]> {
+  if (noteIds.length === 0) return []
+
+  const { data, error } = await getServiceClient()
+    .from('notes')
+    .select('*')
+    .eq('user_id', userId)
+    .in('id', noteIds)
+
+  if (error) throw new Error(`getNotesByIds: ${error.message}`)
+  return (data ?? []) as Note[]
+}
+
 export interface CreateNoteInput {
   user_id: string
   title: string

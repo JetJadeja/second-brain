@@ -63,6 +63,20 @@ export interface MultiLinkResult {
   error?: string
 }
 
+const MAX_CONCURRENCY = 3
+
+function processOneLink(userId: string, msg: DetectedMessage): Promise<MultiLinkResult> {
+  const url = msg.url ?? ''
+  return sendChatMessage({ userId, message: url, platform: 'Telegram' })
+    .then((response): MultiLinkResult => ({ url, response }))
+    .catch((error: unknown): MultiLinkResult => {
+      const errMsg = error instanceof Error ? error.message : String(error)
+      console.error(`[multi-link] Failed to process ${url}:`, errMsg)
+      const stage = classifyError(error)
+      return { url, error: formatUserError('article', stage) }
+    })
+}
+
 async function handleMultiLink(
   ctx: BotContext,
   chatId: number,
@@ -73,22 +87,11 @@ async function handleMultiLink(
 
   const results: MultiLinkResult[] = []
 
-  for (const msg of messages) {
+  for (let i = 0; i < messages.length; i += MAX_CONCURRENCY) {
     await ctx.replyWithChatAction('typing')
-
-    try {
-      const response = await sendChatMessage({
-        userId,
-        message: msg.url ?? '',
-        platform: 'Telegram',
-      })
-      results.push({ url: msg.url ?? '', response })
-    } catch (error: unknown) {
-      const errMsg = error instanceof Error ? error.message : String(error)
-      console.error(`[multi-link] Failed to process ${msg.url}:`, errMsg)
-      const stage = classifyError(error)
-      results.push({ url: msg.url ?? '', error: formatUserError('article', stage) })
-    }
+    const batch = messages.slice(i, i + MAX_CONCURRENCY)
+    const batchResults = await Promise.all(batch.map((msg) => processOneLink(userId, msg)))
+    results.push(...batchResults)
   }
 
   const confirmation = formatMultiLinkResults(results)

@@ -1,26 +1,14 @@
-const TTL_MS = 10 * 60 * 1000 // 10 minutes
+import { BoundedMap } from '../bounded-map.js'
 
-const processedUpdates = new Map<number, number>()
+const TTL_MS = 10 * 60 * 1000 // 10 minutes
+const MAX_UPDATES = 2000
+
+const processedUpdates = new BoundedMap<true>(TTL_MS, MAX_UPDATES)
 
 export function hasProcessed(updateId: number): boolean {
-  const storedAt = processedUpdates.get(updateId)
-  if (storedAt === undefined) return false
-
-  if (Date.now() - storedAt > TTL_MS) {
-    processedUpdates.delete(updateId)
-    return false
-  }
-
-  return true
+  return processedUpdates.get(String(updateId)) === true
 }
 
 export function markProcessed(updateId: number): void {
-  processedUpdates.set(updateId, Date.now())
-
-  // Lazy cleanup — remove expired entries
-  for (const [id, timestamp] of processedUpdates) {
-    if (Date.now() - timestamp > TTL_MS) {
-      processedUpdates.delete(id)
-    }
-  }
+  processedUpdates.set(String(updateId), true)
 }

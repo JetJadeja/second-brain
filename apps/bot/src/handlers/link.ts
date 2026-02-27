@@ -1,5 +1,5 @@
 import {
-  findLinkCodeByCode,
+  findValidLinkCode,
   lookupUserByTelegramId,
   createTelegramLink,
   markLinkCodeUsed,
@@ -21,28 +21,18 @@ async function validateAndLink(
   }
 
   const code = rawCode.toUpperCase().replace(/[^A-Z0-9]/g, '')
-  const linkCode = await findLinkCodeByCode(code)
+  const linkCode = await findValidLinkCode(code)
 
   if (!linkCode) {
     throw new LinkError(
-      "that code doesn't match — check the code in your settings page and try again",
+      "that code doesn't match, was already used, or expired — generate a new one from settings",
     )
   }
 
-  if (linkCode.used) {
-    throw new LinkError(
-      'that code was already used — generate a new one from settings',
-    )
-  }
-
-  if (new Date(linkCode.expires_at) < new Date()) {
-    throw new LinkError(
-      'that code expired — generate a new one from settings',
-    )
-  }
-
-  await createTelegramLink(linkCode.user_id, telegramId, username)
+  // Mark used BEFORE creating the link — this is the atomic guard.
+  // If two requests race, only one will find `used = false` in findValidLinkCode.
   await markLinkCodeUsed(linkCode.id)
+  await createTelegramLink(linkCode.user_id, telegramId, username)
 
   return linkCode.user_id
 }
@@ -57,7 +47,6 @@ export async function handleLink(ctx: BotContext): Promise<void> {
     return
   }
 
-  // Phase 1: Validate and create link
   let userId: string
   try {
     userId = await validateAndLink(telegramId, code, ctx.from?.username)
@@ -73,13 +62,12 @@ export async function handleLink(ctx: BotContext): Promise<void> {
     return
   }
 
-  // Phase 2: Confirm to user
   cacheUserId(telegramId, userId)
   ctx.userId = userId
   console.log(`[link] linked telegram=${telegramId} to user=${userId}`)
   await ctx.reply("linked — let's set up your second brain.")
 
-  // Phase 3: Start onboarding via API — failures are non-fatal
+  // Start onboarding via API — failures are non-fatal
   try {
     const response = await sendChatMessage({
       userId,

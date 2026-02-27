@@ -27,7 +27,7 @@ export function CommandPaletteModal() {
   const itemCount = useMemo(() => {
     if (paletteMode === 'pre-search') return recentSearches.length + 6
     if (paletteMode === 'notes') return search.results.length
-    if (paletteMode === 'command') return 9
+    if (paletteMode === 'command') return 5
     return 0
   }, [paletteMode, recentSearches.length, search.results.length])
 

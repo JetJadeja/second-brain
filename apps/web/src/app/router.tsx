@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { AuthGuard } from '@/features/auth'
+import { RouteErrorBoundary } from '@/components/shared/RouteErrorBoundary'
 
 const LandingPage = lazy(() => import('@/pages/LandingPage').then((m) => ({ default: m.LandingPage })))
 const AuthPage = lazy(() => import('@/pages/AuthPage').then((m) => ({ default: m.AuthPage })))
@@ -19,6 +20,7 @@ function PageFallback() {
 
 export function AppRouter() {
   return (
+    <RouteErrorBoundary>
     <Suspense fallback={<PageFallback />}>
       <Routes>
         {/* Public routes (no sidebar) */}
@@ -42,5 +44,6 @@ export function AppRouter() {
         <Route path="*" element={<Navigate to="/home" replace />} />
       </Routes>
     </Suspense>
+    </RouteErrorBoundary>
   )
 }

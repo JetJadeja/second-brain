@@ -24,6 +24,8 @@ export function GraphCanvas({
 }: GraphCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const dragRef = useRef<{ startX: number; startY: number; panX: number; panY: number } | null>(null)
+  const zoomRef = useRef(zoom)
+  zoomRef.current = zoom
   const maxConn = Math.max(...nodes.map((n) => n.connection_count), 1)
 
   const radiusFn = useCallback((n: SimNode) => nodeRadius(n.connection_count, maxConn), [maxConn])
@@ -112,19 +114,19 @@ export function GraphCanvas({
 
   const handleMouseUp = useCallback(() => { dragRef.current = null }, [])
 
-  // Passive: false wheel handler via ref callback
+  // Passive: false wheel handler — reads zoom from ref to avoid stale closure
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
 
     function handleWheel(e: WheelEvent) {
       e.preventDefault()
-      onZoom(Math.max(0.1, Math.min(4, zoom - e.deltaY * 0.001)))
+      onZoom(Math.max(0.1, Math.min(4, zoomRef.current - e.deltaY * 0.001)))
     }
 
     canvas.addEventListener('wheel', handleWheel, { passive: false })
     return () => canvas.removeEventListener('wheel', handleWheel)
-  }, [zoom, onZoom])
+  }, [onZoom])
 
   return (
     <canvas

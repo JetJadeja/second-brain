@@ -15,7 +15,7 @@ export function ContextPanel({ collapsed, onToggle, children }: ContextPanelProp
       <button
         type="button"
         onClick={onToggle}
-        className="absolute -left-3 top-4 z-10 flex size-6 items-center justify-center rounded-full bg-surface-150 text-surface-400 transition-transform hover:text-surface-500"
+        className="absolute -left-3 top-4 z-10 flex size-6 items-center justify-center rounded-full bg-surface-150 text-surface-400 transition-transform hover:text-surface-500 max-lg:hidden"
         aria-label={collapsed ? 'Expand context panel' : 'Collapse context panel'}
       >
         <ChevronRight size={14} className={cn('transition-transform duration-200', !collapsed && 'rotate-180')} />

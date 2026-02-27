@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { AlertTriangle, Check, Sparkles, X, XCircle } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -28,7 +28,7 @@ export function Toast({ toast, onDismiss }: ToastProps) {
   const [isPaused, setIsPaused] = useState(false)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const onDismissRef = useRef(onDismiss)
-  onDismissRef.current = onDismiss
+  useLayoutEffect(() => { onDismissRef.current = onDismiss }, [onDismiss])
 
   const progress = (remaining / toast.duration) * 100
   const Icon = ICON_MAP[toast.type]

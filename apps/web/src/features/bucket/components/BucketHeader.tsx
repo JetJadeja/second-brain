@@ -50,10 +50,10 @@ export function BucketHeader({
           onKeyDown={handleKeyDown}
           onBlur={onSubmitRename}
           maxLength={40}
-          className="flex-1 border-b-2 border-ember-500 bg-transparent text-title-lg text-surface-700 outline-none"
+          className="flex-1 border-b-2 border-ember-500 bg-transparent font-title-lg text-surface-700 outline-none"
         />
       ) : (
-        <h1 className="flex-1 truncate text-title-lg text-surface-700">{bucket.name}</h1>
+        <h1 className="flex-1 truncate font-title-lg text-surface-700">{bucket.name}</h1>
       )}
 
       <DropdownMenu>

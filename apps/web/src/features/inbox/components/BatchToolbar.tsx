@@ -67,7 +67,7 @@ export function BatchToolbar({
             className="relative overflow-hidden rounded-sm px-3 py-1.5 text-body-sm text-danger transition-colors hover:text-danger"
           >
             Confirm delete?
-            <span className="absolute inset-x-0 bottom-0 h-0.5 animate-[shrink_3s_linear] bg-danger" />
+            <span className="absolute inset-x-0 bottom-0 h-0.5 animate-[shrink_3s_linear_forwards] bg-danger" />
           </button>
         ) : (
           <button

@@ -34,11 +34,16 @@ export async function findValidLinkCode(
   return { user_id: data.user_id as string, id: data.id as string }
 }
 
-export async function markLinkCodeUsed(codeId: string): Promise<void> {
-  await getServiceClient()
+export async function markLinkCodeUsed(codeId: string): Promise<boolean> {
+  const { data, error } = await getServiceClient()
     .from('link_codes')
     .update({ used: true })
     .eq('id', codeId)
+    .eq('used', false)
+    .select('id')
+
+  if (error) throw new Error(`markLinkCodeUsed: ${error.message}`)
+  return (data?.length ?? 0) > 0
 }
 
 export interface LinkCodeRecord {

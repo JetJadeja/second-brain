@@ -10,6 +10,7 @@ interface CacheEntry {
   timestamp: number
 }
 
+const MAX_CACHE_SIZE = 1000
 const cache = new Map<string, CacheEntry>()
 const TTL_MS = 5 * 60 * 1000
 
@@ -57,6 +58,12 @@ async function ensureCached(userId: string): Promise<CacheEntry> {
   const pathMap = buildPathMap(buckets)
 
   const entry: CacheEntry = { buckets, tree, pathMap, timestamp: Date.now() }
+
+  if (cache.size >= MAX_CACHE_SIZE) {
+    const first = cache.keys().next().value
+    if (first) cache.delete(first)
+  }
+
   cache.set(userId, entry)
   return entry
 }

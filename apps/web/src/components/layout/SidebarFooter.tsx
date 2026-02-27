@@ -44,8 +44,8 @@ export function SidebarFooter({ collapsed }: SidebarFooterProps) {
       {!collapsed && <div className="flex-1" />}
 
       <div
-        className="flex items-center justify-center w-6 h-6 rounded-full bg-surface-200 text-surface-400 font-mono text-[10px] cursor-pointer"
-        aria-label="User menu"
+        className="flex items-center justify-center w-6 h-6 rounded-full bg-surface-200 text-surface-400"
+        aria-hidden="true"
       >
         <User size={14} />
       </div>

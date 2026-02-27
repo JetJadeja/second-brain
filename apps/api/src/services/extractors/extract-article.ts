@@ -3,7 +3,7 @@ import { Readability } from '@mozilla/readability'
 import type { ExtractedContent, ArticleSource } from '@second-brain/shared'
 import { fetchHtml } from './fetch-html.js'
 import { isLikelyPaywall } from './detect-paywall.js'
-import { cleanArticleTitle } from './cap-title.js'
+import { cleanArticleTitle } from '@second-brain/shared'
 
 export interface ExtractionResult {
   content: ExtractedContent
@@ -48,7 +48,7 @@ export async function extractArticle(url: string): Promise<ExtractionResult> {
 
   const textContent = article.textContent.trim()
 
-  const title = article.title ? cleanTitle(article.title) : domain
+  const title = article.title ? cleanArticleTitle(article.title) : domain
 
   if (isLikelyPaywall(textContent, domain)) {
     const source: ArticleSource = { url, domain, author: article.byline ?? undefined }
@@ -96,10 +96,6 @@ function buildFallback(url: string, domain: string): ExtractedContent {
   }
 }
 
-/** Strip common site name suffixes from HTML <title> tags (e.g., "— Medium", "| Blog"). */
-function cleanTitle(title: string): string {
-  return title.replace(/\s*[—|•\-]\s+\S+(\s+\S+){0,2}\s*$/, '').trim()
-}
 
 function isAbortError(error: unknown): boolean {
   return error instanceof Error && error.name === 'AbortError'

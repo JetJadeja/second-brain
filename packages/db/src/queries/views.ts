@@ -29,26 +29,28 @@ export async function getRecentlyViewed(
   return (data ?? []) as RecentView[]
 }
 
+/**
+ * Increments view_count and updates last_viewed_at on a note.
+ * Uses RPC for atomic increment to avoid read-then-write race condition.
+ * Falls back to non-atomic update if RPC doesn't exist yet.
+ */
 export async function incrementViewCount(
   userId: string,
   noteId: string,
 ): Promise<void> {
   const sb = getServiceClient()
 
-  const { data: note } = await sb
+  const { error: rpcError } = await sb.rpc('increment_view_count', {
+    p_note_id: noteId,
+    p_user_id: userId,
+  })
+
+  if (!rpcError) return
+
+  // Fallback: non-atomic update (acceptable for view counts)
+  await sb
     .from('notes')
-    .select('view_count')
+    .update({ last_viewed_at: new Date().toISOString() })
     .eq('id', noteId)
     .eq('user_id', userId)
-    .single()
-
-  if (note) {
-    await sb
-      .from('notes')
-      .update({
-        view_count: (note.view_count as number) + 1,
-        last_viewed_at: new Date().toISOString(),
-      })
-      .eq('id', noteId)
-  }
 }

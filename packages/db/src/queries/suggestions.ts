@@ -51,10 +51,16 @@ export async function hasPendingSuggestion(
   payloadKey: string,
   payloadValue: string,
 ): Promise<boolean> {
-  const pending = await getPendingSuggestions(userId)
-  return pending.some(
-    (s) => s.type === type && s.payload[payloadKey] === payloadValue,
-  )
+  const { count, error } = await getServiceClient()
+    .from('suggestions')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', userId)
+    .eq('type', type)
+    .eq('status', 'pending')
+    .contains('payload', { [payloadKey]: payloadValue })
+
+  if (error) throw new Error(`hasPendingSuggestion: ${error.message}`)
+  return (count ?? 0) > 0
 }
 
 export async function updateSuggestionStatus(

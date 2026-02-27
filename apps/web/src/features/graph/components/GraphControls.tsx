@@ -38,9 +38,11 @@ export function GraphControls({
           return (
             <button
               key={key}
+              type="button"
               onClick={() => onToggleFilter(key)}
               className={cn('h-3 w-3 rounded-full transition-opacity', color, !isActive && 'opacity-30')}
               title={key}
+              aria-label={`Filter ${key}${isActive ? ' (active)' : ' (inactive)'}`}
             />
           )
         })}

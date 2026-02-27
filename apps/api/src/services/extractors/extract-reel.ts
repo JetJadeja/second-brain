@@ -2,7 +2,7 @@ import type { ExtractedContent, ReelSource } from '@second-brain/shared'
 import type { ExtractionResult } from './extract-article.js'
 import { fetchYtDlpMetadata, type YtDlpMetadata } from './run-ytdlp.js'
 import { describeThumbnail } from './describe-thumbnail.js'
-import { capTitle } from './cap-title.js'
+import { capTitle } from '@second-brain/shared'
 
 export async function extractReel(url: string): Promise<ExtractionResult> {
   const fallback = buildFallback(url)

@@ -29,16 +29,17 @@ export async function findExistingNoteByContentHash(
 
   const { data, error } = await getServiceClient()
     .from('notes')
-    .select('*')
+    .select('id, original_content, title, ai_summary, source_type, source, user_note, bucket_id, is_classified, captured_at, source_url, key_points, distillation, distillation_status, is_original_thought, tags, view_count, connection_count, embedding')
     .eq('user_id', userId)
     .is('source_url', null)
     .gte('captured_at', cutoff)
     .order('captured_at', { ascending: false })
+    .limit(100)
 
   if (error || !data) return null
 
   for (const note of data) {
-    const hash = computeContentHash(note.original_content ?? '')
+    const hash = computeContentHash((note.original_content as string) ?? '')
     if (hash === contentHash) return note as Note
   }
 

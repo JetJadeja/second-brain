@@ -35,7 +35,12 @@ export async function buildUnifiedFeed(
     ? [...suggestionItems, ...noteUnified]
     : noteUnified
 
-  const total = notesResult.total + suggestions.length
+  // Only include suggestions in total for page 1.
+  // Suggestions are pinned to page 1 and not paginated, so including
+  // them inflates total and causes empty last pages.
+  const total = page === 1
+    ? notesResult.total + suggestions.length
+    : notesResult.total
 
   return { items, total }
 }

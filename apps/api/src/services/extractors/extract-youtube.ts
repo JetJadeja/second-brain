@@ -2,7 +2,7 @@ import type { ExtractedContent, YoutubeSource } from '@second-brain/shared'
 import type { ExtractionResult } from './extract-article.js'
 import { fetchYtDlpMetadata } from './run-ytdlp.js'
 import { fetchYoutubeTranscript } from './fetch-youtube-transcript.js'
-import { capTitle } from './cap-title.js'
+import { capTitle } from '@second-brain/shared'
 
 export async function extractYoutube(url: string): Promise<ExtractionResult> {
   const fallback = buildFallback(url)

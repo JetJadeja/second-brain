@@ -2,6 +2,9 @@ import { saveConversationMessage, deleteOldConversationMessages } from '@second-
 import type { ConversationRole } from '@second-brain/shared'
 import { addEntry, MAX_ENTRIES } from './conversation-store.js'
 
+const CLEANUP_INTERVAL = 50
+const messageCounter = new Map<string, number>()
+
 /**
  * Records a user message in both in-memory store and database.
  * DB write is fire-and-forget.
@@ -29,7 +32,6 @@ function recordEntry(
   content: string,
   noteIds: string[],
 ): void {
-  // Synchronous in-memory write
   addEntry(userId, {
     role,
     content,
@@ -37,11 +39,16 @@ function recordEntry(
     timestamp: Date.now(),
   })
 
-  // Async DB write + cleanup (fire-and-forget)
   saveConversationMessage(userId, role, content, noteIds).catch((err) =>
     console.error('[record-exchange] save failed:', err),
   )
-  deleteOldConversationMessages(userId, MAX_ENTRIES).catch((err) =>
-    console.error('[record-exchange] cleanup failed:', err),
-  )
+
+  const count = (messageCounter.get(userId) ?? 0) + 1
+  messageCounter.set(userId, count)
+
+  if (count % CLEANUP_INTERVAL === 0) {
+    deleteOldConversationMessages(userId, MAX_ENTRIES).catch((err) =>
+      console.error('[record-exchange] cleanup failed:', err),
+    )
+  }
 }

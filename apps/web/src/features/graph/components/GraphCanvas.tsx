@@ -89,7 +89,7 @@ export function GraphCanvas({
     ctx.restore()
   }, [nodes, edges, hoveredNodeId, selectedNodeId, connectedNodeIds, activeFilters, zoom, panX, panY, radiusFn])
 
-  function handleMouseMove(e: React.MouseEvent<HTMLCanvasElement>) {
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     if (dragRef.current) {
       onPan(dragRef.current.panX + e.clientX - dragRef.current.startX, dragRef.current.panY + e.clientY - dragRef.current.startY)
       return
@@ -100,22 +100,31 @@ export function GraphCanvas({
     const my = (e.clientY - rect.top - panY - rect.height / 2) / zoom + rect.height / 2
     const hit = hitTest(mx, my, nodes, radiusFn)
     onHover(hit?.id ?? null)
-  }
+  }, [nodes, panX, panY, zoom, radiusFn, onHover, onPan])
 
-  function handleClick() {
+  const handleClick = useCallback(() => {
     onSelect(hoveredNodeId)
-  }
+  }, [hoveredNodeId, onSelect])
 
-  function handleWheel(e: React.WheelEvent) {
-    e.preventDefault()
-    onZoom(Math.max(0.1, Math.min(4, zoom - e.deltaY * 0.001)))
-  }
-
-  function handleMouseDown(e: React.MouseEvent) {
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
     if (!hoveredNodeId) dragRef.current = { startX: e.clientX, startY: e.clientY, panX, panY }
-  }
+  }, [hoveredNodeId, panX, panY])
 
-  function handleMouseUp() { dragRef.current = null }
+  const handleMouseUp = useCallback(() => { dragRef.current = null }, [])
+
+  // Passive: false wheel handler via ref callback
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+
+    function handleWheel(e: WheelEvent) {
+      e.preventDefault()
+      onZoom(Math.max(0.1, Math.min(4, zoom - e.deltaY * 0.001)))
+    }
+
+    canvas.addEventListener('wheel', handleWheel, { passive: false })
+    return () => canvas.removeEventListener('wheel', handleWheel)
+  }, [zoom, onZoom])
 
   return (
     <canvas
@@ -123,7 +132,6 @@ export function GraphCanvas({
       className="h-full w-full cursor-crosshair bg-surface-0"
       onMouseMove={handleMouseMove}
       onClick={handleClick}
-      onWheel={handleWheel}
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}

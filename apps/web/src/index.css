@@ -132,6 +132,7 @@
 :root {
   --knowledge-intensity: 0;
   --motion-duration: 1;
+  --warning: #C87533;
   --surface-0: #0F0A0E;
   --surface-50: #1A1118;
   --surface-100: #241B22;
@@ -147,6 +148,7 @@
 
 /* Light mode overrides */
 [data-theme="light"] {
+  --warning: #A5600A;
   --surface-0: #FFFFFF;
   --surface-50: #FAF7F9;
   --surface-100: #FFFFFF;
@@ -274,6 +276,15 @@
 .theme-transitioning,
 .theme-transitioning * {
   transition: background-color 300ms ease, color 300ms ease, border-color 300ms ease !important;
+}
+
+/* ============================================
+   Batch Toolbar Animations
+   ============================================ */
+
+@keyframes shrink {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
 }
 
 /* ============================================

@@ -1,5 +1,6 @@
 import { PDFParse } from 'pdf-parse'
 import type { ExtractedContent, PdfSource } from '@second-brain/shared'
+import { capTitle } from './cap-title.js'
 
 interface ExtractionResult {
   content: ExtractedContent

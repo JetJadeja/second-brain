@@ -6,8 +6,9 @@ import {
   archiveNote,
   deleteNote,
   getBucketById,
+  countInboxNotes,
 } from '@second-brain/db'
-import { getAllBuckets } from '../services/para/para-cache.js'
+import { getAllBuckets, invalidateParaCache } from '../services/para/para-cache.js'
 import { buildUnifiedFeed } from '../services/inbox/build-unified-feed.js'
 import { maybeTriggerOverview } from '../services/overview/trigger-overview.js'
 import { catchAsync, param } from '../middleware/catch-async.js'
@@ -34,6 +35,12 @@ inboxRouter.get('/', catchAsync(async (req, res) => {
   res.json(response)
 }))
 
+inboxRouter.get('/count', catchAsync(async (req, res) => {
+  const userId = req.userId!
+  const count = await countInboxNotes(userId)
+  res.json({ count })
+}))
+
 inboxRouter.post('/:noteId/classify', catchAsync(async (req, res) => {
   const userId = req.userId!
   const noteId = param(req, 'noteId')
@@ -50,6 +57,7 @@ inboxRouter.post('/:noteId/classify', catchAsync(async (req, res) => {
   }
 
   await classifyNote(userId, noteId, parsed.data.bucket_id)
+  invalidateParaCache(userId)
   void maybeTriggerOverview(userId, parsed.data.bucket_id)
   res.json({ success: true })
 }))
@@ -63,6 +71,7 @@ inboxRouter.post('/batch-classify', catchAsync(async (req, res) => {
   }
 
   const count = await batchClassify(userId, parsed.data.classifications)
+  invalidateParaCache(userId)
   const uniqueBucketIds = [...new Set(parsed.data.classifications.map((c) => c.bucket_id))]
   for (const bid of uniqueBucketIds) void maybeTriggerOverview(userId, bid)
   res.json({ success: true, classified: count })
@@ -85,5 +94,6 @@ inboxRouter.post('/:noteId/archive', catchAsync(async (req, res) => {
   }
 
   await archiveNote(userId, param(req, 'noteId'), archive.id)
+  invalidateParaCache(userId)
   res.json({ success: true })
 }))

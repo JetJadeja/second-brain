@@ -7,6 +7,7 @@ export interface ParaTreeNode {
   parent_id: string | null
   description: string | null
   is_active: boolean
+  is_system: boolean
   sort_order: number
   note_count: number
   children: ParaTreeNode[]

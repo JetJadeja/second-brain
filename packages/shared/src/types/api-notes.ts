@@ -16,6 +16,10 @@ export interface NoteDetailResponse {
     distillation_status: DistillationStatus
     is_original_thought: boolean
     tags: string[]
+    topics: string[]
+    entities: Array<{ name: string; type: string }>
+    content_quality: object | null
+    archived_at: string | null
     captured_at: string
     view_count: number
     connection_count: number

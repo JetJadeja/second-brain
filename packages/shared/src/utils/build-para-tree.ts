@@ -12,6 +12,7 @@ export function buildParaTree(buckets: ParaBucket[]): ParaTreeNode[] {
       parent_id: b.parent_id,
       description: b.description ?? null,
       is_active: b.is_active,
+      is_system: b.is_system,
       sort_order: b.sort_order,
       note_count: 0,
       children: [],

@@ -17,6 +17,7 @@ export interface ParaBucket {
   overview: string | null
   notes_at_last_overview: number
   is_active: boolean
+  is_system: boolean
   sort_order: number
   created_at: string
   updated_at: string
@@ -40,6 +41,10 @@ export interface Note {
   is_classified: boolean
   is_original_thought: boolean
   tags: string[]
+  topics: string[]
+  entities: Array<{ name: string; type: string }>
+  content_quality: object | null
+  archived_at: string | null
   distillation_status: DistillationStatus
   view_count: number
   last_viewed_at: string | null

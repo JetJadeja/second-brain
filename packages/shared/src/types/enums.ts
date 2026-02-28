@@ -10,7 +10,7 @@ export type NoteSource = (typeof NOTE_SOURCES)[number]
 export const DISTILLATION_STATUSES = ['raw', 'key_points', 'distilled', 'evergreen'] as const
 export type DistillationStatus = (typeof DISTILLATION_STATUSES)[number]
 
-export const CONNECTION_TYPES = ['explicit', 'ai_detected'] as const
+export const CONNECTION_TYPES = ['explicit', 'ai_detected', 'embedding', 'keyword', 'bucket'] as const
 export type ConnectionType = (typeof CONNECTION_TYPES)[number]
 
 export const SUGGESTION_TYPES = [

@@ -87,4 +87,8 @@ export interface ExtractedContent {
   source: ContentSource
   thumbnailUrl?: string
   mediaUrls?: string[]
+  keyPoints?: string[]
+  topics?: string[]
+  entities?: string[]
+  contentQuality?: 'full' | 'partial' | 'stub'
 }
